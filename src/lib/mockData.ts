@@ -13,7 +13,7 @@ export const mockPatients: Patient[] = [
     disease: "Hypertension",
     diseaseDescription: "Patient has a history of high blood pressure, currently controlled with medication.",
     visitDate: "2023-10-15",
-    previousVisits: 3,
+    visitCount: 3,
     doctorNotes: "Blood pressure has improved since last visit. Continue current medication.",
     status: "Active"
   },
@@ -27,7 +27,7 @@ export const mockPatients: Patient[] = [
     disease: "Type 2 Diabetes",
     diseaseDescription: "Diagnosed with diabetes two years ago. Managing with diet and medication.",
     visitDate: "2023-10-22",
-    previousVisits: 5,
+    visitCount: 5,
     status: "Follow-Up"
   },
   {
@@ -42,7 +42,7 @@ export const mockPatients: Patient[] = [
     disease: "Acute Appendicitis",
     diseaseDescription: "Emergency appendectomy performed on October 10, 2023.",
     visitDate: "2023-10-18",
-    previousVisits: 0,
+    visitCount: 0,
     doctorNotes: "Recovery progressing well. Surgical site healing properly.",
     status: "Discharged"
   },
@@ -56,7 +56,7 @@ export const mockPatients: Patient[] = [
     disease: "Rheumatoid Arthritis",
     diseaseDescription: "Chronic condition with flare-ups. Currently experiencing mild symptoms in fingers and knees.",
     visitDate: "2023-10-20",
-    previousVisits: 8,
+    visitCount: 8,
     status: "Active"
   },
   {
@@ -69,7 +69,7 @@ export const mockPatients: Patient[] = [
     email: "rizwan@example.com",
     disease: "Gastritis",
     visitDate: "2023-10-21",
-    previousVisits: 2,
+    visitCount: 2,
     status: "Follow-Up"
   },
   {
@@ -82,7 +82,7 @@ export const mockPatients: Patient[] = [
     disease: "Migraine",
     diseaseDescription: "Recurrent migraines, typically 2-3 times per month. Triggered by stress and lack of sleep.",
     visitDate: "2023-10-16",
-    previousVisits: 4,
+    visitCount: 4,
     doctorNotes: "Trying new preventative medication. Follow up in two weeks.",
     status: "Active"
   }
@@ -92,7 +92,7 @@ export const getPatientStats = () => {
   const activePatients = mockPatients.filter(p => p.status === "Active").length;
   const followUpPatients = mockPatients.filter(p => p.status === "Follow-Up").length;
   const dischargedPatients = mockPatients.filter(p => p.status === "Discharged").length;
-  const totalVisits = mockPatients.reduce((sum, patient) => sum + patient.previousVisits + 1, 0);
+  const totalVisits = mockPatients.reduce((sum, patient) => sum + patient.visitCount + 1, 0);
   
   return {
     totalPatients: mockPatients.length,
