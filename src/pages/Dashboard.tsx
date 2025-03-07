@@ -1,103 +1,38 @@
 
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HexagonBackground from "@/components/HexagonBackground";
 import StatCard from "@/components/StatCard";
 import PatientCard from "@/components/PatientCard";
 import AnimatedButton from "@/components/AnimatedButton";
-import { UserRound, UserPlus, CalendarDays, Activity, Search, ChevronRight, LogOut } from "lucide-react";
+import { UserRound, UserPlus, CalendarDays, Activity, Search, Filter, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { getPatientStats } from "@/lib/patientStorage";
-import { Patient } from "@/lib/types";
+import { mockPatients, getPatientStats } from "@/lib/mockData";
 
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [stats, setStats] = useState({
-    totalPatients: 0,
-    activePatients: 0,
-    followUpPatients: 0,
-    totalVisits: 0
-  });
-  const [user, setUser] = useState<{full_name: string; role: string} | null>(null);
-  const { toast } = useToast();
-  const navigate = useNavigate();
+  const stats = getPatientStats();
   
-  // Load user and patient data from localStorage
-  useEffect(() => {
-    const currentUser = localStorage.getItem("currentUser");
-    if (!currentUser) {
-      toast({
-        title: "Not logged in",
-        description: "Please login to access the dashboard",
-        variant: "destructive",
-      });
-      navigate("/");
-      return;
-    }
-
-    try {
-      const userData = JSON.parse(currentUser);
-      setUser(userData);
-      
-      // Redirect doctors to create patient page
-      if (userData.role === "Doctor") {
-        navigate("/create-patient");
-        return;
-      }
-      
-      // Load patients from localStorage
-      const storedPatients = localStorage.getItem("patients");
-      const patientData = storedPatients ? JSON.parse(storedPatients) : [];
-      setPatients(patientData);
-      
-      // Calculate stats
-      const calculatedStats = getPatientStats(patientData);
-      setStats(calculatedStats);
-    } catch (error) {
-      console.error("Error parsing data from localStorage:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load user data",
-        variant: "destructive",
-      });
-    }
-  }, [navigate, toast]);
-  
-  const handleLogout = () => {
-    localStorage.removeItem("currentUser");
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out",
-    });
-    navigate("/");
-  };
-  
-  const filteredPatients = patients
+  const filteredPatients = mockPatients
     .filter(patient => 
       patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.disease.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .slice(0, 3); // Only show the first 3 patients
   
-  if (!user) {
-    return null; // Prevent rendering while checking authentication
-  }
-  
   return (
     <div className="min-h-screen flex flex-col">
       <HexagonBackground />
-      <Navbar isAuth userRole={user.role} onLogout={handleLogout} />
+      <Navbar isAuth />
       
       <main className="flex-grow pt-24 pb-16 px-4">
         <div className="container mx-auto">
           {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2 animate-fade-in">
-              Welcome, <span className="text-neon-cyan">{user.full_name}</span>
+              Welcome, <span className="text-neon-cyan">Dr. Smith</span>
             </h1>
             <p className="text-white/70 animate-fade-in" style={{ animationDelay: "100ms" }}>
               Here's an overview of your patient data
@@ -172,12 +107,10 @@ const Dashboard = () => {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <p className="text-white/60 mb-4">No patients found</p>
-                    {user.role === "Doctor" && (
-                      <AnimatedButton variant="outline" size="sm">
-                        <Link to="/create-patient">Add New Patient</Link>
-                      </AnimatedButton>
-                    )}
+                    <p className="text-white/60 mb-4">No patients found matching "{searchTerm}"</p>
+                    <AnimatedButton variant="outline" size="sm">
+                      <Link to="/create-patient">Add New Patient</Link>
+                    </AnimatedButton>
                   </div>
                 )}
               </div>
@@ -187,17 +120,15 @@ const Dashboard = () => {
               <div className="glass-card rounded-lg p-6 h-full">
                 <h2 className="text-xl font-semibold text-white mb-6">Quick Actions</h2>
                 <div className="space-y-4">
-                  {user.role === "Doctor" && (
-                    <Link to="/create-patient" className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-cyan transition-all duration-300">
-                      <div className="w-10 h-10 rounded-full bg-neon-cyan/10 flex items-center justify-center mr-4 group-hover:bg-neon-cyan/20 transition-colors">
-                        <UserPlus size={20} className="text-neon-cyan" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-white group-hover:text-neon-cyan transition-colors">Create New Patient</h3>
-                        <p className="text-sm text-white/60">Add a new patient record</p>
-                      </div>
-                    </Link>
-                  )}
+                  <Link to="/create-patient" className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-cyan transition-all duration-300">
+                    <div className="w-10 h-10 rounded-full bg-neon-cyan/10 flex items-center justify-center mr-4 group-hover:bg-neon-cyan/20 transition-colors">
+                      <UserPlus size={20} className="text-neon-cyan" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-white group-hover:text-neon-cyan transition-colors">Create New Patient</h3>
+                      <p className="text-sm text-white/60">Add a new patient record</p>
+                    </div>
+                  </Link>
                   
                   <Link to="/patients" className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-cyan transition-all duration-300">
                     <div className="w-10 h-10 rounded-full bg-neon-cyan/10 flex items-center justify-center mr-4 group-hover:bg-neon-cyan/20 transition-colors">
@@ -209,27 +140,23 @@ const Dashboard = () => {
                     </div>
                   </Link>
                   
-                  <button 
-                    onClick={handleLogout}
-                    className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-magenta transition-all duration-300 w-full text-left"
-                  >
+                  <div className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-magenta transition-all duration-300">
                     <div className="w-10 h-10 rounded-full bg-neon-magenta/10 flex items-center justify-center mr-4 group-hover:bg-neon-magenta/20 transition-colors">
-                      <LogOut size={20} className="text-neon-magenta" />
+                      <Filter size={20} className="text-neon-magenta" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-white group-hover:text-neon-magenta transition-colors">Logout</h3>
-                      <p className="text-sm text-white/60">Sign out of your account</p>
+                      <h3 className="font-medium text-white group-hover:text-neon-magenta transition-colors">Advanced Filters</h3>
+                      <p className="text-sm text-white/60">Filter patients by criteria</p>
                     </div>
-                  </button>
+                  </div>
                 </div>
                 
                 <div className="mt-6 p-4 rounded-md bg-white/5 border border-neon-cyan/20">
-                  <h3 className="font-medium text-white mb-2">Role: {user.role}</h3>
-                  <p className="text-sm text-white/60 mb-4">
-                    {user.role === "Admin" 
-                      ? "You have full access to patient records and statistics" 
-                      : "You can create and view patient records"}
-                  </p>
+                  <h3 className="font-medium text-white mb-2">Today's Schedule</h3>
+                  <p className="text-sm text-white/60 mb-4">You have 3 appointments today</p>
+                  <AnimatedButton variant="outline" size="sm" className="w-full">
+                    View Schedule
+                  </AnimatedButton>
                 </div>
               </div>
             </div>
