@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -7,20 +7,103 @@ import HexagonBackground from "@/components/HexagonBackground";
 import StatCard from "@/components/StatCard";
 import PatientCard from "@/components/PatientCard";
 import AnimatedButton from "@/components/AnimatedButton";
-import { UserRound, UserPlus, CalendarDays, Activity, Search, Filter, ChevronRight } from "lucide-react";
+import { UserRound, UserPlus, CalendarDays, Activity, Search, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { mockPatients, getPatientStats } from "@/lib/mockData";
+import { supabase } from "@/integrations/supabase/client";
+import { Patient, User } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const stats = getPatientStats();
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
+  const [stats, setStats] = useState({
+    totalPatients: 0,
+    activePatients: 0,
+    followUpPatients: 0,
+    totalVisits: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { toast } = useToast();
   
-  const filteredPatients = mockPatients
-    .filter(patient => 
-      patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.disease.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .slice(0, 3); // Only show the first 3 patients
+  useEffect(() => {
+    // Get current user
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
+    }
+    
+    // Fetch patients data
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Get all patients
+        const { data: patientsData, error } = await supabase
+          .from('patients')
+          .select('*');
+        
+        if (error) throw error;
+        
+        // Transform data to match our interface
+        const formattedPatients: Patient[] = patientsData.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          age: p.age,
+          gender: p.gender,
+          cnic: p.cnic,
+          phoneNumber: p.phone_number,
+          email: p.email,
+          address: p.address,
+          disease: p.disease,
+          diseaseDescription: p.disease_description,
+          visitDate: p.visit_date,
+          visitCount: p.visit_count,
+          doctorNotes: p.doctor_notes,
+          status: p.status,
+          doctorId: p.doctor_id,
+          createdAt: p.created_at,
+        }));
+        
+        setPatients(formattedPatients);
+        
+        // Calculate stats
+        const activePatients = formattedPatients.filter(p => p.status === 'Active').length;
+        const followUpPatients = formattedPatients.filter(p => p.status === 'Follow-Up').length;
+        const totalVisits = formattedPatients.reduce((sum, p) => sum + p.visitCount, 0);
+        
+        setStats({
+          totalPatients: formattedPatients.length,
+          activePatients,
+          followUpPatients,
+          totalVisits,
+        });
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to fetch data",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [toast]);
+  
+  useEffect(() => {
+    // Filter patients based on search term
+    const filtered = patients
+      .filter(patient => 
+        patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient.disease.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .slice(0, 3); // Only show the first 3 patients
+    
+    setFilteredPatients(filtered);
+  }, [searchTerm, patients]);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -32,7 +115,7 @@ const Dashboard = () => {
           {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2 animate-fade-in">
-              Welcome, <span className="text-neon-cyan">Dr. Smith</span>
+              Welcome, <span className="text-neon-cyan">{currentUser?.fullName || 'Admin'}</span>
             </h1>
             <p className="text-white/70 animate-fade-in" style={{ animationDelay: "100ms" }}>
               Here's an overview of your patient data
@@ -89,7 +172,12 @@ const Dashboard = () => {
                   </div>
                 </div>
                 
-                {filteredPatients.length > 0 ? (
+                {loading ? (
+                  <div className="text-center py-12">
+                    <div className="inline-block h-8 w-8 border-2 border-neon-cyan border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p className="text-white/60">Loading patients...</p>
+                  </div>
+                ) : filteredPatients.length > 0 ? (
                   <div className="space-y-4">
                     {filteredPatients.map((patient) => (
                       <PatientCard key={patient.id} patient={patient} />
@@ -139,23 +227,17 @@ const Dashboard = () => {
                       <p className="text-sm text-white/60">View all patient records</p>
                     </div>
                   </Link>
-                  
-                  <div className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-magenta transition-all duration-300">
-                    <div className="w-10 h-10 rounded-full bg-neon-magenta/10 flex items-center justify-center mr-4 group-hover:bg-neon-magenta/20 transition-colors">
-                      <Filter size={20} className="text-neon-magenta" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-white group-hover:text-neon-magenta transition-colors">Advanced Filters</h3>
-                      <p className="text-sm text-white/60">Filter patients by criteria</p>
-                    </div>
-                  </div>
                 </div>
                 
                 <div className="mt-6 p-4 rounded-md bg-white/5 border border-neon-cyan/20">
                   <h3 className="font-medium text-white mb-2">Today's Schedule</h3>
-                  <p className="text-sm text-white/60 mb-4">You have 3 appointments today</p>
+                  <p className="text-sm text-white/60 mb-4">
+                    {stats.activePatients > 0 
+                      ? `You have ${stats.activePatients} active cases`
+                      : "No active cases today"}
+                  </p>
                   <AnimatedButton variant="outline" size="sm" className="w-full">
-                    View Schedule
+                    <Link to="/patients">View Active Cases</Link>
                   </AnimatedButton>
                 </div>
               </div>

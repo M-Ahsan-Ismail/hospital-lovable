@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HexagonBackground from "@/components/HexagonBackground";
@@ -15,13 +15,84 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { mockPatients } from "@/lib/mockData";
+import { supabase } from "@/integrations/supabase/client";
+import { Patient } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 
 const PatientHistory = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [patients, setPatients] = useState(mockPatients);
-  const [isLoading, setIsLoading] = useState(false);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+  
+  const fetchPatients = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Get all patients
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*');
+      
+      if (error) throw error;
+      
+      // Transform data to match our interface
+      const formattedPatients: Patient[] = data.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        age: p.age,
+        gender: p.gender,
+        cnic: p.cnic,
+        phoneNumber: p.phone_number,
+        email: p.email,
+        address: p.address,
+        disease: p.disease,
+        diseaseDescription: p.disease_description,
+        visitDate: p.visit_date,
+        visitCount: p.visit_count,
+        doctorNotes: p.doctor_notes,
+        status: p.status,
+        doctorId: p.doctor_id,
+        createdAt: p.created_at,
+      }));
+      
+      setPatients(formattedPatients);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to fetch patients",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    fetchPatients();
+  }, []);
+  
+  useEffect(() => {
+    // Filter patients based on search term and status filter
+    const filtered = patients.filter((patient) => {
+      const matchesSearch = 
+        patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient.disease.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient.cnic.includes(searchTerm);
+      
+      const matchesStatus = 
+        statusFilter === "all" || 
+        (statusFilter === "active" && patient.status === "Active") ||
+        (statusFilter === "follow-up" && patient.status === "Follow-Up") ||
+        (statusFilter === "discharged" && patient.status === "Discharged");
+      
+      return matchesSearch && matchesStatus;
+    });
+    
+    setFilteredPatients(filtered);
+  }, [searchTerm, statusFilter, patients]);
   
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -32,27 +103,8 @@ const PatientHistory = () => {
   };
   
   const handleRefresh = () => {
-    setIsLoading(true);
-    // Simulate data refresh
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    fetchPatients();
   };
-  
-  const filteredPatients = patients.filter((patient) => {
-    const matchesSearch = 
-      patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.disease.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.cnic.includes(searchTerm);
-    
-    const matchesStatus = 
-      statusFilter === "all" || 
-      (statusFilter === "active" && patient.status === "Active") ||
-      (statusFilter === "follow-up" && patient.status === "Follow-Up") ||
-      (statusFilter === "discharged" && patient.status === "Discharged");
-    
-    return matchesSearch && matchesStatus;
-  });
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -133,7 +185,12 @@ const PatientHistory = () => {
               </div>
             </div>
             
-            {filteredPatients.length > 0 ? (
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="inline-block h-8 w-8 border-2 border-neon-cyan border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="text-white/60">Loading patients...</p>
+              </div>
+            ) : filteredPatients.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredPatients.map((patient) => (
                   <PatientCard key={patient.id} patient={patient} />

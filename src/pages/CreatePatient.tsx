@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -16,7 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Save, X, FileText } from "lucide-react";
+import { Save, X, FileText, Calendar } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Patient } from "@/lib/types";
 
 const CreatePatient = () => {
   const [formData, setFormData] = useState({
@@ -29,12 +31,22 @@ const CreatePatient = () => {
     address: "",
     disease: "",
     diseaseDescription: "",
+    visitDate: new Date().toISOString().split('T')[0], // Default to today
     status: "",
     doctorNotes: "",
   });
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Get current user from localStorage
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
+    }
+  }, []);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -45,11 +57,12 @@ const CreatePatient = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
-    if (!formData.name || !formData.age || !formData.gender || !formData.cnic || !formData.phoneNumber || !formData.disease || !formData.status) {
+    if (!formData.name || !formData.age || !formData.gender || !formData.cnic || 
+        !formData.phoneNumber || !formData.disease || !formData.status || !formData.visitDate) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -60,15 +73,61 @@ const CreatePatient = () => {
     
     setSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Prepare patient data
+      const patientData: any = {
+        name: formData.name,
+        age: parseInt(formData.age),
+        gender: formData.gender as 'Male' | 'Female' | 'Other',
+        cnic: formData.cnic,
+        phone_number: formData.phoneNumber,
+        email: formData.email || null,
+        address: formData.address || null,
+        disease: formData.disease,
+        disease_description: formData.diseaseDescription || null,
+        visit_date: formData.visitDate,
+        doctor_notes: formData.doctorNotes || null,
+        status: formData.status as 'Active' | 'Discharged' | 'Follow-Up',
+        doctor_id: currentUser?.id,
+      };
+      
+      // Insert patient into Supabase
+      const { data, error } = await supabase
+        .from('patients')
+        .insert(patientData)
+        .select();
+      
+      if (error) throw error;
+      
       toast({
         title: "Success",
         description: "Patient record created successfully",
       });
+      
+      // Reset form
+      setFormData({
+        name: "",
+        age: "",
+        gender: "",
+        cnic: "",
+        phoneNumber: "",
+        email: "",
+        address: "",
+        disease: "",
+        diseaseDescription: "",
+        visitDate: new Date().toISOString().split('T')[0],
+        status: "",
+        doctorNotes: "",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create patient",
+        variant: "destructive",
+      });
+    } finally {
       setSubmitting(false);
-      navigate("/dashboard");
-    }, 1500);
+    }
   };
   
   return (
@@ -244,6 +303,23 @@ const CreatePatient = () => {
                       <SelectItem value="Discharged">Discharged</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="visitDate">
+                    Visit Date <span className="text-neon-magenta">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="visitDate"
+                      name="visitDate"
+                      type="date"
+                      value={formData.visitDate}
+                      onChange={handleChange}
+                      className="bg-white/5 border-white/10 focus:border-neon-cyan pl-10"
+                    />
+                    <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+                  </div>
                 </div>
                 
                 <div className="md:col-span-2 space-y-2">

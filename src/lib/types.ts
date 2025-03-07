@@ -11,7 +11,16 @@ export interface Patient {
   disease: string;
   diseaseDescription?: string;
   visitDate: string;
-  previousVisits: number;
+  visitCount: number;
   doctorNotes?: string;
   status: 'Active' | 'Discharged' | 'Follow-Up';
+  doctorId?: string;
+  createdAt?: string;
+}
+
+export interface User {
+  id: string;
+  fullName: string;
+  email: string;
+  role: 'doctor' | 'admin';
 }

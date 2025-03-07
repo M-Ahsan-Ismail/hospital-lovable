@@ -10,6 +10,19 @@ interface PatientCardProps {
 }
 
 const PatientCard: React.FC<PatientCardProps> = ({ patient, className }) => {
+  // Format date from YYYY-MM-DD to readable format
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "N/A";
+    
+    const options: Intl.DateTimeFormatOptions = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    };
+    
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+  
   return (
     <div
       className={cn(
@@ -57,7 +70,7 @@ const PatientCard: React.FC<PatientCardProps> = ({ patient, className }) => {
           <div className="flex items-center text-white/70">
             <Calendar size={16} className="mr-2 text-neon-cyan" />
             <span className="text-sm">
-              Last Visit: {patient.visitDate}
+              Last Visit: {formatDate(patient.visitDate)}
             </span>
           </div>
         </div>
@@ -74,7 +87,7 @@ const PatientCard: React.FC<PatientCardProps> = ({ patient, className }) => {
           CNIC: {patient.cnic}
         </span>
         <span className="text-xs text-white/50">
-          Previous Visits: {patient.previousVisits}
+          Previous Visits: {patient.visitCount || 1}
         </span>
       </div>
     </div>
