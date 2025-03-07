@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Save, X, FileText } from "lucide-react";
+import { savePatient } from "@/lib/patientStorage";
 
 const CreatePatient = () => {
   const [formData, setFormData] = useState({
@@ -31,10 +32,43 @@ const CreatePatient = () => {
     diseaseDescription: "",
     status: "",
     doctorNotes: "",
+    visitDate: new Date().toISOString().split('T')[0],
+    previousVisits: 0,
   });
   const [submitting, setSubmitting] = useState(false);
+  const [user, setUser] = useState<{full_name: string; role: string} | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    const currentUser = localStorage.getItem("currentUser");
+    if (!currentUser) {
+      toast({
+        title: "Not logged in",
+        description: "Please login to access this page",
+        variant: "destructive",
+      });
+      navigate("/");
+      return;
+    }
+
+    try {
+      const userData = JSON.parse(currentUser);
+      setUser(userData);
+      
+      // Redirect admins to dashboard
+      if (userData.role === "Admin") {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load user data",
+        variant: "destructive",
+      });
+    }
+  }, [navigate, toast]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -43,6 +77,15 @@ const CreatePatient = () => {
   
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+  
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser");
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out",
+    });
+    navigate("/");
   };
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -60,21 +103,55 @@ const CreatePatient = () => {
     
     setSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Save to localStorage
+      savePatient({
+        ...formData,
+        age: parseInt(formData.age),
+        previousVisits: parseInt(formData.previousVisits.toString())
+      });
+      
       toast({
         title: "Success",
         description: "Patient record created successfully",
       });
+      
+      // Reset form
+      setFormData({
+        name: "",
+        age: "",
+        gender: "",
+        cnic: "",
+        phoneNumber: "",
+        email: "",
+        address: "",
+        disease: "",
+        diseaseDescription: "",
+        status: "",
+        doctorNotes: "",
+        visitDate: new Date().toISOString().split('T')[0],
+        previousVisits: 0,
+      });
+    } catch (error) {
+      console.error("Error saving patient:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save patient record",
+        variant: "destructive",
+      });
+    } finally {
       setSubmitting(false);
-      navigate("/dashboard");
-    }, 1500);
+    }
   };
+  
+  if (!user) {
+    return null; // Prevent rendering while checking authentication
+  }
   
   return (
     <div className="min-h-screen flex flex-col">
       <HexagonBackground />
-      <Navbar isAuth />
+      <Navbar isAuth userRole={user.role} onLogout={handleLogout} />
       
       <main className="flex-grow pt-24 pb-16 px-4">
         <div className="container mx-auto max-w-4xl">
@@ -90,7 +167,7 @@ const CreatePatient = () => {
               <AnimatedButton 
                 variant="outline" 
                 size="sm" 
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/patients")}
                 className="hidden sm:flex"
               >
                 <X size={16} className="mr-2" />
@@ -246,6 +323,34 @@ const CreatePatient = () => {
                   </Select>
                 </div>
                 
+                <div className="space-y-2">
+                  <Label htmlFor="visitDate">
+                    Visit Date <span className="text-neon-magenta">*</span>
+                  </Label>
+                  <Input
+                    id="visitDate"
+                    name="visitDate"
+                    type="date"
+                    value={formData.visitDate}
+                    onChange={handleChange}
+                    className="bg-white/5 border-white/10 focus:border-neon-cyan"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="previousVisits">
+                    Previous Visits
+                  </Label>
+                  <Input
+                    id="previousVisits"
+                    name="previousVisits"
+                    type="number"
+                    value={formData.previousVisits}
+                    onChange={handleChange}
+                    className="bg-white/5 border-white/10 focus:border-neon-cyan"
+                  />
+                </div>
+                
                 <div className="md:col-span-2 space-y-2">
                   <Label htmlFor="diseaseDescription">Disease Description</Label>
                   <Textarea
@@ -275,7 +380,7 @@ const CreatePatient = () => {
                     variant="outline" 
                     type="button" 
                     className="sm:order-1 order-2"
-                    onClick={() => navigate("/dashboard")}
+                    onClick={() => navigate("/patients")}
                   >
                     Cancel
                   </AnimatedButton>

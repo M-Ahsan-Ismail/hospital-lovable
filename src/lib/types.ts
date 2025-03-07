@@ -15,3 +15,10 @@ export interface Patient {
   doctorNotes?: string;
   status: 'Active' | 'Discharged' | 'Follow-Up';
 }
+
+export interface User {
+  email: string;
+  password: string;
+  full_name: string;
+  role: 'Doctor' | 'Admin';
+}

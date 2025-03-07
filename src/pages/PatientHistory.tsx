@@ -1,13 +1,14 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HexagonBackground from "@/components/HexagonBackground";
 import PatientCard from "@/components/PatientCard";
 import AnimatedButton from "@/components/AnimatedButton";
-import { Link } from "react-router-dom";
 import { Search, Filter, UserPlus, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 import {
   Select,
   SelectContent,
@@ -15,13 +16,56 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { mockPatients } from "@/lib/mockData";
+import { getPatients } from "@/lib/patientStorage";
 
 const PatientHistory = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [patients, setPatients] = useState(mockPatients);
+  const [patients, setPatients] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<{full_name: string; role: string} | null>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    const currentUser = localStorage.getItem("currentUser");
+    if (!currentUser) {
+      toast({
+        title: "Not logged in",
+        description: "Please login to access this page",
+        variant: "destructive",
+      });
+      navigate("/");
+      return;
+    }
+
+    try {
+      const userData = JSON.parse(currentUser);
+      setUser(userData);
+      loadPatients();
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load user data",
+        variant: "destructive",
+      });
+    }
+  }, [navigate, toast]);
+  
+  const loadPatients = () => {
+    try {
+      const patientData = getPatients();
+      setPatients(patientData);
+    } catch (error) {
+      console.error("Error loading patients:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load patient data",
+        variant: "destructive",
+      });
+    }
+  };
   
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -33,10 +77,23 @@ const PatientHistory = () => {
   
   const handleRefresh = () => {
     setIsLoading(true);
-    // Simulate data refresh
+    loadPatients();
     setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+      toast({
+        title: "Refreshed",
+        description: "Patient data has been refreshed",
+      });
+    }, 500);
+  };
+  
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser");
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out",
+    });
+    navigate("/");
   };
   
   const filteredPatients = patients.filter((patient) => {
@@ -54,10 +111,14 @@ const PatientHistory = () => {
     return matchesSearch && matchesStatus;
   });
   
+  if (!user) {
+    return null; // Prevent rendering while checking authentication
+  }
+  
   return (
     <div className="min-h-screen flex flex-col">
       <HexagonBackground />
-      <Navbar isAuth />
+      <Navbar isAuth userRole={user.role} onLogout={handleLogout} />
       
       <main className="flex-grow pt-24 pb-16 px-4">
         <div className="container mx-auto">
@@ -81,12 +142,14 @@ const PatientHistory = () => {
                 Refresh
               </AnimatedButton>
               
-              <AnimatedButton variant="cyan" size="sm">
-                <Link to="/create-patient" className="flex items-center">
-                  <UserPlus size={16} className="mr-2" />
-                  New Patient
-                </Link>
-              </AnimatedButton>
+              {user.role === "Doctor" && (
+                <AnimatedButton variant="cyan" size="sm">
+                  <Link to="/create-patient" className="flex items-center">
+                    <UserPlus size={16} className="mr-2" />
+                    New Patient
+                  </Link>
+                </AnimatedButton>
+              )}
             </div>
           </div>
           
@@ -142,9 +205,11 @@ const PatientHistory = () => {
             ) : (
               <div className="text-center py-12">
                 <p className="text-white/60 mb-4">No patients found matching your criteria</p>
-                <AnimatedButton variant="outline" size="sm">
-                  <Link to="/create-patient">Add New Patient</Link>
-                </AnimatedButton>
+                {user.role === "Doctor" && (
+                  <AnimatedButton variant="outline" size="sm">
+                    <Link to="/create-patient">Add New Patient</Link>
+                  </AnimatedButton>
+                )}
               </div>
             )}
           </div>

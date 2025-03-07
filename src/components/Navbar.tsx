@@ -9,9 +9,16 @@ interface NavLink {
   title: string;
   href: string;
   isButton?: boolean;
+  roleRequired?: "Admin" | "Doctor" | "both";
 }
 
-const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
+interface NavbarProps {
+  isAuth?: boolean;
+  userRole?: string;
+  onLogout?: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ isAuth = false, userRole = "", onLogout }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -31,12 +38,21 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
   ];
   
   const authLinks: NavLink[] = [
-    { title: "Dashboard", href: "/dashboard" },
-    { title: "Create Patient", href: "/create-patient" },
-    { title: "Patient History", href: "/patients" },
+    { title: "Dashboard", href: "/dashboard", roleRequired: "Admin" },
+    { title: "Create Patient", href: "/create-patient", roleRequired: "Doctor" },
+    { title: "Patient History", href: "/patients", roleRequired: "both" },
   ];
   
-  const links = isAuth ? authLinks : publicLinks;
+  const getLinks = () => {
+    if (!isAuth) return publicLinks;
+    
+    return authLinks.filter(link => {
+      if (link.roleRequired === "both") return true;
+      return link.roleRequired === userRole;
+    });
+  };
+  
+  const links = getLinks();
   
   return (
     <nav
@@ -48,7 +64,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
       )}
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
-        <Link to="/" className="flex items-center relative group">
+        <Link to={isAuth ? (userRole === "Admin" ? "/dashboard" : "/create-patient") : "/"} className="flex items-center relative group">
           <span className={cn(
             "text-2xl font-bold text-white group-hover:text-neon-cyan transition-colors duration-300",
             isScrolled && "text-xl"
@@ -83,6 +99,16 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
                 />
               </Link>
             )
+          )}
+          
+          {isAuth && onLogout && (
+            <button
+              onClick={onLogout}
+              className="relative py-2 text-white/80 hover:text-neon-magenta transition-colors duration-300 group"
+            >
+              Logout
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-neon-magenta group-hover:w-full transition-all duration-300" />
+            </button>
           )}
         </div>
         
@@ -122,6 +148,18 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
                   {link.title}
                 </Link>
               )
+            )}
+            
+            {isAuth && onLogout && (
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  onLogout();
+                }}
+                className="py-2 px-4 rounded-md hover:bg-white/5 text-white/80 hover:text-neon-magenta transition-colors duration-300 w-full text-left"
+              >
+                Logout
+              </button>
             )}
           </div>
         </div>
