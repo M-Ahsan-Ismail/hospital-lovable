@@ -18,19 +18,20 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Save, X, FileText } from "lucide-react";
 import { savePatient } from "@/lib/patientStorage";
+import { Patient } from "@/lib/types";
 
 const CreatePatient = () => {
   const [formData, setFormData] = useState({
     name: "",
     age: "",
-    gender: "",
+    gender: "" as "" | "Male" | "Female" | "Other",
     cnic: "",
     phoneNumber: "",
     email: "",
     address: "",
     disease: "",
     diseaseDescription: "",
-    status: "",
+    status: "" as "" | "Active" | "Discharged" | "Follow-Up",
     doctorNotes: "",
     visitDate: new Date().toISOString().split('T')[0],
     previousVisits: 0,
@@ -76,7 +77,19 @@ const CreatePatient = () => {
   };
   
   const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "gender") {
+      setFormData((prev) => ({ 
+        ...prev, 
+        [name]: value as "Male" | "Female" | "Other" 
+      }));
+    } else if (name === "status") {
+      setFormData((prev) => ({ 
+        ...prev, 
+        [name]: value as "Active" | "Discharged" | "Follow-Up" 
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
   
   const handleLogout = () => {
@@ -104,12 +117,16 @@ const CreatePatient = () => {
     setSubmitting(true);
     
     try {
-      // Save to localStorage
-      savePatient({
+      // Save to localStorage - convert string values to appropriate types
+      const patientData: Omit<Patient, "id"> = {
         ...formData,
         age: parseInt(formData.age),
+        gender: formData.gender as "Male" | "Female" | "Other",
+        status: formData.status as "Active" | "Discharged" | "Follow-Up",
         previousVisits: parseInt(formData.previousVisits.toString())
-      });
+      };
+      
+      savePatient(patientData);
       
       toast({
         title: "Success",
@@ -120,14 +137,14 @@ const CreatePatient = () => {
       setFormData({
         name: "",
         age: "",
-        gender: "",
+        gender: "" as "" | "Male" | "Female" | "Other",
         cnic: "",
         phoneNumber: "",
         email: "",
         address: "",
         disease: "",
         diseaseDescription: "",
-        status: "",
+        status: "" as "" | "Active" | "Discharged" | "Follow-Up",
         doctorNotes: "",
         visitDate: new Date().toISOString().split('T')[0],
         previousVisits: 0,
