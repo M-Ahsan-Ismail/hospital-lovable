@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -43,8 +42,8 @@ const SignUp = () => {
     setLoading(true);
     
     try {
-      // Sign up with Supabase Auth
-      const { data, error } = await supabase.auth.signUp({
+      // Step 1: Sign up with Supabase Auth
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -55,21 +54,26 @@ const SignUp = () => {
         },
       });
       
-      if (error) throw error;
+      if (signUpError) throw signUpError;
       
       if (data.user) {
-        // Create a record in the users table
+        // Step 2: Create a record in the users table
         const { error: insertError } = await supabase
           .from('users')
           .insert({
             id: data.user.id,
             full_name: name,
             email: email,
-            password: 'hashed', // We don't store the actual password in our table
             role: role,
+            password: 'hashed', // We don't store the actual password
           });
         
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error("Error inserting user:", insertError);
+          // If we fail to create the users record, clean up by deleting the auth record
+          await supabase.auth.admin.deleteUser(data.user.id);
+          throw new Error("Failed to create user profile. " + insertError.message);
+        }
         
         // Store user info in localStorage
         localStorage.setItem('currentUser', JSON.stringify({
