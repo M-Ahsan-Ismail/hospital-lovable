@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -43,31 +42,35 @@ const SignUp = () => {
     setLoading(true);
     
     try {
-      // First check if the email exists in our users table
-      const { data: existingUser, error: checkError } = await supabase
+      // STEP 1: Clean up any existing user with the same email in our users table
+      console.log("Checking for existing user in database with email:", email);
+      const { data: existingUserInDb, error: dbCheckError } = await supabase
         .from('users')
-        .select('id')
-        .eq('email', email)
-        .maybeSingle();
+        .select('*')
+        .eq('email', email);
       
-      console.log("Checking existing user:", existingUser);
+      if (dbCheckError) {
+        console.error("Error checking for existing user in DB:", dbCheckError);
+      }
       
-      // If the user already exists in our table, we need to remove them first
-      if (existingUser) {
-        console.log("User exists, deleting first:", existingUser.id);
+      // If user exists in our database, delete it first
+      if (existingUserInDb && existingUserInDb.length > 0) {
+        console.log("Found existing user in DB, deleting:", existingUserInDb[0].id);
         const { error: deleteError } = await supabase
           .from('users')
           .delete()
-          .eq('id', existingUser.id);
+          .eq('email', email);
         
         if (deleteError) {
-          console.error("Error deleting existing user:", deleteError);
-          throw new Error("Error cleaning up old account. " + deleteError.message);
+          console.error("Error deleting existing user from DB:", deleteError);
+        } else {
+          console.log("Successfully deleted user from DB");
         }
       }
       
-      // Always try to sign up with auth (will overwrite any existing account)
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      // STEP 2: Now try to sign up with Supabase Auth
+      console.log("Attempting to sign up with Auth");
+      let { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -78,53 +81,38 @@ const SignUp = () => {
         },
       });
       
-      if (signUpError) {
-        console.error("Auth signup error:", signUpError);
+      // STEP 3: Handle case where account already exists in Auth
+      if (signUpError && signUpError.message.includes("already exists")) {
+        console.log("Account already exists in Auth, signing in instead");
         
-        // Special case: If it's an account already exists error, we'll try signing in instead
-        if (signUpError.message.includes("already exists")) {
-          console.log("Account exists in auth, trying to sign in and recreate user");
+        // Try signing in with the provided credentials
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (signInError) {
+          console.error("Failed to sign in with existing account:", signInError);
           
-          // Try to sign in
-          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-          
-          if (signInError) {
-            // If can't sign in, try to reset the user's password or just create new account
-            const { data: userData, error: authError } = await supabase.auth.admin.deleteUser(email);
-            if (authError) {
-              console.error("Failed to delete auth user:", authError);
-              throw new Error("Email already in use. Please use a different email address.");
-            }
-            
-            // Try signup again after cleanup
-            const { data: newSignUpData, error: newSignUpError } = await supabase.auth.signUp({
-              email,
-              password,
-            });
-            
-            if (newSignUpError) {
-              throw new Error("Could not create account after cleanup. Please try a different email.");
-            }
-            
-            data.user = newSignUpData.user;
-          } else {
-            // We successfully signed in, so we can use the existing auth account
-            data.user = signInData.user;
-          }
-        } else {
-          // It's some other error, just throw it
-          throw signUpError;
+          // This is a simplified approach - we'll just tell the user to use a different email
+          throw new Error("This email is already registered but the password doesn't match. Please use a different email or the correct password.");
         }
+        
+        // Use the signed-in user data
+        data = signInData;
+        console.log("Successfully signed in with existing account");
+      } else if (signUpError) {
+        // Some other signup error
+        console.error("Signup error:", signUpError);
+        throw signUpError;
       }
       
-      if (!data.user) {
-        throw new Error("Failed to create account");
+      if (!data || !data.user) {
+        throw new Error("Failed to create or access account");
       }
       
-      // Now, insert the user into our users table (this will be a fresh insert)
+      // STEP 4: Create user in our database
+      console.log("Creating user in database:", data.user.id);
       const { error: insertError } = await supabase
         .from('users')
         .insert({
@@ -136,11 +124,11 @@ const SignUp = () => {
         });
       
       if (insertError) {
-        console.error("Error inserting user:", insertError);
-        throw new Error("Failed to create user profile. " + insertError.message);
+        console.error("Error inserting user to database:", insertError);
+        throw new Error("Account created but failed to set up profile. Please try signing in.");
       }
       
-      // Store user info in localStorage
+      // STEP 5: Save user info and redirect
       localStorage.setItem('currentUser', JSON.stringify({
         id: data.user.id,
         email: data.user.email,
