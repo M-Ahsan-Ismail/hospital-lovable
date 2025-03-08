@@ -34,25 +34,30 @@ const SignIn = () => {
     setLoading(true);
     
     try {
-      // Simple approach: first check if the user exists in our database
-      const { data: userCheck, error: userCheckError } = await supabase
+      // Very simple approach: get all users with this email (should be just one)
+      const { data: users, error: queryError } = await supabase
         .from('users')
-        .select('id, full_name, email, role, password')
-        .eq('email', email)
-        .maybeSingle();
+        .select('*')
+        .eq('email', email);
       
-      if (userCheckError) {
-        console.error("Database check error:", userCheckError);
-        throw new Error("Failed to verify account");
+      console.log("Users found:", users);
+      
+      if (queryError) {
+        console.error("Database error:", queryError);
+        throw new Error("Database error. Please try again later.");
       }
       
-      if (!userCheck) {
+      // Check if we found any users with this email
+      if (!users || users.length === 0) {
         throw new Error("Account not found. Please sign up first.");
       }
       
-      // Simplified approach: direct password check
-      if (userCheck.password !== password) {
-        throw new Error("Invalid email or password");
+      // Get the first user (should be the only one with this email)
+      const user = users[0];
+      
+      // Simple password check
+      if (user.password !== password) {
+        throw new Error("Invalid password");
       }
       
       // Now sign in with Supabase Auth (still needed for session management)
@@ -68,10 +73,10 @@ const SignIn = () => {
       
       // Store user info in localStorage
       localStorage.setItem('currentUser', JSON.stringify({
-        id: userCheck.id,
-        email: userCheck.email,
-        fullName: userCheck.full_name,
-        role: userCheck.role
+        id: user.id,
+        email: user.email,
+        fullName: user.full_name,
+        role: user.role
       }));
       
       toast({
@@ -80,7 +85,7 @@ const SignIn = () => {
       });
       
       // Redirect based on role
-      if (userCheck.role === 'doctor') {
+      if (user.role === 'doctor') {
         navigate('/create-patient');
       } else {
         navigate('/dashboard');
