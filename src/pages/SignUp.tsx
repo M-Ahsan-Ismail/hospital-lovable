@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -65,13 +66,11 @@ const SignUp = () => {
             full_name: name,
             email: email,
             role: role,
-            password: 'hashed', // We don't store the actual password
+            password: password, // We store the password now for simplicity
           });
         
         if (insertError) {
           console.error("Error inserting user:", insertError);
-          // If we fail to create the users record, clean up by deleting the auth record
-          await supabase.auth.admin.deleteUser(data.user.id);
           throw new Error("Failed to create user profile. " + insertError.message);
         }
         
@@ -96,6 +95,7 @@ const SignUp = () => {
         }
       }
     } catch (error: any) {
+      console.error("Sign-up error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to create account",

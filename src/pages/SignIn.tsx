@@ -34,6 +34,7 @@ const SignIn = () => {
     setLoading(true);
     
     try {
+      // Sign in with Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -44,23 +45,29 @@ const SignIn = () => {
       }
       
       if (data.user) {
-        // Get user role from users table
+        // Get user data from users table
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role, full_name')
-          .eq('id', data.user.id)
-          .single();
+          .eq('id', data.user.id);
         
         if (userError) {
-          throw userError;
+          console.error("User data fetch error:", userError);
+          throw new Error("Failed to get user information");
         }
+        
+        if (!userData || userData.length === 0) {
+          throw new Error("User account not found");
+        }
+        
+        const userInfo = userData[0];
         
         // Store user info in localStorage
         localStorage.setItem('currentUser', JSON.stringify({
           id: data.user.id,
           email: data.user.email,
-          fullName: userData.full_name,
-          role: userData.role
+          fullName: userInfo.full_name,
+          role: userInfo.role
         }));
         
         toast({
@@ -69,13 +76,14 @@ const SignIn = () => {
         });
         
         // Redirect based on role
-        if (userData.role === 'doctor') {
+        if (userInfo.role === 'doctor') {
           navigate('/create-patient');
         } else {
           navigate('/dashboard');
         }
       }
     } catch (error: any) {
+      console.error("Sign-in error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to sign in",
