@@ -43,18 +43,30 @@ const SignUp = () => {
     setLoading(true);
     
     try {
-      // Check if user already exists
-      const { data: existingUser } = await supabase
+      // First check if the email exists in our users table
+      const { data: existingUser, error: checkError } = await supabase
         .from('users')
-        .select('email')
+        .select('id')
         .eq('email', email)
         .maybeSingle();
-        
+      
+      console.log("Checking existing user:", existingUser);
+      
+      // If the user already exists in our table, we need to remove them first
       if (existingUser) {
-        throw new Error("Email already in use. Please use a different email.");
+        console.log("User exists, deleting first:", existingUser.id);
+        const { error: deleteError } = await supabase
+          .from('users')
+          .delete()
+          .eq('id', existingUser.id);
+        
+        if (deleteError) {
+          console.error("Error deleting existing user:", deleteError);
+          throw new Error("Error cleaning up old account. " + deleteError.message);
+        }
       }
       
-      // Create user in Supabase Auth
+      // Always try to sign up with auth (will overwrite any existing account)
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -66,13 +78,53 @@ const SignUp = () => {
         },
       });
       
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        console.error("Auth signup error:", signUpError);
+        
+        // Special case: If it's an account already exists error, we'll try signing in instead
+        if (signUpError.message.includes("already exists")) {
+          console.log("Account exists in auth, trying to sign in and recreate user");
+          
+          // Try to sign in
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+          
+          if (signInError) {
+            // If can't sign in, try to reset the user's password or just create new account
+            const { data: userData, error: authError } = await supabase.auth.admin.deleteUser(email);
+            if (authError) {
+              console.error("Failed to delete auth user:", authError);
+              throw new Error("Email already in use. Please use a different email address.");
+            }
+            
+            // Try signup again after cleanup
+            const { data: newSignUpData, error: newSignUpError } = await supabase.auth.signUp({
+              email,
+              password,
+            });
+            
+            if (newSignUpError) {
+              throw new Error("Could not create account after cleanup. Please try a different email.");
+            }
+            
+            data.user = newSignUpData.user;
+          } else {
+            // We successfully signed in, so we can use the existing auth account
+            data.user = signInData.user;
+          }
+        } else {
+          // It's some other error, just throw it
+          throw signUpError;
+        }
+      }
       
       if (!data.user) {
         throw new Error("Failed to create account");
       }
       
-      // Create a record in the users table - this is our simplified approach
+      // Now, insert the user into our users table (this will be a fresh insert)
       const { error: insertError } = await supabase
         .from('users')
         .insert({
