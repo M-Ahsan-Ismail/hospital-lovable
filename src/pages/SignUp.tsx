@@ -43,7 +43,18 @@ const SignUp = () => {
     setLoading(true);
     
     try {
-      // Step 1: Sign up with Supabase Auth
+      // Check if user already exists
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', email)
+        .maybeSingle();
+        
+      if (existingUser) {
+        throw new Error("Email already in use. Please use a different email.");
+      }
+      
+      // Create user in Supabase Auth
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -57,42 +68,44 @@ const SignUp = () => {
       
       if (signUpError) throw signUpError;
       
-      if (data.user) {
-        // Step 2: Create a record in the users table
-        const { error: insertError } = await supabase
-          .from('users')
-          .insert({
-            id: data.user.id,
-            full_name: name,
-            email: email,
-            role: role,
-            password: password, // We store the password now for simplicity
-          });
-        
-        if (insertError) {
-          console.error("Error inserting user:", insertError);
-          throw new Error("Failed to create user profile. " + insertError.message);
-        }
-        
-        // Store user info in localStorage
-        localStorage.setItem('currentUser', JSON.stringify({
+      if (!data.user) {
+        throw new Error("Failed to create account");
+      }
+      
+      // Create a record in the users table - this is our simplified approach
+      const { error: insertError } = await supabase
+        .from('users')
+        .insert({
           id: data.user.id,
-          email: data.user.email,
-          fullName: name,
-          role: role
-        }));
-        
-        toast({
-          title: "Success",
-          description: "Account created successfully",
+          full_name: name,
+          email: email,
+          role: role,
+          password: password, // Store password for simplified login
         });
-        
-        // Redirect based on role
-        if (role === 'doctor') {
-          navigate('/create-patient');
-        } else {
-          navigate('/dashboard');
-        }
+      
+      if (insertError) {
+        console.error("Error inserting user:", insertError);
+        throw new Error("Failed to create user profile. " + insertError.message);
+      }
+      
+      // Store user info in localStorage
+      localStorage.setItem('currentUser', JSON.stringify({
+        id: data.user.id,
+        email: data.user.email,
+        fullName: name,
+        role: role
+      }));
+      
+      toast({
+        title: "Success",
+        description: "Account created successfully",
+      });
+      
+      // Redirect based on role
+      if (role === 'doctor') {
+        navigate('/create-patient');
+      } else {
+        navigate('/dashboard');
       }
     } catch (error: any) {
       console.error("Sign-up error:", error);
