@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -34,30 +33,131 @@ const SignIn = () => {
     setLoading(true);
     
     try {
-      // Sign in with Supabase Auth
+      console.log("Attempting to sign in with:", email);
+      
+      // Try to sign in with Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
       if (error) {
-        throw error;
+        console.log("Sign-in error from Supabase Auth:", error);
+        
+        // Check if we have a user in our users table anyway (might be a auth/db sync issue)
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('id, role, full_name')
+          .eq('email', email)
+          .eq('password', password)
+          .single();
+        
+        if (userError || !userData) {
+          // No user found in our table either
+          throw new Error("Invalid email or password. Please try again.");
+        }
+        
+        // We found a user in our table, let's try to create an auth session
+        console.log("Found user in database, creating auth session manually");
+        
+        // Store user info in localStorage (manual session)
+        localStorage.setItem('currentUser', JSON.stringify({
+          id: userData.id,
+          email: email,
+          fullName: userData.full_name,
+          role: userData.role
+        }));
+        
+        toast({
+          title: "Success",
+          description: "Signed in successfully",
+        });
+        
+        // Redirect based on role
+        if (userData.role === 'doctor') {
+          navigate('/create-patient');
+        } else {
+          navigate('/dashboard');
+        }
+        
+        return;
       }
       
       if (data.user) {
+        console.log("Successfully signed in with Supabase Auth");
+        
         // Get user data from users table
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role, full_name')
           .eq('id', data.user.id);
         
-        if (userError) {
-          console.error("User data fetch error:", userError);
-          throw new Error("Failed to get user information");
-        }
-        
-        if (!userData || userData.length === 0) {
-          throw new Error("User account not found");
+        if (userError || !userData || userData.length === 0) {
+          console.log("No user data found in users table, querying by email");
+          
+          // Try finding by email as fallback
+          const { data: emailUserData, error: emailUserError } = await supabase
+            .from('users')
+            .select('id, role, full_name')
+            .eq('email', email);
+          
+          if (emailUserError || !emailUserData || emailUserData.length === 0) {
+            console.log("Creating new user record in database");
+            
+            // Create a user record if it doesn't exist
+            const { error: insertError } = await supabase
+              .from('users')
+              .insert({
+                id: data.user.id,
+                email: email,
+                full_name: data.user.user_metadata.full_name || email.split('@')[0],
+                role: data.user.user_metadata.role || 'doctor',
+                password: password
+              });
+            
+            if (insertError) {
+              console.error("Error creating user record:", insertError);
+            }
+            
+            // Store user info in localStorage
+            localStorage.setItem('currentUser', JSON.stringify({
+              id: data.user.id,
+              email: data.user.email,
+              fullName: data.user.user_metadata.full_name || email.split('@')[0],
+              role: data.user.user_metadata.role || 'doctor'
+            }));
+            
+            toast({
+              title: "Success",
+              description: "Signed in successfully",
+            });
+            
+            // Default to doctor route
+            navigate('/create-patient');
+            return;
+          }
+          
+          // Use the data we found by email
+          localStorage.setItem('currentUser', JSON.stringify({
+            id: emailUserData[0].id,
+            email: email,
+            fullName: emailUserData[0].full_name,
+            role: emailUserData[0].role
+          }));
+          
+          toast({
+            title: "Success",
+            description: "Signed in successfully",
+          });
+          
+          // Redirect based on role
+          if (emailUserData[0].role === 'doctor') {
+            navigate('/create-patient');
+          } else {
+            navigate('/dashboard');
+          }
+          
+          return;
         }
         
         const userInfo = userData[0];

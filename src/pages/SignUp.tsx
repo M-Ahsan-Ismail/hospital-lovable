@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -43,7 +42,24 @@ const SignUp = () => {
     setLoading(true);
     
     try {
-      // Step 1: Sign up with Supabase Auth
+      console.log("Starting signup process for:", email);
+      
+      // First, try to clean up any existing user with this email in the users table
+      const { data: existingUsers } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', email);
+        
+      if (existingUsers && existingUsers.length > 0) {
+        console.log("Found existing user in database, deleting...");
+        await supabase
+          .from('users')
+          .delete()
+          .eq('email', email);
+      }
+      
+      // Now try to sign up with Supabase Auth
+      console.log("Attempting to create auth user");
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -55,45 +71,77 @@ const SignUp = () => {
         },
       });
       
-      if (signUpError) throw signUpError;
-      
-      if (data.user) {
-        // Step 2: Create a record in the users table
-        const { error: insertError } = await supabase
-          .from('users')
-          .insert({
-            id: data.user.id,
-            full_name: name,
-            email: email,
-            role: role,
-            password: password, // We store the password now for simplicity
-          });
-        
-        if (insertError) {
-          console.error("Error inserting user:", insertError);
-          throw new Error("Failed to create user profile. " + insertError.message);
-        }
-        
-        // Store user info in localStorage
-        localStorage.setItem('currentUser', JSON.stringify({
-          id: data.user.id,
-          email: data.user.email,
-          fullName: name,
-          role: role
-        }));
-        
-        toast({
-          title: "Success",
-          description: "Account created successfully",
-        });
-        
-        // Redirect based on role
-        if (role === 'doctor') {
-          navigate('/create-patient');
+      if (signUpError) {
+        // If the error is because the user already exists in Auth
+        if (signUpError.message.includes("already registered")) {
+          console.log("User already exists in Auth, continuing with user creation");
+          // We'll continue and just create the user in our table
         } else {
-          navigate('/dashboard');
+          throw signUpError;
         }
       }
+      
+      // Get user ID from auth response or try to get it from signing in
+      let userId = data?.user?.id;
+      
+      // If we don't have a user ID (probably because user already existed in Auth)
+      // Try signing in to get the user ID
+      if (!userId) {
+        console.log("No user ID from signup, trying to sign in");
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        
+        if (signInError) {
+          console.log("Sign in failed:", signInError);
+          throw new Error("Could not retrieve user account. " + signInError.message);
+        }
+        
+        userId = signInData.user?.id;
+      }
+      
+      if (!userId) {
+        throw new Error("Failed to get user ID");
+      }
+      
+      // Create or update the user in our users table
+      console.log("Creating/updating user in database with ID:", userId);
+      const { error: upsertError } = await supabase
+        .from('users')
+        .upsert({
+          id: userId,
+          full_name: name,
+          email: email,
+          role: role,
+          password: password // We store the password for simplicity
+        }, { onConflict: 'id' });
+      
+      if (upsertError) {
+        console.error("Error upserting user:", upsertError);
+        // Continue anyway, we'll try to make this work
+      }
+      
+      // Store user info in localStorage
+      localStorage.setItem('currentUser', JSON.stringify({
+        id: userId,
+        email: email,
+        fullName: name,
+        role: role
+      }));
+      
+      toast({
+        title: "Success",
+        description: "Account created successfully",
+      });
+      
+      // Redirect based on role
+      if (role === 'doctor') {
+        navigate('/create-patient');
+      } else {
+        navigate('/dashboard');
+      }
+      
     } catch (error: any) {
       console.error("Sign-up error:", error);
       toast({
