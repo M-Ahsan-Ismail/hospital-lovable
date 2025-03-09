@@ -34,61 +34,53 @@ const SignIn = () => {
     setLoading(true);
     
     try {
-      // Very simple approach: get all users with this email (should be just one)
-      const { data: users, error: queryError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email);
-      
-      console.log("Users found:", users);
-      
-      if (queryError) {
-        console.error("Database error:", queryError);
-        throw new Error("Database error. Please try again later.");
-      }
-      
-      // Check if we found any users with this email
-      if (!users || users.length === 0) {
-        throw new Error("Account not found. Please sign up first.");
-      }
-      
-      // Get the first user (should be the only one with this email)
-      const user = users[0];
-      
-      // Simple password check
-      if (user.password !== password) {
-        throw new Error("Invalid password");
-      }
-      
-      // Now sign in with Supabase Auth (still needed for session management)
+      // Sign in with Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
       if (error) {
-        console.error("Auth error:", error);
-        // Even if auth fails, we can still let them in since we verified the password
+        throw error;
       }
       
-      // Store user info in localStorage
-      localStorage.setItem('currentUser', JSON.stringify({
-        id: user.id,
-        email: user.email,
-        fullName: user.full_name,
-        role: user.role
-      }));
-      
-      toast({
-        title: "Success",
-        description: "Signed in successfully",
-      });
-      
-      // Redirect based on role
-      if (user.role === 'doctor') {
-        navigate('/create-patient');
-      } else {
-        navigate('/dashboard');
+      if (data.user) {
+        // Get user data from users table
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('role, full_name')
+          .eq('id', data.user.id);
+        
+        if (userError) {
+          console.error("User data fetch error:", userError);
+          throw new Error("Failed to get user information");
+        }
+        
+        if (!userData || userData.length === 0) {
+          throw new Error("User account not found");
+        }
+        
+        const userInfo = userData[0];
+        
+        // Store user info in localStorage
+        localStorage.setItem('currentUser', JSON.stringify({
+          id: data.user.id,
+          email: data.user.email,
+          fullName: userInfo.full_name,
+          role: userInfo.role
+        }));
+        
+        toast({
+          title: "Success",
+          description: "Signed in successfully",
+        });
+        
+        // Redirect based on role
+        if (userInfo.role === 'doctor') {
+          navigate('/create-patient');
+        } else {
+          navigate('/dashboard');
+        }
       }
     } catch (error: any) {
       console.error("Sign-in error:", error);

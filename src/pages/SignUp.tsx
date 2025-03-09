@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -42,35 +43,8 @@ const SignUp = () => {
     setLoading(true);
     
     try {
-      // STEP 1: Clean up any existing user with the same email in our users table
-      console.log("Checking for existing user in database with email:", email);
-      const { data: existingUserInDb, error: dbCheckError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email);
-      
-      if (dbCheckError) {
-        console.error("Error checking for existing user in DB:", dbCheckError);
-      }
-      
-      // If user exists in our database, delete it first
-      if (existingUserInDb && existingUserInDb.length > 0) {
-        console.log("Found existing user in DB, deleting:", existingUserInDb[0].id);
-        const { error: deleteError } = await supabase
-          .from('users')
-          .delete()
-          .eq('email', email);
-        
-        if (deleteError) {
-          console.error("Error deleting existing user from DB:", deleteError);
-        } else {
-          console.log("Successfully deleted user from DB");
-        }
-      }
-      
-      // STEP 2: Now try to sign up with Supabase Auth
-      console.log("Attempting to sign up with Auth");
-      let { data, error: signUpError } = await supabase.auth.signUp({
+      // Step 1: Sign up with Supabase Auth
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -81,71 +55,44 @@ const SignUp = () => {
         },
       });
       
-      // STEP 3: Handle case where account already exists in Auth
-      if (signUpError && signUpError.message.includes("already exists")) {
-        console.log("Account already exists in Auth, signing in instead");
+      if (signUpError) throw signUpError;
+      
+      if (data.user) {
+        // Step 2: Create a record in the users table
+        const { error: insertError } = await supabase
+          .from('users')
+          .insert({
+            id: data.user.id,
+            full_name: name,
+            email: email,
+            role: role,
+            password: password, // We store the password now for simplicity
+          });
         
-        // Try signing in with the provided credentials
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (signInError) {
-          console.error("Failed to sign in with existing account:", signInError);
-          
-          // This is a simplified approach - we'll just tell the user to use a different email
-          throw new Error("This email is already registered but the password doesn't match. Please use a different email or the correct password.");
+        if (insertError) {
+          console.error("Error inserting user:", insertError);
+          throw new Error("Failed to create user profile. " + insertError.message);
         }
         
-        // Use the signed-in user data
-        data = signInData;
-        console.log("Successfully signed in with existing account");
-      } else if (signUpError) {
-        // Some other signup error
-        console.error("Signup error:", signUpError);
-        throw signUpError;
-      }
-      
-      if (!data || !data.user) {
-        throw new Error("Failed to create or access account");
-      }
-      
-      // STEP 4: Create user in our database
-      console.log("Creating user in database:", data.user.id);
-      const { error: insertError } = await supabase
-        .from('users')
-        .insert({
+        // Store user info in localStorage
+        localStorage.setItem('currentUser', JSON.stringify({
           id: data.user.id,
-          full_name: name,
-          email: email,
-          role: role,
-          password: password, // Store password for simplified login
+          email: data.user.email,
+          fullName: name,
+          role: role
+        }));
+        
+        toast({
+          title: "Success",
+          description: "Account created successfully",
         });
-      
-      if (insertError) {
-        console.error("Error inserting user to database:", insertError);
-        throw new Error("Account created but failed to set up profile. Please try signing in.");
-      }
-      
-      // STEP 5: Save user info and redirect
-      localStorage.setItem('currentUser', JSON.stringify({
-        id: data.user.id,
-        email: data.user.email,
-        fullName: name,
-        role: role
-      }));
-      
-      toast({
-        title: "Success",
-        description: "Account created successfully",
-      });
-      
-      // Redirect based on role
-      if (role === 'doctor') {
-        navigate('/create-patient');
-      } else {
-        navigate('/dashboard');
+        
+        // Redirect based on role
+        if (role === 'doctor') {
+          navigate('/create-patient');
+        } else {
+          navigate('/dashboard');
+        }
       }
     } catch (error: any) {
       console.error("Sign-up error:", error);
