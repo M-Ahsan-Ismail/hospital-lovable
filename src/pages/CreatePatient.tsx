@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -31,7 +30,7 @@ const CreatePatient = () => {
     address: "",
     disease: "",
     diseaseDescription: "",
-    visitDate: new Date().toISOString().split('T')[0], // Default to today
+    visitDate: new Date().toISOString().split('T')[0],
     status: "",
     doctorNotes: "",
   });
@@ -41,7 +40,6 @@ const CreatePatient = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Get current user from localStorage
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
       setCurrentUser(JSON.parse(storedUser));
@@ -60,7 +58,6 @@ const CreatePatient = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
     if (!formData.name || !formData.age || !formData.gender || !formData.cnic || 
         !formData.phoneNumber || !formData.disease || !formData.status || !formData.visitDate) {
       toast({
@@ -74,7 +71,6 @@ const CreatePatient = () => {
     setSubmitting(true);
     
     try {
-      // Prepare patient data
       const patientData: any = {
         name: formData.name,
         age: parseInt(formData.age),
@@ -91,7 +87,6 @@ const CreatePatient = () => {
         doctor_id: currentUser?.id,
       };
       
-      // Insert patient into Supabase
       const { data, error } = await supabase
         .from('patients')
         .insert(patientData)
@@ -104,21 +99,11 @@ const CreatePatient = () => {
         description: "Patient record created successfully",
       });
       
-      // Reset form
-      setFormData({
-        name: "",
-        age: "",
-        gender: "",
-        cnic: "",
-        phoneNumber: "",
-        email: "",
-        address: "",
-        disease: "",
-        diseaseDescription: "",
-        visitDate: new Date().toISOString().split('T')[0],
-        status: "",
-        doctorNotes: "",
-      });
+      if (currentUser && currentUser.role === 'doctor') {
+        navigate('/doctor-home');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error: any) {
       toast({
         title: "Error",
@@ -127,6 +112,14 @@ const CreatePatient = () => {
       });
     } finally {
       setSubmitting(false);
+    }
+  };
+  
+  const handleCancel = () => {
+    if (currentUser && currentUser.role === 'doctor') {
+      navigate('/doctor-home');
+    } else {
+      navigate('/dashboard');
     }
   };
   
@@ -149,7 +142,7 @@ const CreatePatient = () => {
               <AnimatedButton 
                 variant="outline" 
                 size="sm" 
-                onClick={() => navigate("/dashboard")}
+                onClick={handleCancel}
                 className="hidden sm:flex"
               >
                 <X size={16} className="mr-2" />
@@ -161,7 +154,6 @@ const CreatePatient = () => {
           <div className="glass-card rounded-lg border border-white/10 p-6 lg:p-8">
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Personal Information */}
                 <div className="md:col-span-2">
                   <h2 className="text-xl font-medium mb-4 pb-2 border-b border-white/10 flex items-center">
                     <FileText size={18} className="mr-2 text-neon-cyan" />
@@ -267,7 +259,6 @@ const CreatePatient = () => {
                   />
                 </div>
                 
-                {/* Medical Information */}
                 <div className="md:col-span-2 mt-4">
                   <h2 className="text-xl font-medium mb-4 pb-2 border-b border-white/10 flex items-center">
                     <FileText size={18} className="mr-2 text-neon-cyan" />
@@ -351,7 +342,7 @@ const CreatePatient = () => {
                     variant="outline" 
                     type="button" 
                     className="sm:order-1 order-2"
-                    onClick={() => navigate("/dashboard")}
+                    onClick={handleCancel}
                   >
                     Cancel
                   </AnimatedButton>

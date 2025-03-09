@@ -7,7 +7,7 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-// Add this helper function to handle patient creation without security issues
+// Helper function to handle patient creation
 export const createPatientRecord = async (patientData: any) => {
   try {
     const { data, error } = await supabase
@@ -23,7 +23,7 @@ export const createPatientRecord = async (patientData: any) => {
   }
 };
 
-// Helper function to fetch patients with no security constraints
+// Helper function to fetch patients
 export const fetchPatients = async () => {
   try {
     const { data, error } = await supabase
@@ -35,6 +35,39 @@ export const fetchPatients = async () => {
     return { data, error: null };
   } catch (error: any) {
     console.error('Error fetching patients:', error);
+    return { data: null, error };
+  }
+};
+
+// Helper function to delete a patient
+export const deletePatient = async (patientId: string) => {
+  try {
+    const { error } = await supabase
+      .from('patients')
+      .delete()
+      .eq('id', patientId);
+      
+    if (error) throw error;
+    return { success: true, error: null };
+  } catch (error: any) {
+    console.error('Error deleting patient:', error);
+    return { success: false, error };
+  }
+};
+
+// Helper function to update patient status
+export const updatePatientStatus = async (patientId: string, status: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('patients')
+      .update({ status })
+      .eq('id', patientId)
+      .select();
+      
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error: any) {
+    console.error('Error updating patient status:', error);
     return { data: null, error };
   }
 };

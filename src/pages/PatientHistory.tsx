@@ -6,7 +6,7 @@ import HexagonBackground from "@/components/HexagonBackground";
 import PatientCard from "@/components/PatientCard";
 import AnimatedButton from "@/components/AnimatedButton";
 import { Link } from "react-router-dom";
-import { Search, Filter, UserPlus, RefreshCw } from "lucide-react";
+import { Search, Filter, UserPlus, RefreshCw, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -15,9 +15,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, deletePatient } from "@/integrations/supabase/client";
 import { Patient } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const PatientHistory = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,6 +36,7 @@ const PatientHistory = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedPatients, setSelectedPatients] = useState<string[]>([]);
   const { toast } = useToast();
   
   const fetchPatients = async () => {
@@ -104,6 +116,59 @@ const PatientHistory = () => {
   
   const handleRefresh = () => {
     fetchPatients();
+    setSelectedPatients([]);
+  };
+  
+  const handlePatientSelect = (patientId: string) => {
+    setSelectedPatients(prev => {
+      if (prev.includes(patientId)) {
+        return prev.filter(id => id !== patientId);
+      } else {
+        return [...prev, patientId];
+      }
+    });
+  };
+  
+  const handlePatientStatusChange = (patientId: string, newStatus: string) => {
+    setPatients(prev => 
+      prev.map(patient => 
+        patient.id === patientId ? { ...patient, status: newStatus as any } : patient
+      )
+    );
+  };
+  
+  const handleDeleteSelected = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Delete each selected patient
+      for (const patientId of selectedPatients) {
+        const { success, error } = await deletePatient(patientId);
+        if (error) throw error;
+      }
+      
+      toast({
+        title: "Success",
+        description: `Deleted ${selectedPatients.length} patient(s) successfully`,
+      });
+      
+      // Refresh patients list and clear selection
+      fetchPatients();
+      setSelectedPatients([]);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete patients",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleDeletePatient = (patientId: string) => {
+    setPatients(prev => prev.filter(patient => patient.id !== patientId));
+    setSelectedPatients(prev => prev.filter(id => id !== patientId));
   };
   
   return (
@@ -132,6 +197,36 @@ const PatientHistory = () => {
                 <RefreshCw size={16} className={`mr-2 ${isLoading ? "animate-spin" : ""}`} />
                 Refresh
               </AnimatedButton>
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <AnimatedButton 
+                    variant="destructive" 
+                    size="sm"
+                    disabled={selectedPatients.length === 0}
+                  >
+                    <Trash2 size={16} className="mr-2" />
+                    Delete Selected
+                  </AnimatedButton>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-[#0C1824] border-white/10">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Patients</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete {selectedPatients.length} selected patient(s)? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="bg-white/5 text-white hover:bg-white/10">Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteSelected}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               
               <AnimatedButton variant="cyan" size="sm">
                 <Link to="/create-patient" className="flex items-center">
@@ -193,7 +288,14 @@ const PatientHistory = () => {
             ) : filteredPatients.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredPatients.map((patient) => (
-                  <PatientCard key={patient.id} patient={patient} />
+                  <PatientCard 
+                    key={patient.id} 
+                    patient={patient} 
+                    onStatusChange={handlePatientStatusChange}
+                    onDeletePatient={handleDeletePatient}
+                    selected={selectedPatients.includes(patient.id)}
+                    onSelect={handlePatientSelect}
+                  />
                 ))}
               </div>
             ) : (

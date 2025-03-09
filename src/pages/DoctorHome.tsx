@@ -8,6 +8,11 @@ import { FileText, UserPlus } from "lucide-react";
 
 const DoctorHome = () => {
   const navigate = useNavigate();
+  
+  // Get current user from localStorage
+  const storedUser = localStorage.getItem('currentUser');
+  const currentUser = storedUser ? JSON.parse(storedUser) : null;
+  const userName = currentUser?.fullName || 'Doctor';
 
   return (
     <div className="min-h-screen bg-[#040D12] text-white font-orbit">
@@ -16,7 +21,7 @@ const DoctorHome = () => {
       
       <main className="container mx-auto px-4 pt-24 pb-16 relative z-10">
         <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center">
-          Doctor Dashboard
+          Welcome, {userName}
         </h1>
         <p className="text-lg text-white/80 text-center max-w-2xl mx-auto mb-12">
           Manage your patients and medical records efficiently with our Hospital Management System.

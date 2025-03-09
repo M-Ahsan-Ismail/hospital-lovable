@@ -1,15 +1,43 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { FileText, User, Phone, Calendar } from "lucide-react";
+import { FileText, User, Phone, Calendar, Trash2, Check } from "lucide-react";
 import { Patient } from "@/lib/types";
+import { updatePatientStatus, deletePatient } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface PatientCardProps {
   patient: Patient;
   className?: string;
+  onStatusChange?: (patientId: string, newStatus: string) => void;
+  onDeletePatient?: (patientId: string) => void;
+  selected?: boolean;
+  onSelect?: (patientId: string) => void;
 }
 
-const PatientCard: React.FC<PatientCardProps> = ({ patient, className }) => {
+const PatientCard: React.FC<PatientCardProps> = ({ 
+  patient, 
+  className,
+  onStatusChange,
+  onDeletePatient,
+  selected = false,
+  onSelect
+}) => {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const { toast } = useToast();
+  
   // Format date from YYYY-MM-DD to readable format
   const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
@@ -22,27 +50,114 @@ const PatientCard: React.FC<PatientCardProps> = ({ patient, className }) => {
     
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (patient.status === newStatus) return;
+    
+    setIsUpdating(true);
+    try {
+      const { data, error } = await updatePatientStatus(patient.id, newStatus);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Status Updated",
+        description: `Patient status changed to ${newStatus}`,
+      });
+      
+      if (onStatusChange) {
+        onStatusChange(patient.id, newStatus);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update status",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+  
+  const handleDelete = async () => {
+    try {
+      const { success, error } = await deletePatient(patient.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Patient deleted successfully",
+      });
+      
+      if (onDeletePatient) {
+        onDeletePatient(patient.id);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete patient",
+        variant: "destructive",
+      });
+    }
+  };
   
   return (
     <div
       className={cn(
-        "glass-card rounded-lg overflow-hidden transition-all duration-300 hover:scale-[1.02] group",
+        "glass-card rounded-lg overflow-hidden transition-all duration-300 hover:scale-[1.02] group border-2",
+        selected ? "border-neon-cyan" : "border-transparent",
         className
       )}
+      onClick={() => onSelect && onSelect(patient.id)}
     >
       <div className="p-5">
         <div className="flex justify-between items-start">
           <h3 className="text-lg font-medium text-white group-hover:text-neon-cyan transition-colors duration-300">
             {patient.name}
           </h3>
-          <span className={cn(
-            "px-2 py-1 text-xs rounded-full",
-            patient.status === "Active" && "bg-green-500/20 text-green-400",
-            patient.status === "Discharged" && "bg-blue-500/20 text-blue-400",
-            patient.status === "Follow-Up" && "bg-yellow-500/20 text-yellow-400"
-          )}>
-            {patient.status}
-          </span>
+          
+          <Popover>
+            <PopoverTrigger asChild>
+              <div className={cn(
+                "px-2 py-1 text-xs rounded-full cursor-pointer",
+                isUpdating && "opacity-50",
+                patient.status === "Active" && "bg-green-500/20 text-green-400",
+                patient.status === "Discharged" && "bg-blue-500/20 text-blue-400",
+                patient.status === "Follow-Up" && "bg-yellow-500/20 text-yellow-400"
+              )}>
+                {isUpdating ? "Updating..." : patient.status}
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-0 bg-[#0C1824] border border-white/10">
+              <div className="py-1">
+                <button
+                  className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                  onClick={() => handleStatusChange("Active")}
+                >
+                  <div className="w-2 h-2 rounded-full bg-green-400 mr-2"></div>
+                  Active
+                  {patient.status === "Active" && <Check size={14} className="ml-auto" />}
+                </button>
+                <button
+                  className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                  onClick={() => handleStatusChange("Follow-Up")}
+                >
+                  <div className="w-2 h-2 rounded-full bg-yellow-400 mr-2"></div>
+                  Follow-Up
+                  {patient.status === "Follow-Up" && <Check size={14} className="ml-auto" />}
+                </button>
+                <button
+                  className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                  onClick={() => handleStatusChange("Discharged")}
+                >
+                  <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
+                  Discharged
+                  {patient.status === "Discharged" && <Check size={14} className="ml-auto" />}
+                </button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
         
         <div className="mt-4 space-y-2">
