@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Dashboard from "./pages/Dashboard";
+import DoctorHome from "./pages/DoctorHome";
 import CreatePatient from "./pages/CreatePatient";
 import PatientHistory from "./pages/PatientHistory";
 import NotFound from "./pages/NotFound";
@@ -84,7 +85,7 @@ const App = () => {
     
     // Redirect to appropriate page based on role
     if (user.role === 'doctor') {
-      return <Navigate to="/create-patient" replace />;
+      return <Navigate to="/doctor-home" replace />;
     } else {
       return <Navigate to="/dashboard" replace />;
     }
@@ -100,7 +101,7 @@ const App = () => {
             <Route path="/" element={
               user ? (
                 user.role === 'doctor' ? 
-                <Navigate to="/create-patient" replace /> : 
+                <Navigate to="/doctor-home" replace /> : 
                 <Navigate to="/dashboard" replace />
               ) : (
                 <Index />
@@ -109,7 +110,7 @@ const App = () => {
             <Route path="/signup" element={
               user ? (
                 user.role === 'doctor' ? 
-                <Navigate to="/create-patient" replace /> : 
+                <Navigate to="/doctor-home" replace /> : 
                 <Navigate to="/dashboard" replace />
               ) : (
                 <SignUp />
@@ -118,15 +119,20 @@ const App = () => {
             <Route path="/signin" element={
               user ? (
                 user.role === 'doctor' ? 
-                <Navigate to="/create-patient" replace /> : 
+                <Navigate to="/doctor-home" replace /> : 
                 <Navigate to="/dashboard" replace />
               ) : (
                 <SignIn />
               )
             } />
             <Route path="/dashboard" element={
-              <ProtectedRoute allowedRoles={['admin', 'doctor']}>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/doctor-home" element={
+              <ProtectedRoute allowedRoles={['doctor']}>
+                <DoctorHome />
               </ProtectedRoute>
             } />
             <Route path="/create-patient" element={

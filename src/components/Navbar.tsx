@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, LogOut } from "lucide-react";
@@ -105,6 +106,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
   } else if (currentUser.role === 'doctor') {
     // Doctor links
     links = [
+      { title: "Home", href: "/doctor-home" },
       { title: "Create Patient", href: "/create-patient" },
       { title: "Patient History", href: "/patients" }
     ];
@@ -117,6 +119,16 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
     ];
   }
   
+  const navigateToHome = () => {
+    if (!currentUser) {
+      navigate('/');
+    } else if (currentUser.role === 'doctor') {
+      navigate('/doctor-home');
+    } else if (currentUser.role === 'admin') {
+      navigate('/dashboard');
+    }
+  };
+  
   return (
     <nav
       className={cn(
@@ -127,7 +139,10 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
       )}
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
-        <Link to="/" className="flex items-center relative group">
+        <div 
+          onClick={navigateToHome} 
+          className="flex items-center relative group cursor-pointer"
+        >
           <span className={cn(
             "text-2xl font-bold text-white group-hover:text-neon-cyan transition-colors duration-300",
             isScrolled && "text-xl"
@@ -135,7 +150,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
             HMS<span className="text-neon-cyan">.</span>
           </span>
           <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300" />
-        </Link>
+        </div>
         
         {/* Welcome message for logged in users */}
         {currentUser && (
