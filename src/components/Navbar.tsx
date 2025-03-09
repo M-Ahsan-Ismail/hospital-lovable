@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, LogOut } from "lucide-react";
@@ -36,10 +35,36 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
   
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log("Navbar auth state changed:", event);
+        
+        if (event === 'SIGNED_OUT') {
+          setCurrentUser(null);
+        } else if (event === 'SIGNED_IN') {
+          const storedUser = localStorage.getItem('currentUser');
+          if (storedUser) {
+            setCurrentUser(JSON.parse(storedUser));
+          }
+        }
+      }
+    );
+    
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+  
   const handleLogout = async () => {
     try {
+      console.log("Logging out...");
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      
+      if (error) {
+        console.error("Logout error:", error);
+        throw error;
+      }
       
       // Clear local storage
       localStorage.removeItem('currentUser');
@@ -50,13 +75,20 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
         description: "Logged out successfully",
       });
       
-      navigate('/');
+      // Navigate to home page
+      navigate('/', { replace: true });
     } catch (error: any) {
+      console.error("Logout failed:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to log out",
         variant: "destructive",
       });
+      
+      // Force clear local storage and redirect anyway as fallback
+      localStorage.removeItem('currentUser');
+      setCurrentUser(null);
+      navigate('/', { replace: true });
     }
   };
   
@@ -73,13 +105,15 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
   } else if (currentUser.role === 'doctor') {
     // Doctor links
     links = [
-      { title: "Create Patient", href: "/create-patient" }
+      { title: "Create Patient", href: "/create-patient" },
+      { title: "Patient History", href: "/patients" }
     ];
   } else if (currentUser.role === 'admin') {
     // Admin links
     links = [
       { title: "Dashboard", href: "/dashboard" },
-      { title: "Patient History", href: "/patients" }
+      { title: "Patient History", href: "/patients" },
+      { title: "Create Patient", href: "/create-patient" }
     ];
   }
   

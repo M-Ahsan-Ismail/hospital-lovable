@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -17,6 +18,26 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkUser = async () => {
+      const storedUser = localStorage.getItem('currentUser');
+      
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        
+        // Redirect to appropriate page based on role
+        if (user.role === 'doctor') {
+          navigate('/create-patient');
+        } else {
+          navigate('/dashboard');
+        }
+      }
+    };
+    
+    checkUser();
+  }, [navigate]);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,10 +78,10 @@ const SignIn = () => {
           throw new Error("Invalid email or password. Please try again.");
         }
         
-        // We found a user in our table, let's try to create an auth session
-        console.log("Found user in database, creating auth session manually");
+        // We found a user in our table, let's store user info
+        console.log("Found user in database, creating session manually");
         
-        // Store user info in localStorage (manual session)
+        // Store user info in localStorage
         localStorage.setItem('currentUser', JSON.stringify({
           id: userData.id,
           email: email,
@@ -75,9 +96,9 @@ const SignIn = () => {
         
         // Redirect based on role
         if (userData.role === 'doctor') {
-          navigate('/create-patient');
+          navigate('/create-patient', { replace: true });
         } else {
-          navigate('/dashboard');
+          navigate('/dashboard', { replace: true });
         }
         
         return;
@@ -133,7 +154,7 @@ const SignIn = () => {
             });
             
             // Default to doctor route
-            navigate('/create-patient');
+            navigate('/create-patient', { replace: true });
             return;
           }
           
@@ -150,11 +171,11 @@ const SignIn = () => {
             description: "Signed in successfully",
           });
           
-          // Redirect based on role
+          // Redirect based on role with replace: true to prevent going back to login
           if (emailUserData[0].role === 'doctor') {
-            navigate('/create-patient');
+            navigate('/create-patient', { replace: true });
           } else {
-            navigate('/dashboard');
+            navigate('/dashboard', { replace: true });
           }
           
           return;
@@ -175,11 +196,11 @@ const SignIn = () => {
           description: "Signed in successfully",
         });
         
-        // Redirect based on role
+        // Redirect based on role with replace: true to prevent going back to login
         if (userInfo.role === 'doctor') {
-          navigate('/create-patient');
+          navigate('/create-patient', { replace: true });
         } else {
-          navigate('/dashboard');
+          navigate('/dashboard', { replace: true });
         }
       }
     } catch (error: any) {

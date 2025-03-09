@@ -45,9 +45,16 @@ const App = () => {
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log("Auth state changed:", event, session);
         if (event === 'SIGNED_OUT') {
           localStorage.removeItem('currentUser');
           setUser(null);
+        } else if (event === 'SIGNED_IN' && session) {
+          // When signed in, update user state from localStorage
+          const storedUser = localStorage.getItem('currentUser');
+          if (storedUser) {
+            setUser(JSON.parse(storedUser));
+          }
         }
       }
     );
@@ -90,21 +97,45 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/signin" element={<SignIn />} />
+            <Route path="/" element={
+              user ? (
+                user.role === 'doctor' ? 
+                <Navigate to="/create-patient" replace /> : 
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Index />
+              )
+            } />
+            <Route path="/signup" element={
+              user ? (
+                user.role === 'doctor' ? 
+                <Navigate to="/create-patient" replace /> : 
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <SignUp />
+              )
+            } />
+            <Route path="/signin" element={
+              user ? (
+                user.role === 'doctor' ? 
+                <Navigate to="/create-patient" replace /> : 
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <SignIn />
+              )
+            } />
             <Route path="/dashboard" element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <ProtectedRoute allowedRoles={['admin', 'doctor']}>
                 <Dashboard />
               </ProtectedRoute>
             } />
             <Route path="/create-patient" element={
-              <ProtectedRoute allowedRoles={['doctor']}>
+              <ProtectedRoute allowedRoles={['doctor', 'admin']}>
                 <CreatePatient />
               </ProtectedRoute>
             } />
             <Route path="/patients" element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <ProtectedRoute allowedRoles={['admin', 'doctor']}>
                 <PatientHistory />
               </ProtectedRoute>
             } />
