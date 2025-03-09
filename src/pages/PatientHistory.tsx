@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -43,14 +42,12 @@ const PatientHistory = () => {
     try {
       setIsLoading(true);
       
-      // Get all patients
       const { data, error } = await supabase
         .from('patients')
         .select('*');
       
       if (error) throw error;
       
-      // Transform data to match our interface
       const formattedPatients: Patient[] = data.map((p: any) => ({
         id: p.id,
         name: p.name,
@@ -87,7 +84,6 @@ const PatientHistory = () => {
   }, []);
   
   useEffect(() => {
-    // Filter patients based on search term and status filter
     const filtered = patients.filter((patient) => {
       const matchesSearch = 
         patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -141,7 +137,6 @@ const PatientHistory = () => {
     try {
       setIsLoading(true);
       
-      // Delete each selected patient
       for (const patientId of selectedPatients) {
         const { success, error } = await deletePatient(patientId);
         if (error) throw error;
@@ -152,7 +147,6 @@ const PatientHistory = () => {
         description: `Deleted ${selectedPatients.length} patient(s) successfully`,
       });
       
-      // Refresh patients list and clear selection
       fetchPatients();
       setSelectedPatients([]);
     } catch (error: any) {
@@ -201,7 +195,7 @@ const PatientHistory = () => {
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <AnimatedButton 
-                    variant="destructive" 
+                    variant="magenta" 
                     size="sm"
                     disabled={selectedPatients.length === 0}
                   >

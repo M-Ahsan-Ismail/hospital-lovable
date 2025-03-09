@@ -23,10 +23,43 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
   
   useEffect(() => {
     // Check if user is logged in
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
-    }
+    const checkUserAuth = async () => {
+      // Try to get from localStorage first for faster UI update
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        setCurrentUser(JSON.parse(storedUser));
+      }
+      
+      // Then verify with Supabase
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        if (!storedUser) {
+          // If we have a session but no stored user, get user data
+          const { data: userData } = await supabase
+            .from('users')
+            .select('id, email, full_name, role')
+            .eq('id', data.session.user.id)
+            .single();
+            
+          if (userData) {
+            const userInfo = {
+              id: userData.id,
+              email: userData.email,
+              fullName: userData.full_name,
+              role: userData.role
+            };
+            setCurrentUser(userInfo);
+            localStorage.setItem('currentUser', JSON.stringify(userInfo));
+          }
+        }
+      } else if (storedUser) {
+        // If no session but we have a stored user, clear it
+        localStorage.removeItem('currentUser');
+        setCurrentUser(null);
+      }
+    };
+    
+    checkUserAuth();
     
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -43,10 +76,39 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
         
         if (event === 'SIGNED_OUT') {
           setCurrentUser(null);
-        } else if (event === 'SIGNED_IN') {
-          const storedUser = localStorage.getItem('currentUser');
-          if (storedUser) {
-            setCurrentUser(JSON.parse(storedUser));
+          localStorage.removeItem('currentUser');
+        } else if (event === 'SIGNED_IN' && session) {
+          // Get user info
+          const { data: userData } = await supabase
+            .from('users')
+            .select('id, email, full_name, role')
+            .eq('id', session.user.id)
+            .single();
+            
+          if (userData) {
+            const userInfo = {
+              id: userData.id,
+              email: userData.email,
+              fullName: userData.full_name,
+              role: userData.role
+            };
+            setCurrentUser(userInfo);
+            localStorage.setItem('currentUser', JSON.stringify(userInfo));
+          } else {
+            // Fallback to stored user or session metadata
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+              setCurrentUser(JSON.parse(storedUser));
+            } else if (session.user.user_metadata) {
+              const userInfo = {
+                id: session.user.id,
+                email: session.user.email,
+                fullName: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'User',
+                role: session.user.user_metadata.role || 'doctor'
+              };
+              setCurrentUser(userInfo);
+              localStorage.setItem('currentUser', JSON.stringify(userInfo));
+            }
           }
         }
       }
