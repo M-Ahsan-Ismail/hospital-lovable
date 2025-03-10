@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -26,7 +27,6 @@ const CreatePatient = () => {
     gender: "",
     cnic: "",
     phoneNumber: "",
-    email: "",
     address: "",
     disease: "",
     diseaseDescription: "",
@@ -58,11 +58,10 @@ const CreatePatient = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.age || !formData.gender || !formData.cnic || 
-        !formData.phoneNumber || !formData.disease || !formData.status || !formData.visitDate) {
+    if (!formData.name) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Patient name is required",
         variant: "destructive",
       });
       return;
@@ -73,17 +72,16 @@ const CreatePatient = () => {
     try {
       const patientData: any = {
         name: formData.name,
-        age: parseInt(formData.age),
-        gender: formData.gender as 'Male' | 'Female' | 'Other',
-        cnic: formData.cnic,
-        phone_number: formData.phoneNumber,
-        email: formData.email || null,
+        age: formData.age ? parseInt(formData.age) : null,
+        gender: formData.gender as 'Male' | 'Female' | 'Other' || null,
+        cnic: formData.cnic || null,
+        phone_number: formData.phoneNumber || null,
         address: formData.address || null,
-        disease: formData.disease,
+        disease: formData.disease || null,
         disease_description: formData.diseaseDescription || null,
-        visit_date: formData.visitDate,
+        visit_date: formData.visitDate || new Date().toISOString().split('T')[0],
         doctor_notes: formData.doctorNotes || null,
-        status: formData.status as 'Active' | 'Discharged' | 'Follow-Up',
+        status: formData.status as 'Active' | 'Discharged' | 'Follow-Up' || 'Active',
         doctor_id: currentUser?.id,
       };
       
@@ -99,10 +97,11 @@ const CreatePatient = () => {
         description: "Patient record created successfully",
       });
       
+      // Navigate to the appropriate home page based on role
       if (currentUser && currentUser.role === 'doctor') {
-        navigate('/doctor-home');
+        navigate('/doctor-home', { replace: true });
       } else {
-        navigate('/dashboard');
+        navigate('/dashboard', { replace: true });
       }
     } catch (error: any) {
       toast({
@@ -117,9 +116,9 @@ const CreatePatient = () => {
   
   const handleCancel = () => {
     if (currentUser && currentUser.role === 'doctor') {
-      navigate('/doctor-home');
+      navigate('/doctor-home', { replace: true });
     } else {
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     }
   };
   
@@ -172,12 +171,13 @@ const CreatePatient = () => {
                     onChange={handleChange}
                     placeholder="Patient's full name"
                     className="bg-white/5 border-white/10 focus:border-neon-cyan"
+                    required
                   />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="age">
-                    Age <span className="text-neon-magenta">*</span>
+                    Age
                   </Label>
                   <Input
                     id="age"
@@ -192,7 +192,7 @@ const CreatePatient = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="gender">
-                    Gender <span className="text-neon-magenta">*</span>
+                    Gender
                   </Label>
                   <Select onValueChange={(value) => handleSelectChange("gender", value)} value={formData.gender}>
                     <SelectTrigger className="bg-white/5 border-white/10 focus:border-neon-cyan">
@@ -208,7 +208,7 @@ const CreatePatient = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="cnic">
-                    CNIC <span className="text-neon-magenta">*</span>
+                    CNIC
                   </Label>
                   <Input
                     id="cnic"
@@ -222,7 +222,7 @@ const CreatePatient = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="phoneNumber">
-                    Phone Number <span className="text-neon-magenta">*</span>
+                    Phone Number
                   </Label>
                   <Input
                     id="phoneNumber"
@@ -234,21 +234,8 @@ const CreatePatient = () => {
                   />
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email (Optional)</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="patient@example.com"
-                    className="bg-white/5 border-white/10 focus:border-neon-cyan"
-                  />
-                </div>
-                
                 <div className="md:col-span-2 space-y-2">
-                  <Label htmlFor="address">Address (Optional)</Label>
+                  <Label htmlFor="address">Address</Label>
                   <Textarea
                     id="address"
                     name="address"
@@ -268,7 +255,7 @@ const CreatePatient = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="disease">
-                    Disease/Diagnosis <span className="text-neon-magenta">*</span>
+                    Disease/Diagnosis
                   </Label>
                   <Input
                     id="disease"
@@ -282,7 +269,7 @@ const CreatePatient = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="status">
-                    Status <span className="text-neon-magenta">*</span>
+                    Status
                   </Label>
                   <Select onValueChange={(value) => handleSelectChange("status", value)} value={formData.status}>
                     <SelectTrigger className="bg-white/5 border-white/10 focus:border-neon-cyan">
@@ -298,7 +285,7 @@ const CreatePatient = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="visitDate">
-                    Visit Date <span className="text-neon-magenta">*</span>
+                    Visit Date
                   </Label>
                   <div className="relative">
                     <Input

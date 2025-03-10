@@ -185,9 +185,9 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
     if (!currentUser) {
       navigate('/');
     } else if (currentUser.role === 'doctor') {
-      navigate('/doctor-home');
+      navigate('/doctor-home', { replace: true });
     } else if (currentUser.role === 'admin') {
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     }
   };
   
