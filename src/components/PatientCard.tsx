@@ -25,6 +25,7 @@ interface PatientCardProps {
   onDeletePatient?: (patientId: string) => void;
   selected?: boolean;
   onSelect?: (patientId: string) => void;
+  userRole?: string;
 }
 
 const PatientCard: React.FC<PatientCardProps> = ({ 
@@ -33,7 +34,8 @@ const PatientCard: React.FC<PatientCardProps> = ({
   onStatusChange,
   onDeletePatient,
   selected = false,
-  onSelect
+  onSelect,
+  userRole = 'doctor'
 }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();

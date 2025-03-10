@@ -7,11 +7,27 @@ import HexagonBackground from "@/components/HexagonBackground";
 import StatCard from "@/components/StatCard";
 import PatientCard from "@/components/PatientCard";
 import AnimatedButton from "@/components/AnimatedButton";
-import { UserRound, UserPlus, CalendarDays, Activity, Search, ChevronRight } from "lucide-react";
+import { 
+  UserRound, 
+  UserPlus, 
+  CalendarDays, 
+  Activity, 
+  Search, 
+  ChevronRight, 
+  CheckCircle, 
+  RefreshCw,
+  Hospital 
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { Patient, User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
 
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,10 +37,12 @@ const Dashboard = () => {
     totalPatients: 0,
     activePatients: 0,
     followUpPatients: 0,
+    dischargedPatients: 0,
     totalVisits: 0,
   });
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string>("all");
   const { toast } = useToast();
   
   useEffect(() => {
@@ -71,12 +89,14 @@ const Dashboard = () => {
         // Calculate stats
         const activePatients = formattedPatients.filter(p => p.status === 'Active').length;
         const followUpPatients = formattedPatients.filter(p => p.status === 'Follow-Up').length;
+        const dischargedPatients = formattedPatients.filter(p => p.status === 'Discharged').length;
         const totalVisits = formattedPatients.reduce((sum, p) => sum + p.visitCount, 0);
         
         setStats({
           totalPatients: formattedPatients.length,
           activePatients,
           followUpPatients,
+          dischargedPatients,
           totalVisits,
         });
       } catch (error: any) {
@@ -94,42 +114,156 @@ const Dashboard = () => {
   }, [toast]);
   
   useEffect(() => {
-    // Filter patients based on search term
-    const filtered = patients
-      .filter(patient => 
+    // Apply both search filter and status filter
+    let filtered = patients;
+    
+    // Apply status filter
+    if (activeFilter !== "all") {
+      filtered = filtered.filter(patient => patient.status.toLowerCase() === activeFilter);
+    }
+    
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(patient => 
         patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         patient.disease.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      .slice(0, 3); // Only show the first 3 patients
+      );
+    }
     
-    setFilteredPatients(filtered);
-  }, [searchTerm, patients]);
+    // Only show the first 3 patients for display in dashboard
+    setFilteredPatients(filtered.slice(0, 3));
+  }, [searchTerm, patients, activeFilter]);
+  
+  const handleStatusChange = (patientId: string, newStatus: string) => {
+    // Update the patient status in the local state
+    setPatients(patients.map(p => 
+      p.id === patientId 
+        ? { ...p, status: newStatus as 'Active' | 'Discharged' | 'Follow-Up' } 
+        : p
+    ));
+    
+    // Recalculate stats
+    const activePatients = patients.filter(p => 
+      p.id === patientId ? newStatus === 'Active' : p.status === 'Active'
+    ).length;
+    
+    const followUpPatients = patients.filter(p => 
+      p.id === patientId ? newStatus === 'Follow-Up' : p.status === 'Follow-Up'
+    ).length;
+    
+    const dischargedPatients = patients.filter(p => 
+      p.id === patientId ? newStatus === 'Discharged' : p.status === 'Discharged'
+    ).length;
+    
+    setStats({
+      ...stats,
+      activePatients,
+      followUpPatients,
+      dischargedPatients
+    });
+  };
+  
+  const refreshData = async () => {
+    try {
+      setLoading(true);
+      
+      // Get all patients
+      const { data: patientsData, error } = await supabase
+        .from('patients')
+        .select('*');
+      
+      if (error) throw error;
+      
+      // Transform data to match our interface
+      const formattedPatients: Patient[] = patientsData.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        age: p.age,
+        gender: p.gender,
+        cnic: p.cnic,
+        phoneNumber: p.phone_number,
+        email: p.email,
+        address: p.address,
+        disease: p.disease,
+        diseaseDescription: p.disease_description,
+        visitDate: p.visit_date,
+        visitCount: p.visit_count,
+        doctorNotes: p.doctor_notes,
+        status: p.status,
+        doctorId: p.doctor_id,
+        createdAt: p.created_at,
+      }));
+      
+      setPatients(formattedPatients);
+      
+      // Calculate stats
+      const activePatients = formattedPatients.filter(p => p.status === 'Active').length;
+      const followUpPatients = formattedPatients.filter(p => p.status === 'Follow-Up').length;
+      const dischargedPatients = formattedPatients.filter(p => p.status === 'Discharged').length;
+      const totalVisits = formattedPatients.reduce((sum, p) => sum + p.visitCount, 0);
+      
+      setStats({
+        totalPatients: formattedPatients.length,
+        activePatients,
+        followUpPatients,
+        dischargedPatients,
+        totalVisits,
+      });
+      
+      toast({
+        title: "Success",
+        description: "Dashboard data refreshed",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to refresh data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#040D12] to-[#071620]">
       <HexagonBackground />
       <Navbar isAuth />
       
       <main className="flex-grow pt-24 pb-16 px-4">
         <div className="container mx-auto">
-          {/* Welcome Section */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2 animate-fade-in">
-              Welcome, <span className="text-neon-cyan">{currentUser?.fullName || 'Admin'}</span>
-            </h1>
-            <p className="text-white/70 animate-fade-in" style={{ animationDelay: "100ms" }}>
-              Here's an overview of your patient data
-            </p>
+          {/* Header with Welcome & Refresh Button */}
+          <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div className="mb-4 md:mb-0">
+              <h1 className="text-3xl font-bold mb-2 animate-fade-in bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan to-neon-magenta">
+                Welcome, <span className="text-white">{currentUser?.fullName || 'Admin'}</span>
+              </h1>
+              <p className="text-white/70 animate-fade-in" style={{ animationDelay: "100ms" }}>
+                Here's an overview of your hospital management dashboard
+              </p>
+            </div>
+            
+            <AnimatedButton 
+              variant="outline" 
+              size="sm" 
+              onClick={refreshData}
+              disabled={loading}
+              className="shadow-glow-subtle"
+            >
+              <RefreshCw size={16} className={`mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Refresh Data
+            </AnimatedButton>
           </div>
           
-          {/* Stats Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          {/* Stats Section - Enhanced with Hover Effects */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-10">
             <StatCard 
               title="Total Patients" 
               value={stats.totalPatients} 
               icon={UserRound}
               description="All registered patients"
               variant="cyan"
+              className="hover:shadow-glow-cyan transition-all duration-300"
             />
             <StatCard 
               title="Active Cases" 
@@ -137,6 +271,7 @@ const Dashboard = () => {
               icon={Activity}
               description="Currently under treatment"
               variant="magenta"
+              className="hover:shadow-glow-magenta transition-all duration-300"
             />
             <StatCard 
               title="Follow-ups" 
@@ -144,33 +279,72 @@ const Dashboard = () => {
               icon={CalendarDays}
               description="Scheduled for follow-up"
               variant="cyan"
+              className="hover:shadow-glow-cyan transition-all duration-300"
+            />
+            <StatCard 
+              title="Discharged" 
+              value={stats.dischargedPatients} 
+              icon={CheckCircle}
+              description="Successfully treated"
+              variant="magenta"
+              className="hover:shadow-glow-magenta transition-all duration-300"
             />
             <StatCard 
               title="Total Visits" 
               value={stats.totalVisits} 
-              icon={UserPlus}
+              icon={Hospital}
               description="Cumulative patient visits"
               variant="mixed"
+              className="hover:shadow-glow-mixed transition-all duration-300"
             />
           </div>
           
           {/* Quick Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
             <div className="lg:col-span-2">
-              <div className="glass-card rounded-lg p-6">
+              <div className="glass-card rounded-lg p-6 backdrop-blur-md border border-white/10 hover:border-white/20 transition-all duration-300 shadow-glow-subtle">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-white">Recent Patients</h2>
+                  <h2 className="text-xl font-semibold text-white bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan to-white">Recent Patients</h2>
                   <div className="relative w-full max-w-xs">
                     <Input 
                       type="text" 
                       placeholder="Search patients..." 
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="bg-white/5 border-white/10 pl-10 focus:border-neon-cyan"
+                      className="bg-white/5 border-white/10 pl-10 focus:border-neon-cyan shadow-inner shadow-black/10"
                     />
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={16} />
                   </div>
                 </div>
+                
+                <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveFilter}>
+                  <TabsList className="bg-white/5 border border-white/10">
+                    <TabsTrigger 
+                      value="all" 
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-neon-cyan/20 data-[state=active]:to-neon-magenta/20 data-[state=active]:text-white"
+                    >
+                      All Patients
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="active" 
+                      className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400"
+                    >
+                      Active
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="follow-up" 
+                      className="data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-400"
+                    >
+                      Follow-Up
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="discharged" 
+                      className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400"
+                    >
+                      Discharged
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
                 
                 {loading ? (
                   <div className="text-center py-12">
@@ -180,22 +354,29 @@ const Dashboard = () => {
                 ) : filteredPatients.length > 0 ? (
                   <div className="space-y-4">
                     {filteredPatients.map((patient) => (
-                      <PatientCard key={patient.id} patient={patient} />
+                      <PatientCard 
+                        key={patient.id} 
+                        patient={patient} 
+                        onStatusChange={handleStatusChange}
+                        userRole={currentUser?.role}
+                      />
                     ))}
                     
-                    <div className="text-center pt-4">
+                    <div className="text-center pt-6">
                       <Link 
                         to="/patients" 
-                        className="text-neon-cyan hover:underline inline-flex items-center"
+                        className="relative inline-flex items-center px-6 py-3 overflow-hidden rounded-full group bg-gradient-to-r from-white/5 to-white/10 hover:from-neon-cyan/20 hover:to-neon-magenta/20 transition-all duration-300 shadow-glow-subtle"
                       >
-                        View all patients
-                        <ChevronRight size={16} className="ml-1" />
+                        <span className="relative text-neon-cyan group-hover:text-white transition-colors flex items-center">
+                          View all patients
+                          <ChevronRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
+                        </span>
                       </Link>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <p className="text-white/60 mb-4">No patients found matching "{searchTerm}"</p>
+                  <div className="text-center py-12 bg-white/5 rounded-lg border border-white/10">
+                    <p className="text-white/60 mb-4">No patients found matching your criteria</p>
                     <AnimatedButton variant="outline" size="sm">
                       <Link to="/create-patient">Add New Patient</Link>
                     </AnimatedButton>
@@ -205,11 +386,11 @@ const Dashboard = () => {
             </div>
             
             <div className="lg:col-span-1">
-              <div className="glass-card rounded-lg p-6 h-full">
-                <h2 className="text-xl font-semibold text-white mb-6">Quick Actions</h2>
+              <div className="glass-card rounded-lg p-6 h-full backdrop-blur-md border border-white/10 hover:border-white/20 transition-all duration-300 shadow-glow-subtle">
+                <h2 className="text-xl font-semibold text-white bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan to-white mb-6">Quick Actions</h2>
                 <div className="space-y-4">
-                  <Link to="/create-patient" className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-cyan transition-all duration-300">
-                    <div className="w-10 h-10 rounded-full bg-neon-cyan/10 flex items-center justify-center mr-4 group-hover:bg-neon-cyan/20 transition-colors">
+                  <Link to="/create-patient" className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-cyan transition-all duration-300 bg-gradient-to-r from-transparent to-transparent hover:from-neon-cyan/10 hover:to-neon-magenta/10">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 flex items-center justify-center mr-4 group-hover:from-neon-cyan/40 group-hover:to-neon-magenta/40 transition-colors">
                       <UserPlus size={20} className="text-neon-cyan" />
                     </div>
                     <div>
@@ -218,8 +399,8 @@ const Dashboard = () => {
                     </div>
                   </Link>
                   
-                  <Link to="/patients" className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-cyan transition-all duration-300">
-                    <div className="w-10 h-10 rounded-full bg-neon-cyan/10 flex items-center justify-center mr-4 group-hover:bg-neon-cyan/20 transition-colors">
+                  <Link to="/patients" className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-cyan transition-all duration-300 bg-gradient-to-r from-transparent to-transparent hover:from-neon-cyan/10 hover:to-neon-magenta/10">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 flex items-center justify-center mr-4 group-hover:from-neon-cyan/40 group-hover:to-neon-magenta/40 transition-colors">
                       <UserRound size={20} className="text-neon-cyan" />
                     </div>
                     <div>
@@ -229,15 +410,18 @@ const Dashboard = () => {
                   </Link>
                 </div>
                 
-                <div className="mt-6 p-4 rounded-md bg-white/5 border border-neon-cyan/20">
-                  <h3 className="font-medium text-white mb-2">Today's Schedule</h3>
+                <div className="mt-6 p-4 rounded-md bg-gradient-to-r from-neon-cyan/5 to-neon-magenta/5 border border-white/10 hover:border-neon-cyan/20 transition-all">
+                  <h3 className="font-medium text-white mb-2 flex items-center">
+                    <Activity size={18} className="mr-2 text-neon-cyan" />
+                    Today's Schedule
+                  </h3>
                   <p className="text-sm text-white/60 mb-4">
                     {stats.activePatients > 0 
                       ? `You have ${stats.activePatients} active cases`
                       : "No active cases today"}
                   </p>
-                  <AnimatedButton variant="outline" size="sm" className="w-full">
-                    <Link to="/patients">View Active Cases</Link>
+                  <AnimatedButton variant="outline" size="sm" className="w-full bg-white/5 hover:bg-gradient-to-r hover:from-neon-cyan/20 hover:to-neon-magenta/20">
+                    <Link to="/patients" className="w-full inline-block">View Active Cases</Link>
                   </AnimatedButton>
                 </div>
               </div>
