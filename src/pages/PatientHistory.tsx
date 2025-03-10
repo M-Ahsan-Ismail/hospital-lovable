@@ -68,13 +68,33 @@ const PatientHistory = () => {
       
       if (error) throw error;
       
-      setPatients(data || []);
+      // Map database fields to interface properties
+      const mappedData: Patient[] = (data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        age: item.age,
+        gender: item.gender as 'Male' | 'Female' | 'Other',
+        cnic: item.cnic,
+        phoneNumber: item.phone_number,
+        email: item.email,
+        address: item.address,
+        disease: item.disease,
+        diseaseDescription: item.disease_description,
+        visitDate: item.visit_date,
+        visitCount: item.visit_count,
+        doctorNotes: item.doctor_notes,
+        status: item.status as 'Active' | 'Discharged' | 'Follow-Up',
+        doctorId: item.doctor_id,
+        createdAt: item.created_at
+      }));
+      
+      setPatients(mappedData);
     } catch (error: any) {
       console.error('Error fetching patients:', error);
       toast({
         title: "Error",
         description: "Failed to load patient records",
-        variant: "destructive",
+        variant: "magenta",
       });
     } finally {
       setLoading(false);
@@ -113,7 +133,7 @@ const PatientHistory = () => {
       toast({
         title: "Error",
         description: "Failed to delete patient record",
-        variant: "destructive",
+        variant: "magenta",
       });
     }
   };
@@ -228,25 +248,25 @@ const PatientHistory = () => {
                       <span className="text-white/50">CNIC:</span> {patient.cnic}
                     </p>
                     <p className="text-white/70">
-                      <span className="text-white/50">Phone:</span> {patient.phone_number}
+                      <span className="text-white/50">Phone:</span> {patient.phoneNumber}
                     </p>
                     <p className="text-white/70">
                       <span className="text-white/50">Diagnosis:</span> {patient.disease}
                     </p>
-                    {patient.disease_description && (
+                    {patient.diseaseDescription && (
                       <p className="text-white/70">
-                        <span className="text-white/50">Description:</span> {patient.disease_description}
+                        <span className="text-white/50">Description:</span> {patient.diseaseDescription}
                       </p>
                     )}
                     <p className="text-white/70">
-                      <span className="text-white/50">Visit Date:</span> {new Date(patient.visit_date).toLocaleDateString()}
+                      <span className="text-white/50">Visit Date:</span> {new Date(patient.visitDate).toLocaleDateString()}
                     </p>
                   </div>
                   
-                  {patient.doctor_notes && (
+                  {patient.doctorNotes && (
                     <div className="mt-4 pt-4 border-t border-white/10">
                       <p className="text-white/50 text-sm mb-1">Doctor's Notes:</p>
-                      <p className="text-white/80 text-sm">{patient.doctor_notes}</p>
+                      <p className="text-white/80 text-sm">{patient.doctorNotes}</p>
                     </div>
                   )}
                 </div>
