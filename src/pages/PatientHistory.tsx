@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Patient } from "@/lib/types";
-import { Trash2, RefreshCw, FilterIcon } from "lucide-react";
+import { Trash2, RefreshCw, FilterIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -17,14 +17,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 const PatientHistory = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -36,6 +39,25 @@ const PatientHistory = () => {
     
     fetchPatients();
   }, [statusFilter]);
+  
+  // Apply search and filtering
+  useEffect(() => {
+    if (patients.length > 0) {
+      let results = [...patients];
+      
+      // Apply search query
+      if (searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase();
+        results = results.filter(patient => 
+          patient.name.toLowerCase().includes(query)
+        );
+      }
+      
+      setFilteredPatients(results);
+    } else {
+      setFilteredPatients([]);
+    }
+  }, [patients, searchQuery]);
   
   const fetchPatients = async () => {
     try {
@@ -89,12 +111,13 @@ const PatientHistory = () => {
       }));
       
       setPatients(mappedData);
+      setFilteredPatients(mappedData);
     } catch (error: any) {
       console.error('Error fetching patients:', error);
       toast({
         title: "Error",
         description: "Failed to load patient records",
-        variant: "magenta",
+        variant: "destructive", // Fixed: using valid variant
       });
     } finally {
       setLoading(false);
@@ -133,7 +156,7 @@ const PatientHistory = () => {
       toast({
         title: "Error",
         description: "Failed to delete patient record",
-        variant: "magenta",
+        variant: "destructive", // Fixed: using valid variant
       });
     }
   };
@@ -185,6 +208,16 @@ const PatientHistory = () => {
               </Select>
             </div>
             
+            <div className="relative w-full sm:w-auto">
+              <Input
+                placeholder="Search patients..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/40 pr-8"
+              />
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/40" />
+            </div>
+            
             <AnimatedButton 
               onClick={handleRefresh} 
               variant="outline" 
@@ -201,10 +234,14 @@ const PatientHistory = () => {
           <div className="flex justify-center items-center py-20">
             <div className="h-12 w-12 border-4 border-neon-cyan border-t-transparent rounded-full animate-spin"></div>
           </div>
-        ) : patients.length === 0 ? (
+        ) : filteredPatients.length === 0 ? (
           <div className="glass-card rounded-lg p-8 text-center">
             <p className="text-xl text-white/70 mb-4">No patient records found</p>
-            {statusFilter !== "All" ? (
+            {searchQuery ? (
+              <p className="text-white/50 mb-4">
+                No results for: <span className="text-neon-cyan">"{searchQuery}"</span>
+              </p>
+            ) : statusFilter !== "All" ? (
               <p className="text-white/50">
                 No patients with status: <span className="text-neon-cyan">{statusFilter}</span>
               </p>
@@ -216,7 +253,7 @@ const PatientHistory = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {patients.map((patient) => (
+            {filteredPatients.map((patient) => (
               <div 
                 key={patient.id} 
                 className="glass-card rounded-lg border border-white/10 hover:border-neon-cyan/30 transition-colors duration-300 overflow-hidden flex flex-col"

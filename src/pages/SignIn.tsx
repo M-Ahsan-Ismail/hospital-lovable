@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -29,7 +28,7 @@ const SignIn = () => {
         
         // Redirect to appropriate page based on role
         if (user.role === 'doctor') {
-          navigate('/create-patient');
+          navigate('/doctor-home');
         } else {
           navigate('/dashboard');
         }
@@ -96,7 +95,7 @@ const SignIn = () => {
         
         // Redirect based on role
         if (userData.role === 'doctor') {
-          navigate('/create-patient', { replace: true });
+          navigate('/doctor-home', { replace: true });
         } else {
           navigate('/dashboard', { replace: true });
         }
@@ -154,7 +153,7 @@ const SignIn = () => {
             });
             
             // Default to doctor route
-            navigate('/create-patient', { replace: true });
+            navigate('/doctor-home', { replace: true });
             return;
           }
           
@@ -173,7 +172,7 @@ const SignIn = () => {
           
           // Redirect based on role with replace: true to prevent going back to login
           if (emailUserData[0].role === 'doctor') {
-            navigate('/create-patient', { replace: true });
+            navigate('/doctor-home', { replace: true });
           } else {
             navigate('/dashboard', { replace: true });
           }
@@ -198,7 +197,7 @@ const SignIn = () => {
         
         // Redirect based on role with replace: true to prevent going back to login
         if (userInfo.role === 'doctor') {
-          navigate('/create-patient', { replace: true });
+          navigate('/doctor-home', { replace: true });
         } else {
           navigate('/dashboard', { replace: true });
         }
