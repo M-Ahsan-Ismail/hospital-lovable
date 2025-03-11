@@ -7,6 +7,7 @@ import AnimatedButton from "@/components/AnimatedButton";
 import { Database, Stethoscope, Clock, Users, ChevronRight, ArrowRight } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import HexagonBackground from "@/components/HexagonBackground";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -99,10 +100,11 @@ const Index = () => {
   
   return (
     <div className="min-h-screen flex flex-col bg-white" ref={mainRef}>
+      <div className="absolute inset-0 w-full h-screen bg-gradient-to-br from-[#7a73ff] via-[#80e9ff] to-[#fad0c4] opacity-50 pointer-events-none"></div>
       <Navbar />
       
       {/* Hero Section - Stripe-inspired */}
-      <section className="pt-32 pb-20 md:pt-40 md:pb-32 px-4 bg-gradient-to-b from-[#f6f9fc] to-white">
+      <section className="pt-32 pb-20 md:pt-40 md:pb-32 px-4 relative">
         <div className="container mx-auto relative z-10">
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 mb-10 md:mb-0">
@@ -120,7 +122,7 @@ const Index = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 hero-text">
-                <AnimatedButton variant="cyan" size="lg">
+                <AnimatedButton variant="magenta" size="lg">
                   <Link to="/signup" className="flex items-center">
                     Get Started
                     <ChevronRight className="ml-2" size={18} />
