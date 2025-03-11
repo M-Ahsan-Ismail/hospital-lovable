@@ -113,25 +113,38 @@ const Dashboard = () => {
     fetchData();
   }, [toast]);
   
+  // Updated useEffect to perform live filtering as the user types or changes filters
   useEffect(() => {
     // Apply both search filter and status filter
-    let filtered = patients;
-    
-    // Apply status filter
-    if (activeFilter !== "all") {
-      filtered = filtered.filter(patient => patient.status.toLowerCase() === activeFilter);
+    if (patients.length > 0) {
+      let filtered = [...patients];
+      
+      // Apply status filter
+      if (activeFilter !== "all") {
+        filtered = filtered.filter(patient => patient.status.toLowerCase() === activeFilter);
+      }
+      
+      // Apply search filter - making it more robust to match partial names, case insensitive
+      if (searchTerm.trim() !== '') {
+        const query = searchTerm.toLowerCase().trim();
+        filtered = filtered.filter(patient => 
+          patient.name.toLowerCase().includes(query) ||
+          patient.disease.toLowerCase().includes(query) ||
+          patient.cnic.includes(query) ||
+          (patient.phoneNumber && patient.phoneNumber.includes(query))
+        );
+      }
+      
+      // Show all matching patients instead of just first 3 when searching
+      if (searchTerm.trim() !== '') {
+        setFilteredPatients(filtered);
+      } else {
+        // Only show the first 3 patients for dashboard view when no search is active
+        setFilteredPatients(filtered.slice(0, 3));
+      }
+    } else {
+      setFilteredPatients([]);
     }
-    
-    // Apply search filter
-    if (searchTerm) {
-      filtered = filtered.filter(patient => 
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.disease.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    
-    // Only show the first 3 patients for display in dashboard
-    setFilteredPatients(filtered.slice(0, 3));
   }, [searchTerm, patients, activeFilter]);
   
   const handleStatusChange = (patientId: string, newStatus: string) => {
@@ -362,17 +375,23 @@ const Dashboard = () => {
                       />
                     ))}
                     
-                    <div className="text-center pt-6">
-                      <Link 
-                        to="/patients" 
-                        className="relative inline-flex items-center px-6 py-3 overflow-hidden rounded-full group bg-gradient-to-r from-white/5 to-white/10 hover:from-neon-cyan/20 hover:to-neon-magenta/20 transition-all duration-300 shadow-glow-subtle"
-                      >
-                        <span className="relative text-neon-cyan group-hover:text-white transition-colors flex items-center">
-                          View all patients
-                          <ChevronRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
-                        </span>
-                      </Link>
-                    </div>
+                    {filteredPatients.length > 3 && searchTerm.trim() === "" ? (
+                      <div className="text-center pt-6">
+                        <Link 
+                          to="/patients" 
+                          className="relative inline-flex items-center px-6 py-3 overflow-hidden rounded-full group bg-gradient-to-r from-white/5 to-white/10 hover:from-neon-cyan/20 hover:to-neon-magenta/20 transition-all duration-300 shadow-glow-subtle"
+                        >
+                          <span className="relative text-neon-cyan group-hover:text-white transition-colors flex items-center">
+                            View all patients
+                            <ChevronRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
+                          </span>
+                        </Link>
+                      </div>
+                    ) : searchTerm.trim() !== "" && (
+                      <div className="text-center pt-6">
+                        <p className="text-white/70">Found {filteredPatients.length} patient{filteredPatients.length !== 1 ? 's' : ''} matching "{searchTerm}"</p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-12 bg-white/5 rounded-lg border border-white/10">
