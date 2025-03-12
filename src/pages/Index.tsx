@@ -137,7 +137,7 @@ const Index = () => {
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 mb-10 md:mb-0">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight hero-text">
-                <span className="bg-gradient-to-r from-[#6772e5] via-[#9d66d6] to-[#ff2a6d] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#2D3748] via-[#E53E3E] to-[#2D3748] bg-clip-text text-transparent">
                   Hospital Management
                 </span>
                 <span className="text-gray-800"> System</span>
@@ -162,7 +162,7 @@ const Index = () => {
                     e.preventDefault();
                     featuresRef.current?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="text-[#6772e5] hover:text-[#424bb4] font-medium flex items-center transition-colors"
+                  className="text-[#6B46C1] hover:text-[#4A3291] font-medium flex items-center transition-colors"
                 >
                   Learn more 
                   <ArrowRight className="ml-1 h-4 w-4" />
@@ -194,7 +194,7 @@ const Index = () => {
                   
                   {/* Screen mockup */}
                   <div className="p-4">
-                    <div className="bg-[#6772e5] text-white p-3 rounded-t-lg device-element">
+                    <div className="bg-[#6B46C1] text-white p-3 rounded-t-lg device-element">
                       <div className="flex items-center">
                         <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mr-3">
                           <ShieldCheck className="w-4 h-4 text-white" />
@@ -215,8 +215,8 @@ const Index = () => {
                             <div className="h-2 bg-gray-50 rounded-full w-16"></div>
                           </div>
                           <div className="ml-2">
-                            <div className="h-6 w-12 rounded-md bg-[#6772e5]/10 flex items-center justify-center">
-                              <div className="w-2 h-2 rounded-full bg-[#6772e5]"></div>
+                            <div className="h-6 w-12 rounded-md bg-[#6B46C1]/10 flex items-center justify-center">
+                              <div className="w-2 h-2 rounded-full bg-[#6B46C1]"></div>
                             </div>
                           </div>
                         </div>
@@ -242,14 +242,14 @@ const Index = () => {
                         </div>
                         <div className="h-20 bg-gray-50 rounded-md flex items-center justify-center">
                           <div className="w-full px-2">
-                            <div className="h-1 bg-[#6772e5]/30 rounded-full w-full mb-1 relative">
-                              <div className="absolute top-0 left-0 h-1 bg-[#6772e5] rounded-full w-3/4"></div>
+                            <div className="h-1 bg-[#6B46C1]/30 rounded-full w-full mb-1 relative">
+                              <div className="absolute top-0 left-0 h-1 bg-[#6B46C1] rounded-full w-3/4"></div>
                             </div>
-                            <div className="h-1 bg-[#ff2a6d]/30 rounded-full w-full mb-1 relative">
-                              <div className="absolute top-0 left-0 h-1 bg-[#ff2a6d] rounded-full w-2/5"></div>
+                            <div className="h-1 bg-[#ED64A6]/30 rounded-full w-full mb-1 relative">
+                              <div className="absolute top-0 left-0 h-1 bg-[#ED64A6] rounded-full w-2/5"></div>
                             </div>
-                            <div className="h-1 bg-[#00eeff]/30 rounded-full w-full mb-1 relative">
-                              <div className="absolute top-0 left-0 h-1 bg-[#00eeff] rounded-full w-3/5"></div>
+                            <div className="h-1 bg-[#F6AD55]/30 rounded-full w-full mb-1 relative">
+                              <div className="absolute top-0 left-0 h-1 bg-[#F6AD55] rounded-full w-3/5"></div>
                             </div>
                           </div>
                         </div>
@@ -264,9 +264,9 @@ const Index = () => {
                 </div>
                 
                 {/* Floating elements around the device */}
-                <div className="absolute -top-4 -left-8 w-16 h-16 bg-gradient-to-br from-[#6772e5]/20 to-[#9d66d6]/20 rounded-full floating-element"></div>
-                <div className="absolute -bottom-6 -right-6 w-12 h-12 bg-gradient-to-br from-[#ff2a6d]/20 to-[#ff9e7d]/20 rounded-full floating-element"></div>
-                <div className="absolute top-1/4 -right-4 w-8 h-8 bg-gradient-to-br from-[#00eeff]/20 to-[#80e9ff]/20 rounded-full floating-element"></div>
+                <div className="absolute -top-4 -left-8 w-16 h-16 bg-gradient-to-br from-[#6B46C1]/20 to-[#ED64A6]/20 rounded-full floating-element"></div>
+                <div className="absolute -bottom-6 -right-6 w-12 h-12 bg-gradient-to-br from-[#ED64A6]/20 to-[#F6AD55]/20 rounded-full floating-element"></div>
+                <div className="absolute top-1/4 -right-4 w-8 h-8 bg-gradient-to-br from-[#6B46C1]/20 to-[#ED64A6]/20 rounded-full floating-element"></div>
               </div>
             </div>
           </div>
@@ -278,7 +278,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
-              A fully integrated suite of <span className="text-[#6772e5]">healthcare tools</span>
+              A fully integrated suite of <span className="text-[#6B46C1]">healthcare tools</span>
             </h2>
             <p className="text-gray-600 max-w-xl mx-auto">
               Our hospital management system provides intuitive tools to streamline 
@@ -315,7 +315,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
-              <span className="text-[#6772e5]">Accept</span> and <span className="text-[#6772e5]">optimize</span> patient care, globally
+              <span className="text-[#6B46C1]">Accept</span> and <span className="text-[#6B46C1]">optimize</span> patient care, globally
             </h2>
             <p className="text-gray-600 max-w-xl mx-auto">
               Connect all aspects of healthcare management with our integrated system
@@ -327,7 +327,7 @@ const Index = () => {
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path 
                 d="M200,200 C300,100 500,100 600,200" 
-                stroke="#6772e5" 
+                stroke="#6B46C1" 
                 strokeWidth="2" 
                 strokeDasharray="300" 
                 strokeDashoffset="300"
@@ -336,7 +336,7 @@ const Index = () => {
               />
               <path 
                 d="M600,200 C700,300 700,400 600,500" 
-                stroke="#6772e5" 
+                stroke="#ED64A6" 
                 strokeWidth="2" 
                 strokeDasharray="300" 
                 strokeDashoffset="300"
@@ -345,7 +345,7 @@ const Index = () => {
               />
               <path 
                 d="M600,500 C500,600 300,600 200,500" 
-                stroke="#6772e5" 
+                stroke="#F6AD55" 
                 strokeWidth="2" 
                 strokeDasharray="300" 
                 strokeDashoffset="300"
@@ -354,7 +354,7 @@ const Index = () => {
               />
               <path 
                 d="M200,500 C100,400 100,300 200,200" 
-                stroke="#6772e5" 
+                stroke="#6B46C1" 
                 strokeWidth="2" 
                 strokeDasharray="300" 
                 strokeDashoffset="300"
@@ -366,28 +366,28 @@ const Index = () => {
             {/* Connection points */}
             <div className="absolute top-[30%] left-[25%] connection-icon">
               <div className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center">
-                <Database className="h-8 w-8 text-[#6772e5]" />
+                <Database className="h-8 w-8 text-[#6B46C1]" />
               </div>
               <div className="mt-2 text-center text-gray-700 font-medium">Patient Data</div>
             </div>
             
             <div className="absolute top-[30%] right-[25%] connection-icon">
               <div className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center">
-                <Stethoscope className="h-8 w-8 text-[#6772e5]" />
+                <Stethoscope className="h-8 w-8 text-[#ED64A6]" />
               </div>
               <div className="mt-2 text-center text-gray-700 font-medium">Diagnosis</div>
             </div>
             
             <div className="absolute bottom-[30%] right-[25%] connection-icon">
               <div className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center">
-                <Clock className="h-8 w-8 text-[#6772e5]" />
+                <Clock className="h-8 w-8 text-[#F6AD55]" />
               </div>
               <div className="mt-2 text-center text-gray-700 font-medium">Appointments</div>
             </div>
             
             <div className="absolute bottom-[30%] left-[25%] connection-icon">
               <div className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center">
-                <Users className="h-8 w-8 text-[#6772e5]" />
+                <Users className="h-8 w-8 text-[#6B46C1]" />
               </div>
               <div className="mt-2 text-center text-gray-700 font-medium">Staff Access</div>
             </div>
@@ -400,7 +400,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
-              <span className="text-[#6772e5]">Advanced</span> Features
+              <span className="text-[#6B46C1]">Advanced</span> Features
             </h2>
             <p className="text-gray-600 max-w-xl mx-auto">
               Our hospital management system provides intuitive tools to streamline 
@@ -433,10 +433,10 @@ const Index = () => {
             ].map((feature, index) => (
               <div 
                 key={index} 
-                className="feature-item bg-white p-6 rounded-lg border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-[#6772e5]/30"
+                className="feature-item bg-white p-6 rounded-lg border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-[#6B46C1]/30"
               >
-                <div className="w-12 h-12 rounded-full bg-[#6772e5]/10 flex items-center justify-center mb-4">
-                  <feature.icon size={24} className="text-[#6772e5]" />
+                <div className="w-12 h-12 rounded-full bg-[#6B46C1]/10 flex items-center justify-center mb-4">
+                  <feature.icon size={24} className="text-[#6B46C1]" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">{feature.title}</h3>
                 <p className="text-gray-600">{feature.description}</p>
@@ -447,7 +447,7 @@ const Index = () => {
       </section>
       
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-[#6772e5] to-[#9d66d6] relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-r from-[#6B46C1] to-[#ED64A6] relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-20 h-20 bg-white rounded-full transform translate-x-1/2 translate-y-1/2"></div>
           <div className="absolute top-0 right-0 w-16 h-16 bg-white rounded-full transform -translate-x-1/2 translate-y-1/2"></div>
@@ -468,7 +468,7 @@ const Index = () => {
             <div className="inline-block">
               <Link 
                 to="/signup"
-                className="bg-white hover:bg-gray-100 text-[#6772e5] font-bold py-3 px-8 rounded-full shadow-lg transition-all hover:shadow-xl transform hover:-translate-y-1"
+                className="bg-white hover:bg-gray-100 text-[#6B46C1] font-bold py-3 px-8 rounded-full shadow-lg transition-all hover:shadow-xl transform hover:-translate-y-1"
               >
                 Get Started Now
               </Link>

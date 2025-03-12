@@ -9,6 +9,7 @@
     --neon-cyan: #00EEFF;
     --neon-magenta: #FF2A6D;
     --neon-purple: #D866FF;
+    --primary-gradient: linear-gradient(135deg, #6B46C1 0%, #ED64A6 50%, #F6AD55 100%);
     --radius: 0.5rem;
   }
 
@@ -17,7 +18,7 @@
   }
 
   body {
-    @apply bg-[#040D12] text-white font-orbit;
+    @apply bg-white text-gray-800 font-orbit;
   }
 }
 
@@ -56,7 +57,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, #7a73ff 0%, #80e9ff 50%, #fafafa 50%, #ffffff 100%);
+    background: linear-gradient(135deg, #6B46C1 0%, #ED64A6 50%, #F6AD55 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 0 40%);
     z-index: -1;
   }
   
