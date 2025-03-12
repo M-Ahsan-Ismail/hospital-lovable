@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, LogOut } from "lucide-react";
@@ -196,13 +195,12 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-orbit",
         isScrolled || isMobileMenuOpen 
-          ? "bg-blur shadow-sm border-b border-white/10 py-3" 
-          : "py-5",
-        location.pathname === "/" && !isScrolled && !isMobileMenuOpen
-          ? "bg-transparent" 
-          : "bg-blur"
+          ? "shadow-sm border-b border-white/10 py-3" 
+          : "py-5"
       )}
     >
+      <div className="navbar-gradient"></div>
+      
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div 
           onClick={navigateToHome} 
@@ -264,7 +262,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
           {/* Logout button for authenticated users */}
           {currentUser && (
             <button
-              onClick={handleLogout}
+              onClick={() => handleLogout()}
               className="relative py-2 text-white/80 hover:text-neon-cyan transition-colors duration-300 group flex items-center"
             >
               <LogOut size={16} className="mr-2" />
@@ -285,7 +283,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
       
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-blur border-t border-white/10 animate-fade-in">
+        <div className="md:hidden animate-fade-in">
           <div className="container mx-auto py-4 px-4 flex flex-col space-y-4">
             {/* Welcome message for mobile */}
             {currentUser && (

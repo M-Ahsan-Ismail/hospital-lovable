@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from "react";
+
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AnimatedButton from "@/components/AnimatedButton";
-import { Database, Stethoscope, Clock, Users, ChevronRight, ArrowRight, ShieldCheck, ClipboardCheck } from "lucide-react";
+import { Database, Stethoscope, Clock, Users, ChevronRight, ArrowRight, ShieldCheck, ClipboardCheck, Heart, Activity, Zap, Shield } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import HexagonBackground from "@/components/HexagonBackground";
@@ -13,10 +14,10 @@ gsap.registerPlugin(ScrollTrigger);
 
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
-  const boxesRef = useRef<HTMLDivElement>(null);
   const pathsRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const deviceRef = useRef<HTMLDivElement>(null);
+  const [pathsVisible, setPathsVisible] = useState(false);
   
   useEffect(() => {
     // Main page animation
@@ -50,26 +51,41 @@ const Index = () => {
       { opacity: 1, y: 0, duration: 0.6, delay: 0.8, ease: "power2.out" }
     );
     
-    // Staggered grid animation
-    if (boxesRef.current) {
+    // Advanced features animation with scrolltrigger
+    if (featuresRef.current) {
       ScrollTrigger.create({
-        trigger: boxesRef.current,
+        trigger: featuresRef.current,
         start: "top 80%",
         onEnter: () => {
           gsap.fromTo(
-            ".feature-box",
+            ".feature-card",
             { 
               opacity: 0, 
-              scale: 0.8,
-              y: 30
+              y: 30,
+              scale: 0.95
             },
             { 
               opacity: 1, 
-              scale: 1,
               y: 0,
-              stagger: 0.1, 
-              duration: 0.7, 
-              ease: "power2.out"
+              scale: 1,
+              stagger: 0.15, 
+              duration: 0.8, 
+              ease: "back.out(1.5)"
+            }
+          );
+          
+          // Animate feature icons separately
+          gsap.fromTo(
+            ".feature-icon",
+            { opacity: 0, scale: 0.8, y: 15 },
+            { 
+              opacity: 1, 
+              scale: 1, 
+              y: 0,
+              stagger: 0.2, 
+              duration: 0.8,
+              delay: 0.2,
+              ease: "back.out(2)"
             }
           );
         }
@@ -82,6 +98,8 @@ const Index = () => {
         trigger: pathsRef.current,
         start: "top 70%",
         onEnter: () => {
+          setPathsVisible(true);
+          
           // Animate each path
           gsap.fromTo(
             ".connection-path",
@@ -94,21 +112,6 @@ const Index = () => {
             ".connection-icon",
             { opacity: 0, scale: 0.5 },
             { opacity: 1, scale: 1, duration: 0.7, stagger: 0.3, delay: 0.5 }
-          );
-        }
-      });
-    }
-    
-    // Features animation
-    if (featuresRef.current) {
-      ScrollTrigger.create({
-        trigger: featuresRef.current,
-        start: "top 80%",
-        onEnter: () => {
-          gsap.fromTo(
-            ".feature-item",
-            { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" }
           );
         }
       });
@@ -142,14 +145,12 @@ const Index = () => {
         <div className="container mx-auto relative z-10">
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 mb-10 md:mb-0">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight hero-text">
-                <span className="bg-gradient-to-r from-[#2D3748] via-[#E53E3E] to-[#2D3748] bg-clip-text text-transparent">
-                  Hospital Management
-                </span>
-                <span className="text-gray-800"> System</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight hero-text text-white">
+                Hospital Management
+                <span className="text-neon-cyan"> System</span>
               </h1>
               
-              <p className="text-gray-600 text-lg md:text-xl mb-8 max-w-xl hero-text">
+              <p className="text-white/90 text-lg md:text-xl mb-8 max-w-xl hero-text">
                 Efficient Patient Record Management for healthcare professionals. 
                 Track patient history, visits, and medical information with our 
                 secure digital solution.
@@ -270,43 +271,6 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Staggered Grid Animation - Stripe-inspired */}
-      <section ref={boxesRef} className="py-20 bg-white relative">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
-              A fully integrated suite of <span className="text-[#6B46C1]">healthcare tools</span>
-            </h2>
-            <p className="text-gray-600 max-w-xl mx-auto">
-              Our hospital management system provides intuitive tools to streamline 
-              your workflow and improve patient care.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {[
-              { icon: "🏥", title: "Patient Records", desc: "Secure digital storage" },
-              { icon: "💊", title: "Prescriptions", desc: "Digital prescription management" },
-              { icon: "📊", title: "Analytics", desc: "Health trends and insights" },
-              { icon: "🔔", title: "Notifications", desc: "Appointment reminders" },
-              { icon: "📱", title: "Mobile Access", desc: "Access from any device" },
-              { icon: "🔒", title: "Secure Data", desc: "HIPAA compliant security" },
-              { icon: "📝", title: "Digital Forms", desc: "Paperless intake process" },
-              { icon: "⏱️", title: "Time Saving", desc: "Streamlined workflows" }
-            ].map((item, index) => (
-              <div 
-                key={index}
-                className="feature-box bg-gray-50 hover:bg-gray-100 p-5 rounded-xl border border-gray-200 transition-all duration-300 hover:shadow-md hover:scale-105 transform cursor-pointer"
-              >
-                <div className="text-3xl mb-2">{item.icon}</div>
-                <h3 className="text-gray-800 font-medium mb-1">{item.title}</h3>
-                <p className="text-gray-500 text-sm">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      
       {/* Path Animation Section - Stripe-inspired */}
       <section ref={pathsRef} className="py-20 bg-gradient-to-b from-white to-[#f6f9fc] relative">
         <div className="container mx-auto px-4">
@@ -319,15 +283,13 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="relative max-w-4xl mx-auto h-[400px] md:h-[500px]">
+          <div className={`relative max-w-4xl mx-auto h-[400px] md:h-[500px] ${pathsVisible ? 'visible' : ''}`}>
             {/* SVG for connection paths */}
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path 
                 d="M200,200 C300,100 500,100 600,200" 
                 stroke="#6B46C1" 
                 strokeWidth="2" 
-                strokeDasharray="300" 
-                strokeDashoffset="300"
                 className="connection-path"
                 fill="none"
               />
@@ -335,8 +297,6 @@ const Index = () => {
                 d="M600,200 C700,300 700,400 600,500" 
                 stroke="#ED64A6" 
                 strokeWidth="2" 
-                strokeDasharray="300" 
-                strokeDashoffset="300"
                 className="connection-path"
                 fill="none"
               />
@@ -344,8 +304,6 @@ const Index = () => {
                 d="M600,500 C500,600 300,600 200,500" 
                 stroke="#F6AD55" 
                 strokeWidth="2" 
-                strokeDasharray="300" 
-                strokeDashoffset="300"
                 className="connection-path"
                 fill="none"
               />
@@ -353,8 +311,6 @@ const Index = () => {
                 d="M200,500 C100,400 100,300 200,200" 
                 stroke="#6B46C1" 
                 strokeWidth="2" 
-                strokeDasharray="300" 
-                strokeDashoffset="300"
                 className="connection-path"
                 fill="none"
               />
@@ -392,7 +348,7 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Features Section */}
+      {/* Enhanced Features Section */}
       <section ref={featuresRef} id="features" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -410,33 +366,43 @@ const Index = () => {
               {
                 icon: Database,
                 title: "Patient Records",
-                description: "Securely store and access complete patient histories and medical records."
+                description: "Securely store and access complete patient histories and medical records.",
+                color: "from-purple-500/20 to-purple-600/20",
+                iconColor: "text-purple-600"
               },
               {
-                icon: Stethoscope,
+                icon: Activity,
                 title: "Disease Tracking",
-                description: "Track and monitor patient diagnoses and treatment progress over time."
+                description: "Track and monitor patient diagnoses and treatment progress over time.",
+                color: "from-pink-500/20 to-pink-600/20",
+                iconColor: "text-pink-600"
               },
               {
                 icon: Clock,
                 title: "Visit History",
-                description: "Maintain detailed logs of patient visits and follow-up appointments."
+                description: "Maintain detailed logs of patient visits and follow-up appointments.",
+                color: "from-orange-500/20 to-orange-600/20",
+                iconColor: "text-orange-500"
               },
               {
-                icon: Users,
+                icon: Shield,
                 title: "Multi-User Access",
-                description: "Role-based access for doctors and administrative staff."
+                description: "Role-based access for doctors and administrative staff.",
+                color: "from-blue-500/20 to-blue-600/20",
+                iconColor: "text-blue-600"
               }
             ].map((feature, index) => (
               <div 
                 key={index} 
-                className="feature-item bg-white p-6 rounded-lg border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-[#6B46C1]/30"
+                className="feature-card advanced-feature-card"
               >
-                <div className="w-12 h-12 rounded-full bg-[#6B46C1]/10 flex items-center justify-center mb-4">
-                  <feature.icon size={24} className="text-[#6B46C1]" />
+                <div className={`feature-icon ${feature.iconColor} bg-gradient-to-br ${feature.color}`}>
+                  <feature.icon size={28} />
                 </div>
                 <h3 className="text-xl font-semibold mb-2 text-gray-800">{feature.title}</h3>
                 <p className="text-gray-600">{feature.description}</p>
+                
+                {/* Animated border/glow effect will be added by the CSS */}
               </div>
             ))}
           </div>
@@ -465,7 +431,7 @@ const Index = () => {
             <div className="inline-block">
               <Link 
                 to="/signup"
-                className="bg-white hover:bg-gray-100 text-[#6B46C1] font-bold py-3 px-8 rounded-full shadow-lg transition-all hover:shadow-xl transform hover:-translate-y-1"
+                className="get-started-button"
               >
                 Get Started Now
               </Link>
