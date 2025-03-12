@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -57,7 +58,7 @@
     right: 0;
     bottom: 0;
     background: linear-gradient(135deg, #6B46C1 0%, #ED64A6 50%, #F6AD55 100%);
-    clip-path: polygon(0 0, 100% 0, 100% 65%, 0 35%);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 65%);
     z-index: -1;
     animation: gradient-shift 8s ease infinite;
     background-size: 200% 200%;
