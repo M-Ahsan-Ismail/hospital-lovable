@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -134,7 +133,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white" ref={mainRef}>
       {/* Diagonal background with gradient boundary */}
-      <div className="diagonal-gradient"></div>
+      <div className="diagonal-gradient animate-gradient"></div>
       
       <Navbar />
       
@@ -178,10 +177,6 @@ const Index = () => {
               
               {/* Glow line - like Stripe */}
               <div className="glow-line w-32 mt-8 mb-4"></div>
-              
-              <div className="flex items-center space-x-4 mt-4">
-                <p className="text-sm text-gray-500">Trusted by 10,000+ healthcare professionals</p>
-              </div>
             </div>
             
             <div ref={deviceRef} className="md:w-1/2 flex justify-center md:justify-end hospital-image-container">
