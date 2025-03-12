@@ -48,7 +48,7 @@
   }
 
   .bg-blur {
-    @apply bg-black/70 backdrop-blur-md;
+    @apply bg-black/60 backdrop-blur-md;
   }
   
   .diagonal-gradient {
@@ -58,8 +58,10 @@
     right: 0;
     bottom: 0;
     background: linear-gradient(135deg, #6B46C1 0%, #ED64A6 50%, #F6AD55 100%);
-    clip-path: polygon(0 0, 100% 0, 100% 70%, 0 40%);
+    clip-path: polygon(0 0, 100% 0, 100% 65%, 0 35%);
     z-index: -1;
+    animation: gradient-shift 8s ease infinite;
+    background-size: 200% 200%;
   }
   
   .hospital-image-container {
@@ -75,6 +77,10 @@
   
   .hospital-device:hover {
     transform: rotateY(-5deg) rotateX(2deg) scale(1.02);
+  }
+  
+  .learn-more-button {
+    @apply inline-flex items-center gap-2 px-4 py-2 font-medium text-[#6B46C1] bg-white/90 hover:bg-white transition-all duration-300 rounded-lg shadow-sm hover:shadow transform hover:-translate-y-0.5;
   }
 }
 

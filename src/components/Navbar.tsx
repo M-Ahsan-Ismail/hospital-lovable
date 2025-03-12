@@ -196,7 +196,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-orbit",
         isScrolled || isMobileMenuOpen 
-          ? "bg-blur border-b border-white/10 py-3" 
+          ? "bg-blur shadow-sm border-b border-white/10 py-3" 
           : "py-5",
         location.pathname === "/" && !isScrolled && !isMobileMenuOpen
           ? "bg-transparent" 
@@ -236,7 +236,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
                 <Link
                   key={link.title}
                   to={link.href}
-                  className="relative py-2 px-4 text-[#6772e5] font-medium bg-white/90 rounded-md hover:bg-white transition-colors duration-300"
+                  className="relative py-2 px-4 text-[#6772e5] font-medium bg-white/90 rounded-lg hover:bg-white transition-colors duration-300 shadow-sm"
                 >
                   {link.title}
                 </Link>
@@ -245,14 +245,14 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
                   key={link.title}
                   to={link.href}
                   className={cn(
-                    "relative py-2 text-white/80 hover:text-neon-cyan transition-colors duration-300 group",
-                    location.pathname === link.href && "text-neon-cyan"
+                    "relative py-2 text-white/90 hover:text-white transition-colors duration-300 group",
+                    location.pathname === link.href && "text-white"
                   )}
                 >
                   {link.title}
                   <span
                     className={cn(
-                      "absolute bottom-0 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300",
+                      "absolute bottom-0 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300",
                       location.pathname === link.href && "w-full"
                     )}
                   />

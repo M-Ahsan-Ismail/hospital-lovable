@@ -44,6 +44,13 @@ const Index = () => {
       stagger: 0.2
     });
     
+    // Learn more button animation
+    gsap.fromTo(
+      ".learn-more",
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.6, delay: 0.8, ease: "power2.out" }
+    );
+    
     // Staggered grid animation
     if (boxesRef.current) {
       ScrollTrigger.create({
@@ -162,10 +169,10 @@ const Index = () => {
                     e.preventDefault();
                     featuresRef.current?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="text-[#6B46C1] hover:text-[#4A3291] font-medium flex items-center transition-colors"
+                  className="learn-more learn-more-button"
                 >
                   Learn more 
-                  <ArrowRight className="ml-1 h-4 w-4" />
+                  <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
               
@@ -173,11 +180,6 @@ const Index = () => {
               <div className="glow-line w-32 mt-8 mb-4"></div>
               
               <div className="flex items-center space-x-4 mt-4">
-                <div className="flex -space-x-2">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs text-gray-500">MD</div>
-                  ))}
-                </div>
                 <p className="text-sm text-gray-500">Trusted by 10,000+ healthcare professionals</p>
               </div>
             </div>
