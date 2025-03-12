@@ -143,13 +143,13 @@ const Index = () => {
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 mb-10 md:mb-0">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight hero-text">
-                <span className="text-white">
+                <span className="bg-gradient-to-r from-[#2D3748] via-[#E53E3E] to-[#2D3748] bg-clip-text text-transparent">
                   Hospital Management
                 </span>
-                <span className="text-white"> System</span>
+                <span className="text-gray-800"> System</span>
               </h1>
               
-              <p className="text-white/90 text-lg md:text-xl mb-8 max-w-xl hero-text">
+              <p className="text-gray-600 text-lg md:text-xl mb-8 max-w-xl hero-text">
                 Efficient Patient Record Management for healthcare professionals. 
                 Track patient history, visits, and medical information with our 
                 secure digital solution.
