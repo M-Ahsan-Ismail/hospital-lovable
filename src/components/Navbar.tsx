@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, LogOut } from "lucide-react";
@@ -199,6 +200,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
           : "py-5"
       )}
     >
+      {/* Always visible animated gradient background */}
       <div className="navbar-gradient"></div>
       
       <div className="container mx-auto px-4 flex justify-between items-center">

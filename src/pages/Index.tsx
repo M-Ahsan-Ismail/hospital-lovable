@@ -17,6 +17,7 @@ const Index = () => {
   const pathsRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const deviceRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
   const [pathsVisible, setPathsVisible] = useState(false);
   
   useEffect(() => {
@@ -92,6 +93,33 @@ const Index = () => {
       });
     }
     
+    // CTA section animation
+    if (ctaRef.current) {
+      ScrollTrigger.create({
+        trigger: ctaRef.current,
+        start: "top 80%",
+        onEnter: () => {
+          gsap.fromTo(
+            ".cta-text",
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, stagger: 0.2, duration: 0.8, ease: "power2.out" }
+          );
+          
+          gsap.fromTo(
+            ".cta-button",
+            { opacity: 0, y: 20, scale: 0.9 },
+            { opacity: 1, y: 0, scale: 1, duration: 0.8, delay: 0.4, ease: "back.out(1.7)" }
+          );
+          
+          gsap.fromTo(
+            ".cta-glow",
+            { opacity: 0, scale: 0.8 },
+            { opacity: 1, scale: 1, duration: 1.2, delay: 0.6, ease: "elastic.out(1, 0.5)" }
+          );
+        }
+      });
+    }
+    
     // Path animation
     if (pathsRef.current) {
       ScrollTrigger.create({
@@ -135,7 +163,7 @@ const Index = () => {
   
   return (
     <div className="min-h-screen flex flex-col bg-white" ref={mainRef}>
-      {/* Diagonal background with gradient boundary */}
+      {/* Diagonal background with gradient boundary - now covers the entire hero section */}
       <div className="diagonal-gradient animate-gradient"></div>
       
       <Navbar />
@@ -145,7 +173,7 @@ const Index = () => {
         <div className="container mx-auto relative z-10">
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 mb-10 md:mb-0">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight hero-text text-white">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight hero-text text-gradient-hero">
                 Hospital Management
                 <span className="text-neon-cyan"> System</span>
               </h1>
@@ -348,14 +376,14 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Enhanced Features Section */}
-      <section ref={featuresRef} id="features" className="py-20 bg-white">
+      {/* Enhanced Features Section - Now with glowing animated cards */}
+      <section ref={featuresRef} id="features" className="py-20 bg-black">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
-              <span className="text-[#6B46C1]">Advanced</span> Features
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
+              <span className="text-gradient-primary">Advanced</span> Features
             </h2>
-            <p className="text-gray-600 max-w-xl mx-auto">
+            <p className="text-white/70 max-w-xl mx-auto">
               Our hospital management system provides intuitive tools to streamline 
               your workflow and improve patient care.
             </p>
@@ -367,71 +395,89 @@ const Index = () => {
                 icon: Database,
                 title: "Patient Records",
                 description: "Securely store and access complete patient histories and medical records.",
-                color: "from-purple-500/20 to-purple-600/20",
-                iconColor: "text-purple-600"
+                color: "from-purple-500 to-purple-600",
+                iconColor: "text-purple-400",
+                borderColor: "border-purple-500/50",
+                glowColor: "purple"
               },
               {
                 icon: Activity,
                 title: "Disease Tracking",
                 description: "Track and monitor patient diagnoses and treatment progress over time.",
-                color: "from-pink-500/20 to-pink-600/20",
-                iconColor: "text-pink-600"
+                color: "from-pink-500 to-pink-600",
+                iconColor: "text-pink-400",
+                borderColor: "border-pink-500/50",
+                glowColor: "pink"
               },
               {
                 icon: Clock,
                 title: "Visit History",
                 description: "Maintain detailed logs of patient visits and follow-up appointments.",
-                color: "from-orange-500/20 to-orange-600/20",
-                iconColor: "text-orange-500"
+                color: "from-orange-500 to-orange-600",
+                iconColor: "text-orange-400",
+                borderColor: "border-orange-500/50",
+                glowColor: "orange"
               },
               {
                 icon: Shield,
                 title: "Multi-User Access",
                 description: "Role-based access for doctors and administrative staff.",
-                color: "from-blue-500/20 to-blue-600/20",
-                iconColor: "text-blue-600"
+                color: "from-blue-500 to-blue-600",
+                iconColor: "text-blue-400",
+                borderColor: "border-blue-500/50",
+                glowColor: "blue"
               }
             ].map((feature, index) => (
               <div 
                 key={index} 
-                className="feature-card advanced-feature-card"
+                className="feature-card glowing-card-wrapper"
               >
-                <div className={`feature-icon ${feature.iconColor} bg-gradient-to-br ${feature.color}`}>
-                  <feature.icon size={28} />
+                <div className={`feature-card-inner bg-black border ${feature.borderColor} p-6 rounded-2xl relative z-10 h-full`}>
+                  <div className={`feature-icon ${feature.iconColor} bg-gradient-to-br from-${feature.glowColor}-500/10 to-${feature.glowColor}-600/10`}>
+                    <feature.icon size={28} />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2 text-white">{feature.title}</h3>
+                  <p className="text-white/70">{feature.description}</p>
                 </div>
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
-                
-                {/* Animated border/glow effect will be added by the CSS */}
+                <div className={`glow-effect glow-${feature.glowColor}`}></div>
               </div>
             ))}
           </div>
         </div>
       </section>
       
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-[#6B46C1] to-[#ED64A6] relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-20 h-20 bg-white rounded-full transform translate-x-1/2 translate-y-1/2"></div>
-          <div className="absolute top-0 right-0 w-16 h-16 bg-white rounded-full transform -translate-x-1/2 translate-y-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full transform translate-x-1/3 -translate-y-1/3"></div>
-          <div className="absolute bottom-0 right-0 w-32 h-32 bg-white rounded-full transform -translate-x-1/3 -translate-y-1/2"></div>
+      {/* CTA Section - Enhanced visuals */}
+      <section ref={ctaRef} className="py-20 relative overflow-hidden">
+        {/* Dynamic background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#6B46C1] to-[#ED64A6] animate-gradient z-0"></div>
+        
+        {/* Animated background elements */}
+        <div className="absolute inset-0 z-1">
+          <div className="absolute top-10 left-1/4 w-24 h-24 rounded-full bg-white/10 animate-float"></div>
+          <div className="absolute bottom-20 right-1/3 w-32 h-32 rounded-full bg-white/5 animate-float" style={{animationDelay: '0.5s'}}></div>
+          <div className="absolute top-1/3 right-1/4 w-16 h-16 rounded-full bg-white/10 animate-float" style={{animationDelay: '1s'}}></div>
+          <div className="absolute cta-glow top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] rounded-full bg-white/5 blur-3xl"></div>
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
-              Ready to <span className="underline decoration-white/50 decoration-4 underline-offset-4">Modernize</span> Your Hospital Records?
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white cta-text relative inline-block">
+              Ready to <span className="relative px-2">
+                <span className="absolute inset-0 w-full h-full bg-white/10 rounded-md transform -skew-x-12"></span>
+                <span className="relative">Modernize</span>
+              </span> Your Hospital Records?
+              <div className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
             </h2>
-            <p className="text-white/80 mb-10 text-lg">
+            
+            <p className="text-white/80 mb-10 text-lg cta-text">
               Join healthcare professionals already using our system to improve patient care and
               streamline their workflow.
             </p>
             
-            <div className="inline-block">
+            <div className="inline-block cta-button">
               <Link 
                 to="/signup"
-                className="get-started-button"
+                className="custom-get-started-button"
               >
                 Get Started Now
               </Link>
