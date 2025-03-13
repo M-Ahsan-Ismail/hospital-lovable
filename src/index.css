@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -50,17 +51,13 @@
     @apply bg-black/60 backdrop-blur-md;
   }
   
-  .diagonal-gradient {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, #6B46C1 0%, #ED64A6 50%, #F6AD55 100%);
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-    z-index: -1;
-    animation: gradient-shift 8s ease infinite;
+  /* Enhanced hero gradient background */
+  .hero-gradient-bg {
+    background: linear-gradient(135deg, rgba(107, 70, 193, 0.8) 0%, rgba(237, 100, 166, 0.8) 50%, rgba(246, 173, 85, 0.8) 100%);
     background-size: 200% 200%;
+    animation: gradient-shift 8s ease infinite;
+    z-index: -1;
+    overflow: hidden;
   }
   
   .hospital-image-container {
@@ -82,15 +79,30 @@
     @apply inline-flex items-center gap-2 px-4 py-2 font-medium text-white bg-[#FF2A6D] hover:bg-[#D946EF] transition-all duration-300 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1;
   }
 
-  /* Text gradient for hero */
-  .text-gradient-hero {
-    background: linear-gradient(135deg, #ffffff 0%, #00EEFF 50%, #FF2A6D 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    background-size: 200% 200%;
-    animation: gradient-shift 8s ease infinite;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  /* Title animation styling */
+  .title-animation-container {
+    position: relative;
+    overflow: visible;
+  }
+  
+  .title-word {
+    position: relative;
+    display: inline-block;
+    font-weight: bold;
+    text-shadow: 0 0 15px rgba(8, 217, 214, 0.3), 0 0 25px rgba(255, 42, 109, 0.2);
+    transition: all 0.5s ease;
+  }
+  
+  .title-word:hover {
+    text-shadow: 0 0 20px rgba(8, 217, 214, 0.5), 0 0 30px rgba(255, 42, 109, 0.3);
+    transform: translateY(-2px);
+  }
+  
+  .corner-connector {
+    stroke-dasharray: 500;
+    stroke-dashoffset: 500;
+    animation: dash 4s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 3px rgba(0, 238, 255, 0.5));
   }
 
   /* New class for the word border gradient animation */
@@ -115,21 +127,10 @@
     animation: border-flow 8s linear infinite;
   }
   
-  .word-connecting-line {
-    position: absolute;
-    height: 2px;
-    background: linear-gradient(90deg, #6B46C1, #ED64A6, #F6AD55, #00EEFF, #FF2A6D);
-    background-size: 200% 200%;
-    animation: gradient-shift 4s linear infinite;
-    z-index: -1;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  
   /* Modified Navbar styling */
   .navbar-gradient {
     @apply absolute inset-0 z-[-1] overflow-hidden;
-    background: linear-gradient(135deg, #1C2526 0%, #2D3A3E 100%);
+    background: linear-gradient(135deg, rgba(28, 37, 38, 1) 0%, rgba(45, 58, 62, 1) 100%);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   }
   
@@ -149,6 +150,9 @@
   }
   
   .connection-path {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    transition: stroke-dashoffset 1.5s ease-out;
     filter: drop-shadow(0 0 5px rgba(107, 70, 193, 0.5));
   }
   
@@ -160,26 +164,11 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
   
-  .custom-get-started-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    transition: all 0.4s ease;
-    z-index: -1;
-  }
-  
   .custom-get-started-button:hover {
+    background: #000;
     color: white;
     transform: translateY(-5px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  }
-  
-  .custom-get-started-button:hover::before {
-    left: 0;
   }
 
   .text-gradient-primary {
@@ -189,14 +178,6 @@
     color: transparent;
     animation: gradient-shift 8s ease infinite;
     background-size: 200% 200%;
-  }
-
-  /* Animated navbar background */
-  .navbar-gradient {
-    @apply absolute inset-0 z-[-1] overflow-hidden;
-    background: linear-gradient(135deg, #6B46C1 0%, #ED64A6 50%, #F6AD55 100%);
-    background-size: 200% 200%;
-    animation: gradient-shift 8s ease infinite;
   }
 
   /* Glowing card styles */
@@ -238,43 +219,13 @@
 
   /* Feature icon with gradient and glow */
   .feature-icon {
-    @apply w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all duration-300;
+    @apply w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all duration-300 relative;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
   }
 
   .feature-card:hover .feature-icon {
     transform: translateY(-8px);
     box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15);
-  }
-
-  /* Custom Get Started Button with hover animation */
-  .custom-get-started-button {
-    @apply relative overflow-hidden text-white py-3 px-8 rounded-full font-bold transition-all duration-300 shadow-lg inline-flex items-center;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .custom-get-started-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    transition: all 0.4s ease;
-    z-index: -1;
-  }
-  
-  .custom-get-started-button:hover {
-    color: white;
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  }
-  
-  .custom-get-started-button:hover::before {
-    left: 0;
   }
 
   /* Connection path animations */
@@ -381,9 +332,9 @@
   }
 }
 
-.animate-gradient {
+.animate-gradient-shift {
   background-size: 200% 200%;
-  animation: gradient-shift 4s ease infinite;
+  animation: gradient-shift 6s ease infinite;
 }
 
 .glow-line {
@@ -406,4 +357,48 @@
     background-position: 0% 50%;
     opacity: 0.7;
   }
+}
+
+@keyframes dash {
+  0%, 10% {
+    stroke-dashoffset: 500;
+    opacity: 0.3;
+  }
+  60%, 100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* Animate the gradient behind the text */
+.text-gradient-hero {
+  background: linear-gradient(135deg, #ffffff 0%, #00EEFF 50%, #FF2A6D 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* CTA button hover animation */
+.cta-button .custom-get-started-button {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.cta-button .custom-get-started-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  transition: all 0.4s;
+  z-index: -1;
+}
+
+.cta-button .custom-get-started-button:hover::before {
+  left: 0;
 }

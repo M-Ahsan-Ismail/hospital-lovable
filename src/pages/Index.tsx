@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -55,33 +54,34 @@ const Index = () => {
     
     // Title word animations
     if (titleRef.current) {
-      // Animate the connecting lines between words
+      // Animate each corner connector separately
       gsap.fromTo(
-        ".word-connecting-line",
+        ".corner-connector",
         { 
-          width: 0,
+          drawSVG: "0%",
           opacity: 0
         },
         { 
-          width: "100%",
+          drawSVG: "100%",
           opacity: 1,
           duration: 1.5,
-          stagger: 0.3,
-          delay: 0.5,
+          stagger: 0.2,
           ease: "power2.inOut"
         }
       );
       
       // Animate the word glows
       gsap.fromTo(
-        ".word-border-gradient",
+        ".title-word",
         { 
           opacity: 0,
-          scale: 0.95
+          scale: 0.95,
+          textShadow: "0 0 0px rgba(0, 238, 255, 0)"
         },
         { 
           opacity: 1, 
           scale: 1,
+          textShadow: "0 0 15px rgba(0, 238, 255, 0.5), 0 0 25px rgba(255, 42, 109, 0.3)",
           stagger: 0.3,
           duration: 1,
           ease: "back.out(1.7)"
@@ -224,30 +224,68 @@ const Index = () => {
   }, []);
   
   return (
-    <div className="min-h-screen flex flex-col bg-white" ref={mainRef}>
-      {/* Diagonal background with gradient boundary - covers the entire hero section */}
-      <div className="diagonal-gradient animate-gradient"></div>
+    <div className="min-h-screen flex flex-col" ref={mainRef}>
+      {/* Enhanced gradient background covering the entire hero section */}
+      <div className="hero-gradient-bg absolute inset-0 z-[-1] w-full h-full bg-gradient-to-r from-purple-500/80 via-pink-500/80 to-orange-400/80 animate-gradient-shift"></div>
       
       <Navbar />
       
-      {/* Hero Section - Stripe-inspired with diagonal boundary */}
+      {/* Hero Section with enhanced animation */}
       <section className="pt-32 pb-20 md:pt-40 md:pb-32 px-4 relative overflow-hidden">
         <div className="container mx-auto relative z-10">
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 mb-10 md:mb-0">
-              <div ref={titleRef} className="mb-4 relative">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight hero-text">
-                  <span className="word-border-gradient px-1 py-0.5 mr-2">Hospital</span>
-                  <span className="word-border-gradient px-1 py-0.5 mr-2">Management</span>
-                  <span className="word-border-gradient px-1 py-0.5">System</span>
+              <div ref={titleRef} className="mb-8 relative title-animation-container">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight relative z-10">
+                  <div className="flex flex-col items-start">
+                    <span className="title-word my-1 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-200">Hospital</span>
+                    <span className="title-word my-1 text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-300">Management</span>
+                    <span className="title-word my-1 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-300">System</span>
+                  </div>
                   
-                  {/* Connecting lines between words */}
-                  <span className="word-connecting-line" style={{left: "calc(8.5ch - 5px)", width: "10ch"}}></span>
-                  <span className="word-connecting-line" style={{left: "calc(19.5ch - 5px)", width: "7ch"}}></span>
+                  {/* SVG with corner-to-corner animated paths */}
+                  <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-0" viewBox="0 0 500 200" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="lineGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#00EEFF" />
+                        <stop offset="50%" stopColor="#FF2A6D" />
+                        <stop offset="100%" stopColor="#D866FF" />
+                      </linearGradient>
+                      <linearGradient id="lineGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#D866FF" />
+                        <stop offset="50%" stopColor="#00EEFF" />
+                        <stop offset="100%" stopColor="#FF2A6D" />
+                      </linearGradient>
+                      <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                      </filter>
+                    </defs>
+                    
+                    {/* Hospital to Management connector */}
+                    <path 
+                      className="corner-connector"
+                      d="M 180,20 H 200 V 65 H 0" 
+                      fill="none" 
+                      stroke="url(#lineGradient1)" 
+                      strokeWidth="2"
+                      filter="url(#glow)"
+                    />
+                    
+                    {/* Management to System connector */}
+                    <path 
+                      className="corner-connector"
+                      d="M 260,65 H 290 V 110 H 0" 
+                      fill="none" 
+                      stroke="url(#lineGradient2)" 
+                      strokeWidth="2"
+                      filter="url(#glow)"
+                    />
+                  </svg>
                 </h1>
               </div>
               
-              <p className="text-white/90 text-lg md:text-xl mb-8 max-w-xl hero-text">
+              <p className="text-white/90 text-lg md:text-xl mb-8 max-w-xl hero-text drop-shadow-md">
                 Efficient Patient Record Management for healthcare professionals. 
                 Track patient history, visits, and medical information with our 
                 secure digital solution.
@@ -368,12 +406,14 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Path Animation Section - Enhanced with 3D and floating effects */}
+      {/* Path Animation Section - Enhanced with more striking visuals */}
       <section ref={pathsRef} className="py-20 connection-section relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
-              <span className="bg-gradient-to-r from-[#6B46C1] to-[#ED64A6] bg-clip-text text-transparent">Accept</span> and <span className="bg-gradient-to-r from-[#ED64A6] to-[#F6AD55] bg-clip-text text-transparent">optimize</span> patient care, globally
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-cyan-500 via-fuchsia-500 to-amber-500 bg-clip-text text-transparent animate-gradient-shift">Accept</span> and 
+              <span className="bg-gradient-to-r from-fuchsia-500 via-amber-500 to-cyan-500 bg-clip-text text-transparent animate-gradient-shift ml-2">optimize</span> 
+              <span className="block mt-2">patient care, globally</span>
             </h2>
             <p className="text-gray-600 max-w-xl mx-auto">
               Connect all aspects of healthcare management with our integrated system
@@ -385,24 +425,24 @@ const Index = () => {
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <linearGradient id="gradientPath1" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#6B46C1" />
-                  <stop offset="100%" stopColor="#ED64A6" />
+                  <stop offset="0%" stopColor="#00EEFF" />
+                  <stop offset="100%" stopColor="#FF2A6D" />
                 </linearGradient>
                 <linearGradient id="gradientPath2" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#ED64A6" />
+                  <stop offset="0%" stopColor="#FF2A6D" />
                   <stop offset="100%" stopColor="#F6AD55" />
                 </linearGradient>
                 <linearGradient id="gradientPath3" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#F6AD55" />
-                  <stop offset="100%" stopColor="#6B46C1" />
+                  <stop offset="100%" stopColor="#00EEFF" />
                 </linearGradient>
                 <linearGradient id="gradientPath4" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#6B46C1" />
+                  <stop offset="0%" stopColor="#00EEFF" />
                   <stop offset="100%" stopColor="#F6AD55" />
                 </linearGradient>
                 
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="4" result="blur" />
+                <filter id="pathGlow">
+                  <feGaussianBlur stdDeviation="6" result="blur" />
                   <feComposite in="SourceGraphic" in2="blur" operator="over" />
                 </filter>
               </defs>
@@ -410,62 +450,62 @@ const Index = () => {
               <path 
                 d="M200,200 C300,100 500,100 600,200" 
                 stroke="url(#gradientPath1)" 
-                strokeWidth="3" 
+                strokeWidth="4" 
                 className="connection-path"
                 fill="none"
-                filter="url(#glow)"
+                filter="url(#pathGlow)"
               />
               <path 
                 d="M600,200 C700,300 700,400 600,500" 
                 stroke="url(#gradientPath2)" 
-                strokeWidth="3" 
+                strokeWidth="4" 
                 className="connection-path"
                 fill="none"
-                filter="url(#glow)"
+                filter="url(#pathGlow)"
               />
               <path 
                 d="M600,500 C500,600 300,600 200,500" 
                 stroke="url(#gradientPath3)" 
-                strokeWidth="3" 
+                strokeWidth="4" 
                 className="connection-path"
                 fill="none"
-                filter="url(#glow)"
+                filter="url(#pathGlow)"
               />
               <path 
                 d="M200,500 C100,400 100,300 200,200" 
                 stroke="url(#gradientPath4)" 
-                strokeWidth="3" 
+                strokeWidth="4" 
                 className="connection-path"
                 fill="none"
-                filter="url(#glow)"
+                filter="url(#pathGlow)"
               />
             </svg>
             
             {/* Enhanced Connection points with 3D rotation and shadow */}
             <div className="absolute top-[30%] left-[25%] connection-icon transform transition-all duration-500 hover:scale-110">
-              <div className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center transform transition-all duration-500 hover:rotate-y-12">
-                <Database className="h-8 w-8 text-[#6B46C1]" />
+              <div className="w-16 h-16 rounded-full bg-white/90 shadow-xl flex items-center justify-center transform transition-all duration-500 hover:rotate-y-12 shadow-glow-cyan">
+                <Database className="h-8 w-8 text-[#00EEFF]" />
               </div>
               <div className="mt-2 text-center text-gray-700 font-medium">Patient Data</div>
             </div>
             
             <div className="absolute top-[30%] right-[25%] connection-icon transform transition-all duration-500 hover:scale-110">
-              <div className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center transform transition-all duration-500 hover:rotate-y-12">
-                <Stethoscope className="h-8 w-8 text-[#ED64A6]" />
+              <div className="w-16 h-16 rounded-full bg-white/90 shadow-xl flex items-center justify-center transform transition-all duration-500 hover:rotate-y-12 shadow-glow-magenta">
+                <Stethoscope className="h-8 w-8 text-[#FF2A6D]" />
               </div>
               <div className="mt-2 text-center text-gray-700 font-medium">Diagnosis</div>
             </div>
             
             <div className="absolute bottom-[30%] right-[25%] connection-icon transform transition-all duration-500 hover:scale-110">
-              <div className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center transform transition-all duration-500 hover:rotate-y-12">
+              <div className="w-16 h-16 rounded-full bg-white/90 shadow-xl flex items-center justify-center transform transition-all duration-500 hover:rotate-y-12 shadow-glow-cyan">
                 <Clock className="h-8 w-8 text-[#F6AD55]" />
               </div>
               <div className="mt-2 text-center text-gray-700 font-medium">Appointments</div>
             </div>
             
             <div className="absolute bottom-[30%] left-[25%] connection-icon transform transition-all duration-500 hover:scale-110">
-              <div className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center transform transition-all duration-500 hover:rotate-y-12">
-                <Users className="h-8 w-8 text-[#6B46C1]" />
+              <div className="w-16 h-16 rounded-full bg-white/90 shadow-xl flex items-center justify-center transform transition-all duration-500 hover:rotate-y-12 shadow-glow-mixed">
+                <Users className="h-8 w-8 text-[#D866FF]" />
               </div>
               <div className="mt-2 text-center text-gray-700 font-medium">Staff Access</div>
             </div>
@@ -473,7 +513,7 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Enhanced Features Section - Now with glowing animated cards */}
+      {/* Enhanced Features Section with glowing border animation */}
       <section ref={featuresRef} id="features" className="py-20 bg-black">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -529,14 +569,14 @@ const Index = () => {
                 key={index} 
                 className="feature-card glowing-card-wrapper"
               >
-                <div className={`feature-card-inner bg-black border ${feature.borderColor} p-6 rounded-2xl relative z-10 h-full`}>
-                  <div className={`feature-icon ${feature.iconColor} bg-gradient-to-br from-${feature.glowColor}-500/10 to-${feature.glowColor}-600/10`}>
+                <div className={`feature-card-inner bg-black border border-${feature.glowColor}-500/30 p-6 rounded-2xl relative z-10 h-full`}>
+                  <div className={`glow-effect glow-${feature.glowColor} absolute inset-0 rounded-2xl`}></div>
+                  <div className={`feature-icon ${feature.iconColor} bg-gradient-to-br ${feature.color}/10 relative z-20`}>
                     <feature.icon size={28} />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 text-white">{feature.title}</h3>
-                  <p className="text-white/70">{feature.description}</p>
+                  <h3 className="text-xl font-semibold mb-2 text-white relative z-20">{feature.title}</h3>
+                  <p className="text-white/70 relative z-20">{feature.description}</p>
                 </div>
-                <div className={`glow-effect glow-${feature.glowColor}`}></div>
               </div>
             ))}
           </div>
@@ -546,7 +586,7 @@ const Index = () => {
       {/* Enhanced CTA Section with more dynamic visuals */}
       <section ref={ctaRef} className="py-20 relative overflow-hidden">
         {/* Enhanced dynamic background with 3D layers */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#6B46C1] to-[#ED64A6] animate-gradient z-0"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 animate-gradient-shift z-0"></div>
         
         {/* Enhanced animated background elements with 3D rotation */}
         <div className="absolute inset-0 z-1">
@@ -559,10 +599,12 @@ const Index = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white cta-text relative inline-block">
-              Ready to <span className="relative px-2">
+              <span className="relative">Ready to </span>
+              <span className="relative px-2">
                 <span className="absolute inset-0 w-full h-full bg-white/10 rounded-md transform -skew-x-12"></span>
                 <span className="relative">Modernize</span>
-              </span> Your Hospital Records?
+              </span>
+              <span className="relative"> Your Hospital Records?</span>
               <div className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
             </h2>
             
@@ -571,14 +613,14 @@ const Index = () => {
               streamline their workflow.
             </p>
             
-            <div className="inline-block cta-button relative overflow-hidden group">
+            <div className="cta-button">
               <Link 
                 to="/signup"
-                className="custom-get-started-button group-hover:text-white"
+                className="custom-get-started-button group transition-all duration-300 bg-transparent border border-white/30 hover:bg-black hover:text-white hover:border-transparent"
               >
                 Get Started Now
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Link>
-              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-[#6B46C1]/30 to-[#ED64A6]/30 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             </div>
           </div>
         </div>
