@@ -18,6 +18,7 @@ const Index = () => {
   const mainRef = useRef<HTMLDivElement>(null);
   const deviceRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
   const [pathsVisible, setPathsVisible] = useState(false);
   
   useEffect(() => {
@@ -51,6 +52,42 @@ const Index = () => {
       { opacity: 0, y: 10 },
       { opacity: 1, y: 0, duration: 0.6, delay: 0.8, ease: "power2.out" }
     );
+    
+    // Title word animations
+    if (titleRef.current) {
+      // Animate the connecting lines between words
+      gsap.fromTo(
+        ".word-connecting-line",
+        { 
+          width: 0,
+          opacity: 0
+        },
+        { 
+          width: "100%",
+          opacity: 1,
+          duration: 1.5,
+          stagger: 0.3,
+          delay: 0.5,
+          ease: "power2.inOut"
+        }
+      );
+      
+      // Animate the word glows
+      gsap.fromTo(
+        ".word-border-gradient",
+        { 
+          opacity: 0,
+          scale: 0.95
+        },
+        { 
+          opacity: 1, 
+          scale: 1,
+          stagger: 0.3,
+          duration: 1,
+          ease: "back.out(1.7)"
+        }
+      );
+    }
     
     // Advanced features animation with scrolltrigger
     if (featuresRef.current) {
@@ -120,7 +157,7 @@ const Index = () => {
       });
     }
     
-    // Path animation
+    // Path animation with enhanced effects
     if (pathsRef.current) {
       ScrollTrigger.create({
         trigger: pathsRef.current,
@@ -128,19 +165,44 @@ const Index = () => {
         onEnter: () => {
           setPathsVisible(true);
           
-          // Animate each path
+          // Animate each path with staggered timing
           gsap.fromTo(
             ".connection-path",
             { strokeDashoffset: 300 },
             { strokeDashoffset: 0, duration: 1.5, ease: "power2.out", stagger: 0.2 }
           );
           
-          // Animate icons
+          // Animate icons with 3D effect
           gsap.fromTo(
             ".connection-icon",
-            { opacity: 0, scale: 0.5 },
-            { opacity: 1, scale: 1, duration: 0.7, stagger: 0.3, delay: 0.5 }
+            { 
+              opacity: 0, 
+              scale: 0.5,
+              y: 20,
+              rotationY: 45
+            },
+            { 
+              opacity: 1, 
+              scale: 1, 
+              y: 0,
+              rotationY: 0,
+              duration: 0.8, 
+              stagger: 0.3, 
+              delay: 0.5,
+              ease: "back.out(1.7)"
+            }
           );
+          
+          // Add floating effect to connection icons after they appear
+          gsap.to(".connection-icon", {
+            y: "-10px",
+            duration: 2,
+            delay: 2,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            stagger: 0.2
+          });
         }
       });
     }
@@ -163,7 +225,7 @@ const Index = () => {
   
   return (
     <div className="min-h-screen flex flex-col bg-white" ref={mainRef}>
-      {/* Diagonal background with gradient boundary - now covers the entire hero section */}
+      {/* Diagonal background with gradient boundary - covers the entire hero section */}
       <div className="diagonal-gradient animate-gradient"></div>
       
       <Navbar />
@@ -173,10 +235,17 @@ const Index = () => {
         <div className="container mx-auto relative z-10">
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 mb-10 md:mb-0">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight hero-text text-gradient-hero">
-                Hospital Management
-                <span className="text-neon-cyan"> System</span>
-              </h1>
+              <div ref={titleRef} className="mb-4 relative">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight hero-text">
+                  <span className="word-border-gradient px-1 py-0.5 mr-2">Hospital</span>
+                  <span className="word-border-gradient px-1 py-0.5 mr-2">Management</span>
+                  <span className="word-border-gradient px-1 py-0.5">System</span>
+                  
+                  {/* Connecting lines between words */}
+                  <span className="word-connecting-line" style={{left: "calc(8.5ch - 5px)", width: "10ch"}}></span>
+                  <span className="word-connecting-line" style={{left: "calc(19.5ch - 5px)", width: "7ch"}}></span>
+                </h1>
+              </div>
               
               <p className="text-white/90 text-lg md:text-xl mb-8 max-w-xl hero-text">
                 Efficient Patient Record Management for healthcare professionals. 
@@ -299,12 +368,12 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Path Animation Section - Stripe-inspired */}
-      <section ref={pathsRef} className="py-20 bg-gradient-to-b from-white to-[#f6f9fc] relative">
+      {/* Path Animation Section - Enhanced with 3D and floating effects */}
+      <section ref={pathsRef} className="py-20 connection-section relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
-              <span className="text-[#6B46C1]">Accept</span> and <span className="text-[#6B46C1]">optimize</span> patient care, globally
+              <span className="bg-gradient-to-r from-[#6B46C1] to-[#ED64A6] bg-clip-text text-transparent">Accept</span> and <span className="bg-gradient-to-r from-[#ED64A6] to-[#F6AD55] bg-clip-text text-transparent">optimize</span> patient care, globally
             </h2>
             <p className="text-gray-600 max-w-xl mx-auto">
               Connect all aspects of healthcare management with our integrated system
@@ -312,62 +381,90 @@ const Index = () => {
           </div>
           
           <div className={`relative max-w-4xl mx-auto h-[400px] md:h-[500px] ${pathsVisible ? 'visible' : ''}`}>
-            {/* SVG for connection paths */}
+            {/* Enhanced SVG for connection paths with glow effects */}
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="gradientPath1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#6B46C1" />
+                  <stop offset="100%" stopColor="#ED64A6" />
+                </linearGradient>
+                <linearGradient id="gradientPath2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#ED64A6" />
+                  <stop offset="100%" stopColor="#F6AD55" />
+                </linearGradient>
+                <linearGradient id="gradientPath3" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#F6AD55" />
+                  <stop offset="100%" stopColor="#6B46C1" />
+                </linearGradient>
+                <linearGradient id="gradientPath4" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#6B46C1" />
+                  <stop offset="100%" stopColor="#F6AD55" />
+                </linearGradient>
+                
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              
               <path 
                 d="M200,200 C300,100 500,100 600,200" 
-                stroke="#6B46C1" 
-                strokeWidth="2" 
+                stroke="url(#gradientPath1)" 
+                strokeWidth="3" 
                 className="connection-path"
                 fill="none"
+                filter="url(#glow)"
               />
               <path 
                 d="M600,200 C700,300 700,400 600,500" 
-                stroke="#ED64A6" 
-                strokeWidth="2" 
+                stroke="url(#gradientPath2)" 
+                strokeWidth="3" 
                 className="connection-path"
                 fill="none"
+                filter="url(#glow)"
               />
               <path 
                 d="M600,500 C500,600 300,600 200,500" 
-                stroke="#F6AD55" 
-                strokeWidth="2" 
+                stroke="url(#gradientPath3)" 
+                strokeWidth="3" 
                 className="connection-path"
                 fill="none"
+                filter="url(#glow)"
               />
               <path 
                 d="M200,500 C100,400 100,300 200,200" 
-                stroke="#6B46C1" 
-                strokeWidth="2" 
+                stroke="url(#gradientPath4)" 
+                strokeWidth="3" 
                 className="connection-path"
                 fill="none"
+                filter="url(#glow)"
               />
             </svg>
             
-            {/* Connection points */}
-            <div className="absolute top-[30%] left-[25%] connection-icon">
-              <div className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center">
+            {/* Enhanced Connection points with 3D rotation and shadow */}
+            <div className="absolute top-[30%] left-[25%] connection-icon transform transition-all duration-500 hover:scale-110">
+              <div className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center transform transition-all duration-500 hover:rotate-y-12">
                 <Database className="h-8 w-8 text-[#6B46C1]" />
               </div>
               <div className="mt-2 text-center text-gray-700 font-medium">Patient Data</div>
             </div>
             
-            <div className="absolute top-[30%] right-[25%] connection-icon">
-              <div className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center">
+            <div className="absolute top-[30%] right-[25%] connection-icon transform transition-all duration-500 hover:scale-110">
+              <div className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center transform transition-all duration-500 hover:rotate-y-12">
                 <Stethoscope className="h-8 w-8 text-[#ED64A6]" />
               </div>
               <div className="mt-2 text-center text-gray-700 font-medium">Diagnosis</div>
             </div>
             
-            <div className="absolute bottom-[30%] right-[25%] connection-icon">
-              <div className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center">
+            <div className="absolute bottom-[30%] right-[25%] connection-icon transform transition-all duration-500 hover:scale-110">
+              <div className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center transform transition-all duration-500 hover:rotate-y-12">
                 <Clock className="h-8 w-8 text-[#F6AD55]" />
               </div>
               <div className="mt-2 text-center text-gray-700 font-medium">Appointments</div>
             </div>
             
-            <div className="absolute bottom-[30%] left-[25%] connection-icon">
-              <div className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center">
+            <div className="absolute bottom-[30%] left-[25%] connection-icon transform transition-all duration-500 hover:scale-110">
+              <div className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center transform transition-all duration-500 hover:rotate-y-12">
                 <Users className="h-8 w-8 text-[#6B46C1]" />
               </div>
               <div className="mt-2 text-center text-gray-700 font-medium">Staff Access</div>
@@ -446,16 +543,16 @@ const Index = () => {
         </div>
       </section>
       
-      {/* CTA Section - Enhanced visuals */}
+      {/* Enhanced CTA Section with more dynamic visuals */}
       <section ref={ctaRef} className="py-20 relative overflow-hidden">
-        {/* Dynamic background */}
+        {/* Enhanced dynamic background with 3D layers */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#6B46C1] to-[#ED64A6] animate-gradient z-0"></div>
         
-        {/* Animated background elements */}
+        {/* Enhanced animated background elements with 3D rotation */}
         <div className="absolute inset-0 z-1">
-          <div className="absolute top-10 left-1/4 w-24 h-24 rounded-full bg-white/10 animate-float"></div>
-          <div className="absolute bottom-20 right-1/3 w-32 h-32 rounded-full bg-white/5 animate-float" style={{animationDelay: '0.5s'}}></div>
-          <div className="absolute top-1/3 right-1/4 w-16 h-16 rounded-full bg-white/10 animate-float" style={{animationDelay: '1s'}}></div>
+          <div className="absolute top-10 left-1/4 w-24 h-24 rounded-full bg-white/10 animate-float transform rotate-12 backdrop-blur-sm"></div>
+          <div className="absolute bottom-20 right-1/3 w-32 h-32 rounded-full bg-white/5 animate-float transform -rotate-12 backdrop-blur-sm" style={{animationDelay: '0.5s'}}></div>
+          <div className="absolute top-1/3 right-1/4 w-16 h-16 rounded-full bg-white/10 animate-float transform rotate-45 backdrop-blur-sm" style={{animationDelay: '1s'}}></div>
           <div className="absolute cta-glow top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] rounded-full bg-white/5 blur-3xl"></div>
         </div>
         
@@ -474,13 +571,14 @@ const Index = () => {
               streamline their workflow.
             </p>
             
-            <div className="inline-block cta-button">
+            <div className="inline-block cta-button relative overflow-hidden group">
               <Link 
                 to="/signup"
-                className="custom-get-started-button"
+                className="custom-get-started-button group-hover:text-white"
               >
                 Get Started Now
               </Link>
+              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-[#6B46C1]/30 to-[#ED64A6]/30 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             </div>
           </div>
         </div>
