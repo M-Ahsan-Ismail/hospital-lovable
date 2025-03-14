@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, LogOut } from "lucide-react";
@@ -195,13 +196,10 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-orbit",
         isScrolled || isMobileMenuOpen 
-          ? "shadow-md py-3" 
+          ? "bg-blur border-b border-white/10 py-3" 
           : "py-5"
       )}
     >
-      {/* Always visible animated gradient background */}
-      <div className="navbar-gradient"></div>
-      
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div 
           onClick={navigateToHome} 
@@ -218,7 +216,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
         
         {/* Welcome message for logged in users */}
         {currentUser && (
-          <div className="hidden md:block text-white/90">
+          <div className="hidden md:block text-white/80">
             Welcome, <span className="text-neon-cyan">{currentUser.fullName}</span>
           </div>
         )}
@@ -227,37 +225,33 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
         <div className="hidden md:flex items-center space-x-6">
           {links.map((link) => 
             link.isButton ? (
-              <AnimatedButton key={link.title} variant="magenta" size="sm" className="ml-2">
+              <AnimatedButton key={link.title} variant="cyan" size="sm" className="ml-2">
                 <Link to={link.href}>{link.title}</Link>
               </AnimatedButton>
             ) : (
-              link.title === "Sign In" ? (
-                <Link
-                  key={link.title}
-                  to={link.href}
-                  className="relative py-2 px-4 text-[#1C2526] font-medium bg-white/90 rounded-lg hover:bg-white transition-colors duration-300 shadow-sm"
-                >
-                  {link.title}
-                </Link>
-              ) : (
-                <Link
-                  key={link.title}
-                  to={link.href}
+              <Link
+                key={link.title}
+                to={link.href}
+                className={cn(
+                  "relative py-2 text-white/80 hover:text-neon-cyan transition-colors duration-300 group",
+                  location.pathname === link.href && "text-neon-cyan"
+                )}
+              >
+                {link.title}
+                <span
                   className={cn(
-                    "relative py-2 px-4 text-white/90 hover:text-white hover:bg-sky-500/20 rounded-lg transition-all duration-300",
-                    location.pathname === link.href && "text-white bg-sky-500/20"
+                    "absolute bottom-0 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300",
+                    location.pathname === link.href && "w-full"
                   )}
-                >
-                  {link.title}
-                </Link>
-              )
+                />
+              </Link>
             )
           )}
           
           {/* Logout button for authenticated users */}
           {currentUser && (
             <button
-              onClick={() => handleLogout()}
+              onClick={handleLogout}
               className="relative py-2 text-white/80 hover:text-neon-cyan transition-colors duration-300 group flex items-center"
             >
               <LogOut size={16} className="mr-2" />
@@ -278,18 +272,18 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
       
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden animate-fade-in">
+        <div className="md:hidden bg-blur border-t border-white/10 animate-fade-in">
           <div className="container mx-auto py-4 px-4 flex flex-col space-y-4">
             {/* Welcome message for mobile */}
             {currentUser && (
-              <div className="text-white/90 px-4 py-2">
+              <div className="text-white/80 px-4 py-2">
                 Welcome, <span className="text-neon-cyan">{currentUser.fullName}</span>
               </div>
             )}
             
             {links.map((link) => 
               link.isButton ? (
-                <AnimatedButton key={link.title} variant="magenta" size="sm" className="w-full">
+                <AnimatedButton key={link.title} variant="cyan" size="sm" className="w-full">
                   <Link 
                     to={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -298,28 +292,17 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
                   </Link>
                 </AnimatedButton>
               ) : (
-                link.title === "Sign In" ? (
-                  <Link
-                    key={link.title}
-                    to={link.href}
-                    className="py-2 px-4 text-[#1C2526] font-medium bg-white/90 rounded-md hover:bg-white transition-colors duration-300"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {link.title}
-                  </Link>
-                ) : (
-                  <Link
-                    key={link.title}
-                    to={link.href}
-                    className={cn(
-                      "py-2 px-4 rounded-md hover:bg-sky-500/20 text-white/90 hover:text-white transition-colors duration-300",
-                      location.pathname === link.href && "bg-sky-500/20 text-white"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {link.title}
-                  </Link>
-                )
+                <Link
+                  key={link.title}
+                  to={link.href}
+                  className={cn(
+                    "py-2 px-4 rounded-md hover:bg-white/5 text-white/80 hover:text-neon-cyan transition-colors duration-300",
+                    location.pathname === link.href && "bg-white/5 text-neon-cyan"
+                  )}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.title}
+                </Link>
               )
             )}
             
@@ -330,7 +313,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
                   handleLogout();
                   setIsMobileMenuOpen(false);
                 }}
-                className="py-2 px-4 rounded-md hover:bg-white/5 text-white/90 hover:text-neon-cyan transition-colors duration-300 flex items-center"
+                className="py-2 px-4 rounded-md hover:bg-white/5 text-white/80 hover:text-neon-cyan transition-colors duration-300 flex items-center"
               >
                 <LogOut size={16} className="mr-2" />
                 Logout

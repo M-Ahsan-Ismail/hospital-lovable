@@ -1,4 +1,3 @@
-
 import React from "react";
 
 interface HexagonBackgroundProps {
@@ -6,7 +5,6 @@ interface HexagonBackgroundProps {
 }
 
 const HexagonBackground: React.FC<HexagonBackgroundProps> = ({ dark = true }) => {
-  // Don't render the hexagon background in light mode
   if (!dark) return null;
   
   return (
