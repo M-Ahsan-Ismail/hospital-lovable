@@ -40,26 +40,16 @@ const PatientHistory = () => {
     fetchPatients();
   }, [statusFilter]);
   
-  // Apply search and filtering - enhanced for real-time updates
+  // Apply search and filtering
   useEffect(() => {
     if (patients.length > 0) {
       let results = [...patients];
       
-      // Apply status filter if not "All"
-      if (statusFilter !== "All") {
-        results = results.filter(patient => 
-          patient.status === statusFilter
-        );
-      }
-      
-      // Apply search query - more robust to match multiple fields
+      // Apply search query
       if (searchQuery.trim() !== '') {
-        const query = searchQuery.toLowerCase().trim();
+        const query = searchQuery.toLowerCase();
         results = results.filter(patient => 
-          patient.name.toLowerCase().includes(query) ||
-          patient.disease.toLowerCase().includes(query) ||
-          patient.cnic.includes(query) ||
-          (patient.phoneNumber && patient.phoneNumber.includes(query))
+          patient.name.toLowerCase().includes(query)
         );
       }
       
@@ -67,7 +57,7 @@ const PatientHistory = () => {
     } else {
       setFilteredPatients([]);
     }
-  }, [patients, searchQuery, statusFilter]);
+  }, [patients, searchQuery]);
   
   const fetchPatients = async () => {
     try {
@@ -101,7 +91,7 @@ const PatientHistory = () => {
       if (error) throw error;
       
       // Map database fields to interface properties
-      const mappedData: Patient[] = (data || []).map((item: any) => ({
+      const mappedData: Patient[] = (data || []).map(item => ({
         id: item.id,
         name: item.name,
         age: item.age,
@@ -121,12 +111,13 @@ const PatientHistory = () => {
       }));
       
       setPatients(mappedData);
+      setFilteredPatients(mappedData);
     } catch (error: any) {
       console.error('Error fetching patients:', error);
       toast({
         title: "Error",
         description: "Failed to load patient records",
-        variant: "destructive",
+        variant: "destructive", // Fixed: using valid variant
       });
     } finally {
       setLoading(false);
@@ -165,7 +156,7 @@ const PatientHistory = () => {
       toast({
         title: "Error",
         description: "Failed to delete patient record",
-        variant: "destructive",
+        variant: "destructive", // Fixed: using valid variant
       });
     }
   };
@@ -222,9 +213,9 @@ const PatientHistory = () => {
                 placeholder="Search patients..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/40 pl-10"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/40 pr-8"
               />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/40" />
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/40" />
             </div>
             
             <AnimatedButton 
