@@ -214,12 +214,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
           <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300" />
         </div>
         
-        {/* Welcome message for logged in users */}
-        {currentUser && (
-          <div className="hidden md:block text-white/80">
-            Welcome, <span className="text-neon-cyan">{currentUser.fullName}</span>
-          </div>
-        )}
+        
         
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
@@ -274,12 +269,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-blur border-t border-white/10 animate-fade-in">
           <div className="container mx-auto py-4 px-4 flex flex-col space-y-4">
-            {/* Welcome message for mobile */}
-            {currentUser && (
-              <div className="text-white/80 px-4 py-2">
-                Welcome, <span className="text-neon-cyan">{currentUser.fullName}</span>
-              </div>
-            )}
+           
             
             {links.map((link) => 
               link.isButton ? (
