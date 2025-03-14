@@ -197,10 +197,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-orbit",
         isScrolled || isMobileMenuOpen 
           ? "bg-blur border-b border-white/10 py-3" 
-          : "py-5",
-        location.pathname === "/" && !isScrolled && !isMobileMenuOpen
-          ? "bg-transparent" 
-          : "bg-blur"
+          : "py-5"
       )}
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
@@ -228,36 +225,26 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
         <div className="hidden md:flex items-center space-x-6">
           {links.map((link) => 
             link.isButton ? (
-              <AnimatedButton key={link.title} variant="magenta" size="sm" className="ml-2">
+              <AnimatedButton key={link.title} variant="cyan" size="sm" className="ml-2">
                 <Link to={link.href}>{link.title}</Link>
               </AnimatedButton>
             ) : (
-              link.title === "Sign In" ? (
-                <Link
-                  key={link.title}
-                  to={link.href}
-                  className="relative py-2 px-4 text-[#6772e5] font-medium bg-white/90 rounded-md hover:bg-white transition-colors duration-300"
-                >
-                  {link.title}
-                </Link>
-              ) : (
-                <Link
-                  key={link.title}
-                  to={link.href}
+              <Link
+                key={link.title}
+                to={link.href}
+                className={cn(
+                  "relative py-2 text-white/80 hover:text-neon-cyan transition-colors duration-300 group",
+                  location.pathname === link.href && "text-neon-cyan"
+                )}
+              >
+                {link.title}
+                <span
                   className={cn(
-                    "relative py-2 text-white/80 hover:text-neon-cyan transition-colors duration-300 group",
-                    location.pathname === link.href && "text-neon-cyan"
+                    "absolute bottom-0 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300",
+                    location.pathname === link.href && "w-full"
                   )}
-                >
-                  {link.title}
-                  <span
-                    className={cn(
-                      "absolute bottom-0 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300",
-                      location.pathname === link.href && "w-full"
-                    )}
-                  />
-                </Link>
-              )
+                />
+              </Link>
             )
           )}
           
@@ -296,7 +283,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
             
             {links.map((link) => 
               link.isButton ? (
-                <AnimatedButton key={link.title} variant="magenta" size="sm" className="w-full">
+                <AnimatedButton key={link.title} variant="cyan" size="sm" className="w-full">
                   <Link 
                     to={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -305,28 +292,17 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
                   </Link>
                 </AnimatedButton>
               ) : (
-                link.title === "Sign In" ? (
-                  <Link
-                    key={link.title}
-                    to={link.href}
-                    className="py-2 px-4 text-[#6772e5] font-medium bg-white/90 rounded-md hover:bg-white transition-colors duration-300"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {link.title}
-                  </Link>
-                ) : (
-                  <Link
-                    key={link.title}
-                    to={link.href}
-                    className={cn(
-                      "py-2 px-4 rounded-md hover:bg-white/5 text-white/80 hover:text-neon-cyan transition-colors duration-300",
-                      location.pathname === link.href && "bg-white/5 text-neon-cyan"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {link.title}
-                  </Link>
-                )
+                <Link
+                  key={link.title}
+                  to={link.href}
+                  className={cn(
+                    "py-2 px-4 rounded-md hover:bg-white/5 text-white/80 hover:text-neon-cyan transition-colors duration-300",
+                    location.pathname === link.href && "bg-white/5 text-neon-cyan"
+                  )}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.title}
+                </Link>
               )
             )}
             

@@ -49,31 +49,6 @@
   .bg-blur {
     @apply bg-black/70 backdrop-blur-md;
   }
-  
-  .diagonal-gradient {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, #7a73ff 0%, #80e9ff 50%, #fafafa 50%, #ffffff 100%);
-    z-index: -1;
-  }
-  
-  .hospital-image-container {
-    perspective: 1000px;
-    transform-style: preserve-3d;
-  }
-  
-  .hospital-device {
-    transform: rotateY(-10deg) rotateX(5deg);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    transition: transform 0.5s ease;
-  }
-  
-  .hospital-device:hover {
-    transform: rotateY(-5deg) rotateX(2deg) scale(1.02);
-  }
 }
 
 .font-orbit {
@@ -119,28 +94,4 @@
 
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
-}
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 4s ease infinite;
-}
-
-.glow-line {
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-magenta), transparent);
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
 }
