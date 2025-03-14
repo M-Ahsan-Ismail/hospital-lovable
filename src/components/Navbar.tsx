@@ -209,7 +209,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
             "text-2xl font-bold text-white group-hover:text-neon-cyan transition-colors duration-300",
             isScrolled && "text-xl"
           )}>
-            HMS<span className="text-neon-cyan">.</span>
+            MediSphere<span className="text-neon-cyan">.</span>
           </span>
           <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300" />
         </div>
