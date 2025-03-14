@@ -4,9 +4,10 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AnimatedButton from "@/components/AnimatedButton";
-import { Database, Stethoscope, Clock, Users, ChevronRight, ArrowRight } from "lucide-react";
+import { Database, Stethoscope, Clock, Users, ChevronRight, ArrowRight, ShieldCheck, ClipboardCheck } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import HexagonBackground from "@/components/HexagonBackground";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -16,6 +17,7 @@ const Index = () => {
   const boxesRef = useRef<HTMLDivElement>(null);
   const pathsRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
+  const deviceRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     // Main page animation
@@ -25,12 +27,22 @@ const Index = () => {
       { opacity: 1, y: 0, stagger: 0.2, duration: 0.8, ease: "power2.out" }
     );
     
-    // Dashboard animation
+    // Hospital device animation
     gsap.fromTo(
-      ".dashboard-preview",
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 1, delay: 0.5, ease: "power2.out" }
+      ".hospital-device",
+      { opacity: 0, y: 30, rotateY: -20 },
+      { opacity: 1, y: 0, rotateY: -10, duration: 1, delay: 0.5, ease: "power2.out" }
     );
+    
+    // Floating elements
+    gsap.to(".floating-element", {
+      y: "-20px",
+      duration: 2,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut",
+      stagger: 0.2
+    });
     
     // Staggered grid animation
     if (boxesRef.current) {
@@ -95,22 +107,40 @@ const Index = () => {
         }
       });
     }
+    
+    // Device animation
+    if (deviceRef.current) {
+      ScrollTrigger.create({
+        trigger: deviceRef.current,
+        start: "top 70%",
+        onEnter: () => {
+          gsap.fromTo(
+            ".device-element",
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.5, stagger: 0.2, ease: "power2.out" }
+          );
+        }
+      });
+    }
   }, []);
   
   return (
     <div className="min-h-screen flex flex-col bg-white" ref={mainRef}>
+      {/* Diagonal background with gradient boundary */}
+      <div className="diagonal-gradient"></div>
+      
       <Navbar />
       
-      {/* Hero Section - Stripe-inspired */}
-      <section className="pt-32 pb-20 md:pt-40 md:pb-32 px-4 bg-gradient-to-b from-[#f6f9fc] to-white">
+      {/* Hero Section - Stripe-inspired with diagonal boundary */}
+      <section className="pt-32 pb-20 md:pt-40 md:pb-32 px-4 relative overflow-hidden">
         <div className="container mx-auto relative z-10">
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 mb-10 md:mb-0">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight text-gray-800 hero-text">
-                <span>Hospital Management </span>
-                <span className="bg-gradient-to-r from-[#6772e5] to-[#9d66d6] bg-clip-text text-transparent">
-                  System
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight hero-text">
+                <span className="bg-gradient-to-r from-[#6772e5] via-[#9d66d6] to-[#ff2a6d] bg-clip-text text-transparent">
+                  Hospital Management
                 </span>
+                <span className="text-gray-800"> System</span>
               </h1>
               
               <p className="text-gray-600 text-lg md:text-xl mb-8 max-w-xl hero-text">
@@ -120,7 +150,7 @@ const Index = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 hero-text">
-                <AnimatedButton variant="cyan" size="lg">
+                <AnimatedButton variant="magenta" size="lg">
                   <Link to="/signup" className="flex items-center">
                     Get Started
                     <ChevronRight className="ml-2" size={18} />
@@ -138,39 +168,105 @@ const Index = () => {
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </button>
               </div>
+              
+              {/* Glow line - like Stripe */}
+              <div className="glow-line w-32 mt-8 mb-4"></div>
+              
+              <div className="flex items-center space-x-4 mt-4">
+                <div className="flex -space-x-2">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs text-gray-500">MD</div>
+                  ))}
+                </div>
+                <p className="text-sm text-gray-500">Trusted by 10,000+ healthcare professionals</p>
+              </div>
             </div>
             
-            <div className="md:w-1/2 flex justify-center md:justify-end">
-              <div className="dashboard-preview relative">
-                <div className="w-72 h-72 md:w-96 md:h-96 rounded-full bg-gradient-to-r from-[#6772e5]/20 to-[#9d66d6]/20 filter blur-3xl absolute -z-10"></div>
-                <div className="w-[300px] md:w-[420px] bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xl">
-                  <div className="h-10 bg-gray-100 border-b border-gray-200 flex items-center px-4">
-                    <div className="w-3 h-3 rounded-full bg-[#ff5f57] mr-2"></div>
-                    <div className="w-3 h-3 rounded-full bg-[#ffbd2e] mr-2"></div>
-                    <div className="w-3 h-3 rounded-full bg-[#28ca41]"></div>
-                    <div className="ml-4 text-gray-600 text-sm">Patient Dashboard</div>
+            <div ref={deviceRef} className="md:w-1/2 flex justify-center md:justify-end hospital-image-container">
+              {/* Hospital application device mockup with screen */}
+              <div className="hospital-device relative w-[300px] md:w-[420px] rounded-2xl overflow-hidden shadow-xl">
+                {/* Device frame */}
+                <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+                  {/* Device header with camera & speaker */}
+                  <div className="h-6 bg-gray-100 flex items-center justify-center border-b border-gray-200">
+                    <div className="w-16 h-2 bg-gray-200 rounded-full"></div>
                   </div>
+                  
+                  {/* Screen mockup */}
                   <div className="p-4">
-                    <div className="h-8 bg-gray-100 rounded-md w-2/3 mb-4"></div>
-                    <div className="space-y-3">
-                      {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="flex items-center">
-                          <div className="w-8 h-8 rounded-md bg-[#6772e5]/10 flex items-center justify-center">
-                            <div className="w-4 h-4 rounded-sm bg-[#6772e5]/60"></div>
+                    <div className="bg-[#6772e5] text-white p-3 rounded-t-lg device-element">
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mr-3">
+                          <ShieldCheck className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="text-sm font-medium">Hospital Dashboard</div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 p-3 rounded-b-lg shadow-sm device-element">
+                      {/* Patient cards */}
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="flex items-center py-2 border-b border-gray-100 device-element">
+                          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                            <span className="text-xs text-gray-500">P{i}</span>
                           </div>
-                          <div className="ml-3 flex-1">
-                            <div className="h-2 bg-gray-200 rounded-md w-full"></div>
-                            <div className="h-2 bg-gray-100 rounded-md w-4/5 mt-2"></div>
+                          <div className="flex-1">
+                            <div className="h-2.5 bg-gray-100 rounded-full w-24 mb-1.5"></div>
+                            <div className="h-2 bg-gray-50 rounded-full w-16"></div>
+                          </div>
+                          <div className="ml-2">
+                            <div className="h-6 w-12 rounded-md bg-[#6772e5]/10 flex items-center justify-center">
+                              <div className="w-2 h-2 rounded-full bg-[#6772e5]"></div>
+                            </div>
                           </div>
                         </div>
                       ))}
-                    </div>
-                    <div className="mt-6 p-2 bg-[#6772e5]/10 rounded-md flex justify-between items-center">
-                      <div className="w-1/3 h-2 bg-[#6772e5]/20 rounded-md"></div>
-                      <div className="w-16 h-6 bg-[#6772e5]/20 rounded-md"></div>
+                      
+                      {/* Stats area */}
+                      <div className="grid grid-cols-2 gap-2 mt-3 device-element">
+                        <div className="bg-gray-50 p-2 rounded-md">
+                          <div className="h-2 bg-gray-100 rounded-full w-12 mb-1"></div>
+                          <div className="h-4 bg-gray-200 rounded-full w-10"></div>
+                        </div>
+                        <div className="bg-gray-50 p-2 rounded-md">
+                          <div className="h-2 bg-gray-100 rounded-full w-12 mb-1"></div>
+                          <div className="h-4 bg-gray-200 rounded-full w-10"></div>
+                        </div>
+                      </div>
+                      
+                      {/* EHR visualization */}
+                      <div className="mt-3 p-2 border border-dashed border-gray-200 rounded-md device-element">
+                        <div className="flex items-center mb-2">
+                          <ClipboardCheck className="w-4 h-4 text-gray-400 mr-2" />
+                          <div className="h-2 bg-gray-100 rounded-full w-32"></div>
+                        </div>
+                        <div className="h-20 bg-gray-50 rounded-md flex items-center justify-center">
+                          <div className="w-full px-2">
+                            <div className="h-1 bg-[#6772e5]/30 rounded-full w-full mb-1 relative">
+                              <div className="absolute top-0 left-0 h-1 bg-[#6772e5] rounded-full w-3/4"></div>
+                            </div>
+                            <div className="h-1 bg-[#ff2a6d]/30 rounded-full w-full mb-1 relative">
+                              <div className="absolute top-0 left-0 h-1 bg-[#ff2a6d] rounded-full w-2/5"></div>
+                            </div>
+                            <div className="h-1 bg-[#00eeff]/30 rounded-full w-full mb-1 relative">
+                              <div className="absolute top-0 left-0 h-1 bg-[#00eeff] rounded-full w-3/5"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                  
+                  {/* Device home indicator */}
+                  <div className="h-6 flex items-center justify-center">
+                    <div className="w-32 h-1 bg-gray-200 rounded-full"></div>
+                  </div>
                 </div>
+                
+                {/* Floating elements around the device */}
+                <div className="absolute -top-4 -left-8 w-16 h-16 bg-gradient-to-br from-[#6772e5]/20 to-[#9d66d6]/20 rounded-full floating-element"></div>
+                <div className="absolute -bottom-6 -right-6 w-12 h-12 bg-gradient-to-br from-[#ff2a6d]/20 to-[#ff9e7d]/20 rounded-full floating-element"></div>
+                <div className="absolute top-1/4 -right-4 w-8 h-8 bg-gradient-to-br from-[#00eeff]/20 to-[#80e9ff]/20 rounded-full floating-element"></div>
               </div>
             </div>
           </div>
