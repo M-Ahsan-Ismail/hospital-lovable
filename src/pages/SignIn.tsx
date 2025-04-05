@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -24,7 +25,22 @@ const SignIn = () => {
     const checkUser = async () => {
       try {
         setCheckingAuth(true);
-        // Check for active session first
+        
+        // Check for stored user in localStorage first (this is faster)
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          // Immediately redirect based on stored user role
+          if (user.role === 'doctor') {
+            navigate('/doctor-home', { replace: true });
+            return;
+          } else {
+            navigate('/dashboard', { replace: true });
+            return;
+          }
+        }
+        
+        // Then verify with Supabase
         const { data: sessionData } = await supabase.auth.getSession();
         
         if (sessionData.session) {
@@ -36,6 +52,16 @@ const SignIn = () => {
             .maybeSingle();
             
           if (!error && userData) {
+            // Store in localStorage and redirect
+            const userInfo = {
+              id: sessionData.session.user.id,
+              email: sessionData.session.user.email,
+              fullName: sessionData.session.user.user_metadata.full_name || sessionData.session.user.email?.split('@')[0] || 'User',
+              role: userData.role
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(userInfo));
+            
             // Redirect based on role
             if (userData.role === 'doctor') {
               navigate('/doctor-home', { replace: true });
@@ -43,26 +69,6 @@ const SignIn = () => {
               navigate('/dashboard', { replace: true });
             }
             return;
-          }
-        }
-        
-        // Fallback to localStorage check
-        const storedUser = localStorage.getItem('currentUser');
-        if (storedUser) {
-          const user = JSON.parse(storedUser);
-          
-          // Verify the stored user with Supabase
-          const { data } = await supabase.auth.getSession();
-          if (data.session) {
-            // Redirect to appropriate page based on role
-            if (user.role === 'doctor') {
-              navigate('/doctor-home', { replace: true });
-            } else {
-              navigate('/dashboard', { replace: true });
-            }
-          } else {
-            // Invalid stored user, remove it
-            localStorage.removeItem('currentUser');
           }
         }
       } catch (error) {
@@ -120,19 +126,20 @@ const SignIn = () => {
         console.log("Found user in database, creating session manually");
         
         // Store user info in localStorage
-        localStorage.setItem('currentUser', JSON.stringify({
+        const userInfo = {
           id: userData.id,
           email: email,
           fullName: userData.full_name,
           role: userData.role
-        }));
+        };
+        localStorage.setItem('currentUser', JSON.stringify(userInfo));
         
         toast({
           title: "Success",
           description: "Signed in successfully",
         });
         
-        // Redirect based on role
+        // Redirect based on role - use direct navigation without setTimeout
         if (userData.role === 'doctor') {
           navigate('/doctor-home', { replace: true });
         } else {
@@ -180,73 +187,71 @@ const SignIn = () => {
               console.error("Error creating user record:", insertError);
             }
             
-            // Store user info in localStorage
-            localStorage.setItem('currentUser', JSON.stringify({
+            // Create user info object
+            const userInfo = {
               id: data.user.id,
               email: data.user.email,
               fullName: data.user.user_metadata.full_name || email.split('@')[0],
               role: data.user.user_metadata.role || 'doctor'
-            }));
+            };
+            
+            // Store user info in localStorage
+            localStorage.setItem('currentUser', JSON.stringify(userInfo));
             
             toast({
               title: "Success",
               description: "Signed in successfully",
             });
             
-            // Use setTimeout to allow state to update in Supabase auth
-            setTimeout(() => {
-              navigate('/doctor-home', { replace: true });
-            }, 100);
-            
+            // Navigate directly without setTimeout
+            navigate('/doctor-home', { replace: true });
             return;
           }
           
           // Use the data we found by email
-          localStorage.setItem('currentUser', JSON.stringify({
+          const userInfo = {
             id: emailUserData.id,
             email: email,
             fullName: emailUserData.full_name,
             role: emailUserData.role
-          }));
+          };
+          localStorage.setItem('currentUser', JSON.stringify(userInfo));
           
           toast({
             title: "Success",
             description: "Signed in successfully",
           });
           
-          // Use setTimeout to allow state to update in Supabase auth
-          setTimeout(() => {
-            if (emailUserData.role === 'doctor') {
-              navigate('/doctor-home', { replace: true });
-            } else {
-              navigate('/dashboard', { replace: true });
-            }
-          }, 100);
+          // Navigate directly based on role
+          if (emailUserData.role === 'doctor') {
+            navigate('/doctor-home', { replace: true });
+          } else {
+            navigate('/dashboard', { replace: true });
+          }
           
           return;
         }
         
         // Store user info in localStorage
-        localStorage.setItem('currentUser', JSON.stringify({
+        const userInfo = {
           id: data.user.id,
           email: data.user.email,
           fullName: userData.full_name,
           role: userData.role
-        }));
+        };
+        localStorage.setItem('currentUser', JSON.stringify(userInfo));
         
         toast({
           title: "Success",
           description: "Signed in successfully",
         });
         
-        // Use setTimeout to allow state to update in Supabase auth
-        setTimeout(() => {
-          if (userData.role === 'doctor') {
-            navigate('/doctor-home', { replace: true });
-          } else {
-            navigate('/dashboard', { replace: true });
-          }
-        }, 100);
+        // Navigate directly based on role
+        if (userData.role === 'doctor') {
+          navigate('/doctor-home', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
       }
     } catch (error: any) {
       console.error("Sign-in error:", error);
