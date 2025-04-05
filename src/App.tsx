@@ -16,19 +16,88 @@ import NotFound from "./pages/NotFound";
 import { supabase } from "./integrations/supabase/client";
 import { toast } from "./components/ui/use-toast";
 
-const queryClient = new QueryClient();
+// Create a persistent QueryClient with retry logic
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: 10000, // 10 seconds
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Check for current user
+    // Set up the auth state listener first
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log("Auth state changed:", event);
+        
+        if (event === 'SIGNED_OUT') {
+          localStorage.removeItem('currentUser');
+          setUser(null);
+        } else if (event === 'SIGNED_IN' && session) {
+          // Defer Supabase calls with setTimeout to avoid deadlocks
+          setTimeout(async () => {
+            try {
+              // Get user info from users table
+              const { data: userData, error } = await supabase
+                .from('users')
+                .select('id, email, full_name, role')
+                .eq('id', session.user.id)
+                .maybeSingle();
+              
+              if (error) {
+                console.error("Error fetching user data:", error);
+                // Try to use metadata as fallback
+                const currentUser = {
+                  id: session.user.id,
+                  email: session.user.email,
+                  fullName: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'User',
+                  role: session.user.user_metadata.role || 'doctor'
+                };
+                
+                setUser(currentUser);
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+              } else if (userData) {
+                console.log("User data found in database:", userData);
+                // Store properly formatted user data
+                const currentUser = {
+                  id: userData.id,
+                  email: userData.email,
+                  fullName: userData.full_name,
+                  role: userData.role
+                };
+                
+                setUser(currentUser);
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+              }
+            } catch (err) {
+              console.error("Error handling auth change:", err);
+            }
+          }, 0);
+        }
+      }
+    );
+    
+    // Then check for current user
     const checkUser = async () => {
       try {
         setLoading(true);
         
-        // Get current session
+        // Check localStorage first (faster UI response)
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+          setLoading(false); // Update UI immediately with stored user
+        }
+        
+        // Get current session from Supabase
         const { data } = await supabase.auth.getSession();
         
         // Check if we have a session
@@ -40,7 +109,7 @@ const App = () => {
             .from('users')
             .select('id, email, full_name, role')
             .eq('id', data.session.user.id)
-            .single();
+            .maybeSingle();
           
           if (error) {
             console.error("Error fetching user data:", error);
@@ -78,59 +147,11 @@ const App = () => {
         setUser(null);
       } finally {
         setLoading(false);
+        setAuthChecked(true);
       }
     };
     
     checkUser();
-    
-    // Listen for auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log("Auth state changed:", event, session);
-        
-        if (event === 'SIGNED_OUT') {
-          localStorage.removeItem('currentUser');
-          setUser(null);
-        } else if (event === 'SIGNED_IN' && session) {
-          try {
-            // Get user info from users table
-            const { data: userData, error } = await supabase
-              .from('users')
-              .select('id, email, full_name, role')
-              .eq('id', session.user.id)
-              .single();
-            
-            if (error) {
-              console.error("Error fetching user data:", error);
-              // Try to use metadata as fallback
-              const currentUser = {
-                id: session.user.id,
-                email: session.user.email,
-                fullName: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'User',
-                role: session.user.user_metadata.role || 'doctor'
-              };
-              
-              setUser(currentUser);
-              localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            } else if (userData) {
-              console.log("User data found in database:", userData);
-              // Store properly formatted user data
-              const currentUser = {
-                id: userData.id,
-                email: userData.email,
-                fullName: userData.full_name,
-                role: userData.role
-              };
-              
-              setUser(currentUser);
-              localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            }
-          } catch (err) {
-            console.error("Error handling auth change:", err);
-          }
-        }
-      }
-    );
     
     return () => {
       authListener.subscription.unsubscribe();
@@ -153,6 +174,15 @@ const App = () => {
       );
     }
     
+    // If auth hasn't been checked yet, show loading
+    if (!authChecked) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-[#040D12]">
+          <div className="h-12 w-12 border-4 border-neon-cyan border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      );
+    }
+    
     if (!user) {
       return <Navigate to="/signin" replace />;
     }
@@ -168,6 +198,14 @@ const App = () => {
       return <Navigate to="/dashboard" replace />;
     }
   };
+
+  if (loading && !authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#040D12]">
+        <div className="h-12 w-12 border-4 border-neon-cyan border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -223,7 +261,15 @@ const App = () => {
                 <PatientHistory />
               </ProtectedRoute>
             } />
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={
+              loading ? (
+                <div className="min-h-screen flex items-center justify-center bg-[#040D12]">
+                  <div className="h-12 w-12 border-4 border-neon-cyan border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                <NotFound />
+              )
+            } />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

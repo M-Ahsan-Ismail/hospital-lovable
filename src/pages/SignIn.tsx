@@ -15,23 +15,62 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
   
   // Check if user is already logged in
   useEffect(() => {
     const checkUser = async () => {
-      const storedUser = localStorage.getItem('currentUser');
-      
-      if (storedUser) {
-        const user = JSON.parse(storedUser);
+      try {
+        setCheckingAuth(true);
+        // Check for active session first
+        const { data: sessionData } = await supabase.auth.getSession();
         
-        // Redirect to appropriate page based on role
-        if (user.role === 'doctor') {
-          navigate('/doctor-home');
-        } else {
-          navigate('/dashboard');
+        if (sessionData.session) {
+          // Get user data from the database
+          const { data: userData, error } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', sessionData.session.user.id)
+            .maybeSingle();
+            
+          if (!error && userData) {
+            // Redirect based on role
+            if (userData.role === 'doctor') {
+              navigate('/doctor-home', { replace: true });
+            } else {
+              navigate('/dashboard', { replace: true });
+            }
+            return;
+          }
         }
+        
+        // Fallback to localStorage check
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          
+          // Verify the stored user with Supabase
+          const { data } = await supabase.auth.getSession();
+          if (data.session) {
+            // Redirect to appropriate page based on role
+            if (user.role === 'doctor') {
+              navigate('/doctor-home', { replace: true });
+            } else {
+              navigate('/dashboard', { replace: true });
+            }
+          } else {
+            // Invalid stored user, remove it
+            localStorage.removeItem('currentUser');
+          }
+        }
+      } catch (error) {
+        console.error("Error checking authentication:", error);
+        // Clear potentially corrupted data
+        localStorage.removeItem('currentUser');
+      } finally {
+        setCheckingAuth(false);
       }
     };
     
@@ -70,7 +109,7 @@ const SignIn = () => {
           .select('id, role, full_name')
           .eq('email', email)
           .eq('password', password)
-          .single();
+          .maybeSingle();
         
         if (userError || !userData) {
           // No user found in our table either
@@ -110,18 +149,20 @@ const SignIn = () => {
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role, full_name')
-          .eq('id', data.user.id);
+          .eq('id', data.user.id)
+          .maybeSingle();
         
-        if (userError || !userData || userData.length === 0) {
+        if (userError || !userData) {
           console.log("No user data found in users table, querying by email");
           
           // Try finding by email as fallback
           const { data: emailUserData, error: emailUserError } = await supabase
             .from('users')
             .select('id, role, full_name')
-            .eq('email', email);
+            .eq('email', email)
+            .maybeSingle();
           
-          if (emailUserError || !emailUserData || emailUserData.length === 0) {
+          if (emailUserError || !emailUserData) {
             console.log("Creating new user record in database");
             
             // Create a user record if it doesn't exist
@@ -159,10 +200,10 @@ const SignIn = () => {
           
           // Use the data we found by email
           localStorage.setItem('currentUser', JSON.stringify({
-            id: emailUserData[0].id,
+            id: emailUserData.id,
             email: email,
-            fullName: emailUserData[0].full_name,
-            role: emailUserData[0].role
+            fullName: emailUserData.full_name,
+            role: emailUserData.role
           }));
           
           toast({
@@ -171,7 +212,7 @@ const SignIn = () => {
           });
           
           // Redirect based on role with replace: true to prevent going back to login
-          if (emailUserData[0].role === 'doctor') {
+          if (emailUserData.role === 'doctor') {
             navigate('/doctor-home', { replace: true });
           } else {
             navigate('/dashboard', { replace: true });
@@ -180,14 +221,12 @@ const SignIn = () => {
           return;
         }
         
-        const userInfo = userData[0];
-        
         // Store user info in localStorage
         localStorage.setItem('currentUser', JSON.stringify({
           id: data.user.id,
           email: data.user.email,
-          fullName: userInfo.full_name,
-          role: userInfo.role
+          fullName: userData.full_name,
+          role: userData.role
         }));
         
         toast({
@@ -196,7 +235,7 @@ const SignIn = () => {
         });
         
         // Redirect based on role with replace: true to prevent going back to login
-        if (userInfo.role === 'doctor') {
+        if (userData.role === 'doctor') {
           navigate('/doctor-home', { replace: true });
         } else {
           navigate('/dashboard', { replace: true });
@@ -213,6 +252,14 @@ const SignIn = () => {
       setLoading(false);
     }
   };
+  
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#040D12]">
+        <div className="h-12 w-12 border-4 border-neon-cyan border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen flex flex-col">

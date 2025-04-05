@@ -20,40 +20,48 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   useEffect(() => {
     // Check if user is logged in
     const checkUserAuth = async () => {
-      // Try to get from localStorage first for faster UI update
-      const storedUser = localStorage.getItem('currentUser');
-      if (storedUser) {
-        setCurrentUser(JSON.parse(storedUser));
-      }
-      
-      // Then verify with Supabase
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        if (!storedUser) {
-          // If we have a session but no stored user, get user data
-          const { data: userData } = await supabase
-            .from('users')
-            .select('id, email, full_name, role')
-            .eq('id', data.session.user.id)
-            .single();
-            
-          if (userData) {
-            const userInfo = {
-              id: userData.id,
-              email: userData.email,
-              fullName: userData.full_name,
-              role: userData.role
-            };
-            setCurrentUser(userInfo);
-            localStorage.setItem('currentUser', JSON.stringify(userInfo));
-          }
+      try {
+        // Try to get from localStorage first for faster UI update
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+          setCurrentUser(JSON.parse(storedUser));
         }
-      } else if (storedUser) {
-        // If no session but we have a stored user, clear it
+        
+        // Then verify with Supabase
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          if (!storedUser) {
+            // If we have a session but no stored user, get user data
+            const { data: userData, error } = await supabase
+              .from('users')
+              .select('id, email, full_name, role')
+              .eq('id', data.session.user.id)
+              .maybeSingle(); // Using maybeSingle instead of single to avoid errors
+              
+            if (userData) {
+              const userInfo = {
+                id: userData.id,
+                email: userData.email,
+                fullName: userData.full_name,
+                role: userData.role
+              };
+              setCurrentUser(userInfo);
+              localStorage.setItem('currentUser', JSON.stringify(userInfo));
+            }
+          }
+        } else if (storedUser) {
+          // If no session but we have a stored user, clear it
+          localStorage.removeItem('currentUser');
+          setCurrentUser(null);
+        }
+      } catch (error) {
+        console.error("Error checking user auth:", error);
+        // Clear localStorage on error
         localStorage.removeItem('currentUser');
         setCurrentUser(null);
       }
@@ -71,45 +79,53 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
   
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log("Navbar auth state changed:", event);
         
         if (event === 'SIGNED_OUT') {
           setCurrentUser(null);
           localStorage.removeItem('currentUser');
+          navigate('/', { replace: true });
         } else if (event === 'SIGNED_IN' && session) {
-          // Get user info
-          const { data: userData } = await supabase
-            .from('users')
-            .select('id, email, full_name, role')
-            .eq('id', session.user.id)
-            .single();
-            
-          if (userData) {
-            const userInfo = {
-              id: userData.id,
-              email: userData.email,
-              fullName: userData.full_name,
-              role: userData.role
-            };
-            setCurrentUser(userInfo);
-            localStorage.setItem('currentUser', JSON.stringify(userInfo));
-          } else {
-            // Fallback to stored user or session metadata
-            const storedUser = localStorage.getItem('currentUser');
-            if (storedUser) {
-              setCurrentUser(JSON.parse(storedUser));
-            } else if (session.user.user_metadata) {
-              const userInfo = {
-                id: session.user.id,
-                email: session.user.email,
-                fullName: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'User',
-                role: session.user.user_metadata.role || 'doctor'
-              };
-              setCurrentUser(userInfo);
-              localStorage.setItem('currentUser', JSON.stringify(userInfo));
+          // We'll use setTimeout to avoid potential auth state deadlocks
+          setTimeout(async () => {
+            try {
+              // Get user info
+              const { data: userData, error } = await supabase
+                .from('users')
+                .select('id, email, full_name, role')
+                .eq('id', session.user.id)
+                .maybeSingle();
+                
+              if (userData) {
+                const userInfo = {
+                  id: userData.id,
+                  email: userData.email,
+                  fullName: userData.full_name,
+                  role: userData.role
+                };
+                setCurrentUser(userInfo);
+                localStorage.setItem('currentUser', JSON.stringify(userInfo));
+              } else {
+                // Fallback to stored user or session metadata
+                const storedUser = localStorage.getItem('currentUser');
+                if (storedUser) {
+                  setCurrentUser(JSON.parse(storedUser));
+                } else if (session.user.user_metadata) {
+                  const userInfo = {
+                    id: session.user.id,
+                    email: session.user.email,
+                    fullName: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'User',
+                    role: session.user.user_metadata.role || 'doctor'
+                  };
+                  setCurrentUser(userInfo);
+                  localStorage.setItem('currentUser', JSON.stringify(userInfo));
+                }
+              }
+            } catch (error) {
+              console.error("Error processing sign in:", error);
             }
-          }
+          }, 0);
         }
       }
     );
@@ -117,21 +133,27 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
   
   const handleLogout = async () => {
+    // Prevent multiple clicks
+    if (isLoggingOut) return;
+    
     try {
+      setIsLoggingOut(true);
       console.log("Logging out...");
+      
+      // Clear local storage first to immediately update UI
+      localStorage.removeItem('currentUser');
+      setCurrentUser(null);
+      
+      // Then sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error("Logout error:", error);
         throw error;
       }
-      
-      // Clear local storage
-      localStorage.removeItem('currentUser');
-      setCurrentUser(null);
       
       toast({
         title: "Success",
@@ -148,10 +170,10 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
         variant: "destructive",
       });
       
-      // Force clear local storage and redirect anyway as fallback
-      localStorage.removeItem('currentUser');
-      setCurrentUser(null);
+      // Force navigate anyway as fallback
       navigate('/', { replace: true });
+    } finally {
+      setIsLoggingOut(false);
     }
   };
   
