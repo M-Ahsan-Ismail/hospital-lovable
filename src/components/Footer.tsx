@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
             <span className="text-xl font-bold text-white">
-              HMS<span className="text-neon-cyan">.</span>
+              MediSphere<span className="text-neon-cyan">.</span>
             </span>
             <p className="text-white/60 text-sm mt-1">
               Efficient Patient Record Management
@@ -33,7 +33,7 @@ const Footer: React.FC = () => {
           <p className="flex items-center justify-center">
             Built with <Heart size={12} className="mx-1 text-neon-magenta" /> for healthcare professionals
           </p>
-          <p className="mt-1">© {new Date().getFullYear()} Hospital Management System. All rights reserved.</p>
+          <p className="mt-1">© {new Date().getFullYear()} MediSphere. All rights reserved.</p>
         </div>
       </div>
     </footer>
