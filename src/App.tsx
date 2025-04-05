@@ -33,16 +33,25 @@ const App = () => {
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Set up the auth state listener first
+    // Immediate check for stored user to prevent unnecessary loading
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setLoading(false); // Update UI immediately with stored user
+    }
+    
+    // Auth listener setup first
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log("Auth state changed:", event);
         
         if (event === 'SIGNED_OUT') {
           localStorage.removeItem('currentUser');
           setUser(null);
+          setLoading(false);
+          setAuthChecked(true);
         } else if (event === 'SIGNED_IN' && session) {
-          // Defer Supabase calls with setTimeout to avoid deadlocks
+          // Using setTimeout to avoid auth deadlocks
           setTimeout(async () => {
             try {
               // Get user info from users table
@@ -77,10 +86,18 @@ const App = () => {
                 setUser(currentUser);
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
               }
+              
+              setLoading(false);
+              setAuthChecked(true);
             } catch (err) {
               console.error("Error handling auth change:", err);
+              setLoading(false);
+              setAuthChecked(true);
             }
           }, 0);
+        } else if (event === 'INITIAL_SESSION') {
+          // We'll handle this in the getSession call to avoid duplication
+          console.log("Initial session event received");
         }
       }
     );
@@ -88,15 +105,6 @@ const App = () => {
     // Then check for current user
     const checkUser = async () => {
       try {
-        setLoading(true);
-        
-        // Check localStorage first (faster UI response)
-        const storedUser = localStorage.getItem('currentUser');
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-          setLoading(false); // Update UI immediately with stored user
-        }
-        
         // Get current session from Supabase
         const { data } = await supabase.auth.getSession();
         
@@ -166,7 +174,8 @@ const App = () => {
     children: JSX.Element, 
     allowedRoles?: string[] 
   }) => {
-    if (loading) {
+    // Only show loading indicator if auth check isn't complete yet
+    if (loading && !authChecked) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-[#040D12]">
           <div className="h-12 w-12 border-4 border-neon-cyan border-t-transparent rounded-full animate-spin"></div>
@@ -174,19 +183,12 @@ const App = () => {
       );
     }
     
-    // If auth hasn't been checked yet, show loading
-    if (!authChecked) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-[#040D12]">
-          <div className="h-12 w-12 border-4 border-neon-cyan border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      );
-    }
-    
+    // If user is not authenticated, redirect to sign in
     if (!user) {
       return <Navigate to="/signin" replace />;
     }
     
+    // Check if user has appropriate role
     if (allowedRoles.includes(user.role)) {
       return children;
     }
@@ -199,7 +201,8 @@ const App = () => {
     }
   };
 
-  if (loading && !authChecked) {
+  // Only show loading on initial app load
+  if (loading && !authChecked && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#040D12]">
         <div className="h-12 w-12 border-4 border-neon-cyan border-t-transparent rounded-full animate-spin"></div>
@@ -261,15 +264,7 @@ const App = () => {
                 <PatientHistory />
               </ProtectedRoute>
             } />
-            <Route path="*" element={
-              loading ? (
-                <div className="min-h-screen flex items-center justify-center bg-[#040D12]">
-                  <div className="h-12 w-12 border-4 border-neon-cyan border-t-transparent rounded-full animate-spin"></div>
-                </div>
-              ) : (
-                <NotFound />
-              )
-            } />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

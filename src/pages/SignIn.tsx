@@ -193,8 +193,11 @@ const SignIn = () => {
               description: "Signed in successfully",
             });
             
-            // Default to doctor route
-            navigate('/doctor-home', { replace: true });
+            // Use setTimeout to allow state to update in Supabase auth
+            setTimeout(() => {
+              navigate('/doctor-home', { replace: true });
+            }, 100);
+            
             return;
           }
           
@@ -211,12 +214,14 @@ const SignIn = () => {
             description: "Signed in successfully",
           });
           
-          // Redirect based on role with replace: true to prevent going back to login
-          if (emailUserData.role === 'doctor') {
-            navigate('/doctor-home', { replace: true });
-          } else {
-            navigate('/dashboard', { replace: true });
-          }
+          // Use setTimeout to allow state to update in Supabase auth
+          setTimeout(() => {
+            if (emailUserData.role === 'doctor') {
+              navigate('/doctor-home', { replace: true });
+            } else {
+              navigate('/dashboard', { replace: true });
+            }
+          }, 100);
           
           return;
         }
@@ -234,12 +239,14 @@ const SignIn = () => {
           description: "Signed in successfully",
         });
         
-        // Redirect based on role with replace: true to prevent going back to login
-        if (userData.role === 'doctor') {
-          navigate('/doctor-home', { replace: true });
-        } else {
-          navigate('/dashboard', { replace: true });
-        }
+        // Use setTimeout to allow state to update in Supabase auth
+        setTimeout(() => {
+          if (userData.role === 'doctor') {
+            navigate('/doctor-home', { replace: true });
+          } else {
+            navigate('/dashboard', { replace: true });
+          }
+        }, 100);
       }
     } catch (error: any) {
       console.error("Sign-in error:", error);
