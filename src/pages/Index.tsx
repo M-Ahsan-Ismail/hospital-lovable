@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
@@ -449,7 +450,7 @@ const Index = () => {
                 <div 
                   className="absolute inset-0 bg-gradient-to-br opacity-10 group-hover:opacity-20 transition-opacity" 
                   style={{
-                    background: `linear-gradient(to bottom right, rgb(${index * 30}, 100, 255), rgb(${index * 30 + 100}, 100, 255))`,
+                    background: `linear-gradient(to bottom right, rgb(${index * 30}, 100, 255), rgb(${index * 30 + 100}, 100, 255))`
                   }}
                 ></div>
                 <div className="p-6">
@@ -596,7 +597,7 @@ const Index = () => {
                 <div 
                   className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity"
                   style={{
-                    background: `linear-gradient(to bottom right, rgb(${index * 30}, 100, 255), rgb(${index * 30 + 100}, 100, 255))`,
+                    background: `linear-gradient(to bottom right, rgb(${index * 30}, 100, 255), rgb(${index * 30 + 100}, 100, 255))`
                   }}
                 ></div>
                 
@@ -683,3 +684,184 @@ const Index = () => {
                     description: "Improve diagnosis accuracy by 40% with comprehensive medical history access.",
                     icon: CheckCircle2,
                     color: "from-green-400 to-emerald-600"
+                  },
+                  {
+                    title: "Enhanced Security",
+                    description: "HIPAA-compliant data storage with end-to-end encryption and audit trails.",
+                    icon: ShieldCheck,
+                    color: "from-purple-400 to-indigo-600"
+                  }
+                ].map((benefit, index) => (
+                  <motion.div 
+                    key={index}
+                    className="flex items-start p-4 glass-card rounded-xl"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.2 }}
+                    viewport={{ once: true }}
+                    whileHover={{ x: 5 }}
+                  >
+                    <div className={`rounded-lg p-3 bg-gradient-to-br ${benefit.color} mr-4 flex-shrink-0`}>
+                      <benefit.icon className="text-white" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-white mb-2">{benefit.title}</h3>
+                      <p className="text-white/70">{benefit.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+    
+      {/* Success Stories */}
+      <section className="py-24 relative overflow-hidden">
+        <motion.div 
+          className="absolute -top-40 -right-40 w-96 h-96 bg-neon-magenta/5 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.2, 0.3, 0.2],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        />
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <div className="inline-block mb-4">
+              <span className="px-4 py-1.5 rounded-full text-xs uppercase font-semibold tracking-wider inline-block bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 text-white border border-white/10">
+                Success Stories
+              </span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight text-white">
+              Trusted by Healthcare Leaders
+            </h2>
+            <p className="text-white/70 max-w-xl mx-auto text-lg">
+              See why medical professionals worldwide choose our platform.
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            className="max-w-4xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: true }}
+          >
+            <div className="bg-gradient-to-br from-white/5 to-white/10 rounded-2xl p-8 md:p-10 backdrop-blur-sm border border-white/10 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-neon-cyan/20 to-neon-magenta/20 rounded-full blur-[100px] -z-10"></div>
+              
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-10">
+                <div className="flex-shrink-0">
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
+                    DU
+                  </div>
+                </div>
+                
+                <div className="flex-1">
+                  <div className="flex mb-6">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <motion.div 
+                        key={star}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.3 + (star * 0.1) }}
+                        className="text-amber-400"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                      </motion.div>
+                    ))}
+                  </div>
+                  
+                  <p className="text-white/90 text-lg md:text-xl mb-6 leading-relaxed italic">
+                    "Since implementing MediSphere's platform, our practice has seen a remarkable transformation. Patient wait times have decreased by 35%, administrative tasks are more streamlined, and our medical team can focus more on what matters most—delivering exceptional care. The analytics features have provided invaluable insights that have helped us optimize our operations and improve patient outcomes."
+                  </p>
+                  
+                  <div className="border-t border-white/10 pt-6">
+                    <h4 className="text-white text-lg font-semibold">Dr. Usman Malik</h4>
+                    <p className="text-white/70">Chief Medical Officer, Premier Health Associates</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+      
+      {/* CTA Section */}
+      <section ref={ctaRef} className="py-24 relative overflow-hidden bg-gradient-to-b from-dark-secondary/50 to-dark">
+        <motion.div 
+          className="absolute -bottom-40 -right-40 w-96 h-96 bg-neon-cyan/5 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.2, 0.3, 0.2],
+          }}
+          transition={{
+            duration: 7,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        />
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <motion.h2 
+              className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-white"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              Ready to Transform Your Healthcare Practice?
+            </motion.h2>
+            
+            <motion.p 
+              className="text-white/70 text-xl mb-10 max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+            >
+              Join thousands of healthcare providers who have elevated their practice with our innovative platform.
+            </motion.p>
+            
+            <motion.div 
+              className="flex flex-col sm:flex-row justify-center gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <AnimatedButton variant="cyan" size="lg">
+                Get Started
+              </AnimatedButton>
+              <Link to="tel:023111758905">
+                <AnimatedButton variant="outline" size="lg" className="flex items-center">
+                  <Phone size={18} className="mr-2" />
+                  Schedule Demo
+                </AnimatedButton>
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+      
+      <Footer />
+    </div>
+  );
+};
+
+export default Index;
