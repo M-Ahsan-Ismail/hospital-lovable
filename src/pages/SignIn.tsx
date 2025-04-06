@@ -120,25 +120,24 @@ const SignIn = () => {
         console.log("Found user in database, creating session manually");
         
         // Store user info in localStorage
-        localStorage.setItem('currentUser', JSON.stringify({
+        const userInfo = {
           id: userData.id,
           email: email,
           fullName: userData.full_name,
           role: userData.role
-        }));
+        };
+        localStorage.setItem('currentUser', JSON.stringify(userInfo));
         
         toast({
           title: "Success",
           description: "Signed in successfully",
         });
         
-        // Redirect based on role
-        if (userData.role === 'doctor') {
-          navigate('/doctor-home', { replace: true });
-        } else {
-          navigate('/dashboard', { replace: true });
-        }
+        // Set timeout to allow Supabase auth state to sync
+        // Redirect based on role with a slight delay to ensure state is updated
+        setLoading(false); // Set loading to false explicitly before navigation
         
+        window.location.href = userData.role === 'doctor' ? '/doctor-home' : '/dashboard';
         return;
       }
       
@@ -181,72 +180,65 @@ const SignIn = () => {
             }
             
             // Store user info in localStorage
-            localStorage.setItem('currentUser', JSON.stringify({
+            const userInfo = {
               id: data.user.id,
               email: data.user.email,
               fullName: data.user.user_metadata.full_name || email.split('@')[0],
               role: data.user.user_metadata.role || 'doctor'
-            }));
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(userInfo));
             
             toast({
               title: "Success",
               description: "Signed in successfully",
             });
             
-            // Use setTimeout to allow state to update in Supabase auth
-            setTimeout(() => {
-              navigate('/doctor-home', { replace: true });
-            }, 100);
-            
+            // Use direct navigation to avoid state update issues
+            setLoading(false); // Set loading to false explicitly before navigation
+            window.location.href = '/doctor-home';
             return;
           }
           
           // Use the data we found by email
-          localStorage.setItem('currentUser', JSON.stringify({
+          const userInfo = {
             id: emailUserData.id,
             email: email,
             fullName: emailUserData.full_name,
             role: emailUserData.role
-          }));
+          };
+          
+          localStorage.setItem('currentUser', JSON.stringify(userInfo));
           
           toast({
             title: "Success",
             description: "Signed in successfully",
           });
           
-          // Use setTimeout to allow state to update in Supabase auth
-          setTimeout(() => {
-            if (emailUserData.role === 'doctor') {
-              navigate('/doctor-home', { replace: true });
-            } else {
-              navigate('/dashboard', { replace: true });
-            }
-          }, 100);
-          
+          // Use direct navigation for reliable routing
+          setLoading(false);
+          window.location.href = emailUserData.role === 'doctor' ? '/doctor-home' : '/dashboard';
           return;
         }
         
         // Store user info in localStorage
-        localStorage.setItem('currentUser', JSON.stringify({
+        const userInfo = {
           id: data.user.id,
           email: data.user.email,
           fullName: userData.full_name,
           role: userData.role
-        }));
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(userInfo));
         
         toast({
           title: "Success",
           description: "Signed in successfully",
         });
         
-        // Use setTimeout to allow state to update in Supabase auth
-        setTimeout(() => {
-          if (userData.role === 'doctor') {
-            navigate('/doctor-home', { replace: true });
-          } else {
-            navigate('/dashboard', { replace: true });
-          }
-        }, 100);
+        // Use direct navigation for more reliable routing
+        setLoading(false);
+        window.location.href = userData.role === 'doctor' ? '/doctor-home' : '/dashboard';
       }
     } catch (error: any) {
       console.error("Sign-in error:", error);
@@ -255,7 +247,6 @@ const SignIn = () => {
         description: error.message || "Failed to sign in",
         variant: "destructive",
       });
-    } finally {
       setLoading(false);
     }
   };
