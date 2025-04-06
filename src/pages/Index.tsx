@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
@@ -20,7 +19,8 @@ import {
   BarChart3,
   CheckCircle2,
   Laptop,
-  Lightbulb
+  Lightbulb,
+  Phone
 } from "lucide-react";
 
 // Animation variants
@@ -51,6 +51,7 @@ const staggerContainer = {
 const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [activeTrustLogo, setActiveTrustLogo] = useState<number | null>(null);
   const { scrollYProgress } = useScroll();
@@ -79,9 +80,15 @@ const Index = () => {
     };
   }, []);
   
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+  
   const trustLogos = [
-    { name: "Hospital A", color: "from-blue-400/30 to-cyan-400/30" },
-    { name: "Clinic B", color: "from-purple-400/30 to-pink-400/30" },
+    { name: "Clinic", color: "from-blue-400/30 to-cyan-400/30" },
+    { name: "AnwarMemorial", color: "from-purple-400/30 to-pink-400/30" },
     { name: "MedCenter", color: "from-amber-400/30 to-orange-400/30" },
     { name: "HealthGroup", color: "from-green-400/30 to-emerald-400/30" },
     { name: "CarePoint", color: "from-sky-400/30 to-indigo-400/30" }
@@ -193,9 +200,14 @@ const Index = () => {
                 variants={fadeIn}
                 custom={2}
               >
-                <AnimatedButton variant="cyan" size="lg" className="group">
-                  <Link to="/signup" className="flex items-center">
-                    Get Started
+                <AnimatedButton 
+                  variant="cyan" 
+                  size="lg" 
+                  className="group"
+                  onClick={() => scrollToSection(ctaRef)}
+                >
+                  <div className="flex items-center">
+                    Learn More
                     <motion.span 
                       initial={{ x: 0 }}
                       whileHover={{ x: 5 }}
@@ -203,7 +215,7 @@ const Index = () => {
                     >
                       <ArrowRight className="ml-2" size={18} />
                     </motion.span>
-                  </Link>
+                  </div>
                 </AnimatedButton>
                 
                 <motion.div
@@ -671,222 +683,3 @@ const Index = () => {
                     description: "Improve diagnosis accuracy by 40% with comprehensive medical history access.",
                     icon: CheckCircle2,
                     color: "from-green-400 to-emerald-600"
-                  },
-                  {
-                    title: "Intelligent Insights",
-                    description: "Make data-driven decisions with powerful analytics and custom reports.",
-                    icon: Lightbulb,
-                    color: "from-amber-400 to-orange-600"
-                  }
-                ].map((benefit, index) => (
-                  <motion.div 
-                    key={index}
-                    className="flex items-start bg-white/5 border border-white/10 rounded-xl p-5 hover:border-white/20 transition-all"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 + (index * 0.15) }}
-                    viewport={{ once: true }}
-                  >
-                    <div className={`shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${benefit.color} flex items-center justify-center`}>
-                      <benefit.icon size={24} className="text-white" />
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-xl font-semibold text-white mb-2">{benefit.title}</h3>
-                      <p className="text-white/70">{benefit.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Testimonials Section */}
-      <motion.section 
-        className="py-24 relative overflow-hidden"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true }}
-      >
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-dark-secondary to-dark opacity-90"></div>
-          <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-b from-transparent to-dark"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <div className="inline-block mb-4">
-              <span className="px-4 py-1.5 rounded-full text-xs uppercase font-semibold tracking-wider inline-block bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 text-white border border-white/10">
-                Success Stories
-              </span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
-              <span className="text-white">Trusted by </span>
-              <span className="bg-gradient-to-r from-neon-cyan to-white bg-clip-text text-transparent">Healthcare Leaders</span>
-            </h2>
-            <p className="text-white/70 max-w-xl mx-auto text-lg">
-              See why medical professionals worldwide choose our platform.
-            </p>
-          </motion.div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                quote: "This system revolutionized our patient management process. Everything is now accessible in seconds.",
-                name: "Dr. Sarah Johnson",
-                title: "Chief Medical Officer",
-                rating: 5,
-                gradient: "from-purple-500/10 to-fuchsia-500/10",
-                border: "border-purple-500/30",
-              },
-              {
-                quote: "The analytics features helped us identify trends we never would have noticed. It's dramatically improved our care.",
-                name: "Dr. Michael Chen",
-                title: "Head of Cardiology",
-                rating: 5,
-                gradient: "from-cyan-500/10 to-blue-500/10",
-                border: "border-cyan-500/30",
-              },
-              {
-                quote: "Implementation was seamless and the support team is responsive. Best decision we've made for our hospital.",
-                name: "Emily Rodriguez",
-                title: "Hospital Administrator",
-                rating: 5,
-                gradient: "from-amber-500/10 to-orange-500/10",
-                border: "border-amber-500/30",
-              },
-            ].map((testimonial, index) => (
-              <motion.div 
-                key={index}
-                className={`glass-card p-6 rounded-2xl bg-gradient-to-br ${testimonial.gradient} ${testimonial.border} backdrop-blur-sm`}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -5 }}
-              >
-                <div className="mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <span key={i} className="text-yellow-400 mr-1">★</span>
-                  ))}
-                </div>
-                <p className="text-white/80 mb-6 text-lg italic">"{testimonial.quote}"</p>
-                <div className="flex items-center">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-neon-cyan to-neon-magenta flex items-center justify-center text-white font-semibold text-lg">
-                    {testimonial.name.charAt(0)}
-                  </div>
-                  <div className="ml-4">
-                    <div className="font-semibold text-white">{testimonial.name}</div>
-                    <div className="text-white/60 text-sm">{testimonial.title}</div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-      
-      {/* CTA Section */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-dark to-dark-secondary opacity-95"></div>
-          <motion.div 
-            className="absolute -top-40 -right-40 w-[40rem] h-[40rem] bg-neon-magenta/10 rounded-full blur-[100px]"
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.2, 0.3, 0.2],
-            }}
-            transition={{
-              duration: 7,
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
-          />
-          <motion.div 
-            className="absolute -bottom-20 -left-20 w-[30rem] h-[30rem] bg-neon-cyan/10 rounded-full blur-[100px]"
-            animate={{
-              scale: [1, 1.15, 1],
-              opacity: [0.15, 0.25, 0.15],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
-          />
-        </div>
-        
-        <motion.div 
-          className="container mx-auto px-4 relative z-10"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <motion.div 
-            className="max-w-4xl mx-auto text-center"
-            initial={{ scale: 0.95, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-          >
-            <span className="px-4 py-1.5 rounded-full text-sm uppercase font-medium tracking-wider inline-block bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 text-white border border-white/10 mb-6 animate-pulse-slow">
-              Limited Time Offer
-            </span>
-            
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
-              Ready to <span className="bg-gradient-to-r from-neon-cyan to-neon-magenta bg-clip-text text-transparent">Transform</span> Your Healthcare Practice?
-            </h2>
-            
-            <p className="text-white/70 mb-10 text-xl max-w-2xl mx-auto">
-              Join thousands of healthcare professionals already using our system to improve patient care and
-              streamline their workflow. Get started today.
-            </p>
-            
-            <motion.div
-              className="flex flex-col sm:flex-row justify-center gap-5"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              viewport={{ once: true }}
-            >
-              <AnimatedButton variant="cyan" size="lg" className="px-8 py-6 text-lg">
-                <Link to="/signup" className="flex items-center justify-center">
-                  Start Your Free Trial
-                  <ArrowRight className="ml-2" size={20} />
-                </Link>
-              </AnimatedButton>
-              
-              <AnimatedButton variant="outline" size="lg" className="px-8 py-6 text-lg">
-                <Link to="/contact">Schedule Demo</Link>
-              </AnimatedButton>
-            </motion.div>
-            
-            <motion.p 
-              className="mt-6 text-white/50 text-sm"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              viewport={{ once: true }}
-            >
-              No credit card required • 14-day free trial • Cancel anytime
-            </motion.p>
-          </motion.div>
-        </motion.div>
-      </section>
-      
-      <Footer />
-    </div>
-  );
-};
-
-export default Index;
-
