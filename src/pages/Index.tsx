@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
@@ -201,23 +200,24 @@ const Index = () => {
                 variants={fadeIn}
                 custom={2}
               >
-                <AnimatedButton 
-                  variant="cyan" 
-                  size="lg" 
-                  className="group"
-                  onClick={() => scrollToSection(ctaRef)}
-                >
-                  <div className="flex items-center">
-                    Learn More
-                    <motion.span 
-                      initial={{ x: 0 }}
-                      whileHover={{ x: 5 }}
-                      transition={{ type: "spring", stiffness: 400 }}
-                    >
-                      <ArrowRight className="ml-2" size={18} />
-                    </motion.span>
-                  </div>
-                </AnimatedButton>
+                <Link to="/signup">
+                  <AnimatedButton 
+                    variant="cyan" 
+                    size="lg" 
+                    className="group"
+                  >
+                    <div className="flex items-center">
+                      Get Started
+                      <motion.span 
+                        initial={{ x: 0 }}
+                        whileHover={{ x: 5 }}
+                        transition={{ type: "spring", stiffness: 400 }}
+                      >
+                        <ArrowRight className="ml-2" size={18} />
+                      </motion.span>
+                    </div>
+                  </AnimatedButton>
+                </Link>
                 
                 <motion.div
                   whileHover={{ scale: 1.05 }}
@@ -791,8 +791,8 @@ const Index = () => {
                   </p>
                   
                   <div className="border-t border-white/10 pt-6">
-                    <h4 className="text-white text-lg font-semibold">Dr. Usman Malik</h4>
-                    <p className="text-white/70">Chief Medical Officer, Premier Health Associates</p>
+                    <h4 className="text-white text-lg font-semibold">Dr. Usman Qamar</h4>
+                    <p className="text-white/70">Chief Medical Officer</p>
                   </div>
                 </div>
               </div>
@@ -817,43 +817,55 @@ const Index = () => {
         />
         
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <motion.h2 
-              className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-white"
+          <div className="max-w-4xl mx-auto">
+            <motion.div 
+              className="bg-gradient-to-br from-dark/60 to-dark-secondary/60 backdrop-blur-md rounded-2xl p-10 border border-white/5 shadow-xl"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              Ready to Transform Your Healthcare Practice?
-            </motion.h2>
-            
-            <motion.p 
-              className="text-white/70 text-xl mb-10 max-w-2xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              viewport={{ once: true }}
-            >
-              Join thousands of healthcare providers who have elevated their practice with our innovative platform.
-            </motion.p>
-            
-            <motion.div 
-              className="flex flex-col sm:flex-row justify-center gap-4"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              <AnimatedButton variant="cyan" size="lg">
-                Get Started
-              </AnimatedButton>
-              <Link to="tel:023111758905">
-                <AnimatedButton variant="outline" size="lg" className="flex items-center">
-                  <Phone size={18} className="mr-2" />
-                  Schedule Demo
-                </AnimatedButton>
-              </Link>
+              <div className="text-center mb-10">
+                <motion.h2 
+                  className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-white"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  viewport={{ once: true }}
+                >
+                  Ready to Transform Your Healthcare Practice?
+                </motion.h2>
+                
+                <motion.p 
+                  className="text-white/70 text-xl mb-10 max-w-2xl mx-auto"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  Join thousands of healthcare providers who have elevated their practice with our innovative platform.
+                </motion.p>
+              </div>
+              
+              <motion.div 
+                className="flex flex-col sm:flex-row justify-center gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                viewport={{ once: true }}
+              >
+                <Link to="/signup">
+                  <AnimatedButton variant="cyan" size="lg">
+                    Get Started
+                  </AnimatedButton>
+                </Link>
+                <a href="tel:023111758905">
+                  <AnimatedButton variant="outline" size="lg" className="flex items-center">
+                    <Phone size={18} className="mr-2" />
+                    Schedule Demo
+                  </AnimatedButton>
+                </a>
+              </motion.div>
             </motion.div>
           </div>
         </div>
