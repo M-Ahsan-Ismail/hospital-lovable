@@ -434,11 +434,12 @@ const Index = () => {
                 viewport={{ once: true }}
                 whileHover={{ y: -5 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br opacity-10 group-hover:opacity-20 transition-opacity" style={{
-                  background: `linear-gradient(to bottom right, var(--tw-gradient-stops))`,
-                  "--tw-gradient-from": `rgb(${index * 30}, 100, 255)`,
-                  "--tw-gradient-to": `rgb(${index * 30 + 100}, 100, 255)`,
-                }}></div>
+                <div 
+                  className="absolute inset-0 bg-gradient-to-br opacity-10 group-hover:opacity-20 transition-opacity" 
+                  style={{
+                    background: `linear-gradient(to bottom right, rgb(${index * 30}, 100, 255), rgb(${index * 30 + 100}, 100, 255))`,
+                  }}
+                ></div>
                 <div className="p-6">
                   <div className={`w-12 h-12 mb-4 rounded-xl bg-gradient-to-br ${stat.color} p-2.5 flex items-center justify-center`}>
                     <stat.icon size={24} className="text-white" />
@@ -580,11 +581,12 @@ const Index = () => {
                   transition: { duration: 0.2 }
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity" style={{
-                  background: `linear-gradient(to bottom right, var(--tw-gradient-stops))`,
-                  "--tw-gradient-from": `rgb(${index * 30}, 100, 255)`,
-                  "--tw-gradient-to": `rgb(${index * 30 + 100}, 100, 255)`,
-                }}></div>
+                <div 
+                  className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity"
+                  style={{
+                    background: `linear-gradient(to bottom right, rgb(${index * 30}, 100, 255), rgb(${index * 30 + 100}, 100, 255))`,
+                  }}
+                ></div>
                 
                 <div className="p-6 relative z-10">
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.gradient} p-2.5 mb-5 flex items-center justify-center`}>
@@ -887,3 +889,4 @@ const Index = () => {
 };
 
 export default Index;
+
