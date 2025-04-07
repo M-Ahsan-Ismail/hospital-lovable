@@ -99,10 +99,10 @@ const Index = () => {
       <HexagonBackground />
       <Navbar />
       
-      <section ref={heroRef} className="pt-24 md:pt-32 relative min-h-[90vh] flex items-center">
+      <section ref={heroRef} className="pt-24 md:pt-32 relative min-h-[90vh] flex items-center hero-pattern">
         <div className="absolute inset-0 z-0">
           <motion.div 
-            className="absolute top-20 right-[5%] w-64 h-64 rounded-full bg-neon-cyan/10 blur-[100px]"
+            className="absolute top-20 right-[5%] w-64 h-64 rounded-full bg-neon-cyan/20 blur-[100px]"
             animate={{
               scale: [1, 1.2, 1],
               opacity: [0.3, 0.5, 0.3],
@@ -115,7 +115,7 @@ const Index = () => {
           />
           
           <motion.div 
-            className="absolute bottom-[10%] left-[5%] w-[30rem] h-[30rem] rounded-full bg-neon-magenta/10 blur-[120px]"
+            className="absolute bottom-[10%] left-[5%] w-[30rem] h-[30rem] rounded-full bg-neon-magenta/20 blur-[120px]"
             animate={{
               scale: [1, 1.1, 1],
               opacity: [0.2, 0.3, 0.2],
@@ -128,7 +128,7 @@ const Index = () => {
           />
           
           <motion.div 
-            className="absolute top-[25%] left-[30%] w-[20rem] h-[20rem] rounded-full bg-purple-500/5 blur-[80px]"
+            className="absolute top-[25%] left-[30%] w-[20rem] h-[20rem] rounded-full bg-purple-500/15 blur-[80px]"
             animate={{
               scale: [1, 1.15, 1],
               opacity: [0.15, 0.25, 0.15],
@@ -282,7 +282,7 @@ const Index = () => {
                   
                   <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.05)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,.05)_1px,transparent_1px)] bg-[size:20px_20px] z-0 opacity-30"></div>
                   
-                  <div className="absolute top-0 inset-x-0 h-14 bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 border-b border-white/10 flex items-center px-6 z-20">
+                  <div className="absolute top-0 inset-x-0 h-14 bg-gradient-to-r from-neon-cyan/20 to-neon-magenta border-b border-white/10 flex items-center px-6 z-20">
                     <div className="flex space-x-2">
                       <div className="w-3 h-3 rounded-full bg-neon-magenta/80"></div>
                       <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
