@@ -23,7 +23,6 @@ import {
   Phone
 } from "lucide-react";
 
-// Animation variants
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
   visible: (i = 0) => ({
@@ -52,6 +51,7 @@ const Index = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
+  const successStoriesRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [activeTrustLogo, setActiveTrustLogo] = useState<number | null>(null);
   const { scrollYProgress } = useScroll();
@@ -99,7 +99,6 @@ const Index = () => {
       <HexagonBackground />
       <Navbar />
       
-      {/* Hero Section */}
       <section ref={heroRef} className="pt-24 md:pt-32 relative min-h-[90vh] flex items-center">
         <div className="absolute inset-0 z-0">
           <motion.div 
@@ -200,24 +199,23 @@ const Index = () => {
                 variants={fadeIn}
                 custom={2}
               >
-                <Link to="/signup">
-                  <AnimatedButton 
-                    variant="cyan" 
-                    size="lg" 
-                    className="group"
-                  >
-                    <div className="flex items-center">
-                      Get Started
-                      <motion.span 
-                        initial={{ x: 0 }}
-                        whileHover={{ x: 5 }}
-                        transition={{ type: "spring", stiffness: 400 }}
-                      >
-                        <ArrowRight className="ml-2" size={18} />
-                      </motion.span>
-                    </div>
-                  </AnimatedButton>
-                </Link>
+                <AnimatedButton 
+                  variant="cyan" 
+                  size="lg" 
+                  className="group"
+                  onClick={() => scrollToSection(ctaRef)}
+                >
+                  <div className="flex items-center">
+                    Learn More
+                    <motion.span 
+                      initial={{ x: 0 }}
+                      whileHover={{ x: 5 }}
+                      transition={{ type: "spring", stiffness: 400 }}
+                    >
+                      <ArrowRight className="ml-2" size={18} />
+                    </motion.span>
+                  </div>
+                </AnimatedButton>
                 
                 <motion.div
                   whileHover={{ scale: 1.05 }}
@@ -282,10 +280,8 @@ const Index = () => {
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-dark-secondary/80 to-dark/95 backdrop-blur-md z-10"></div>
                   
-                  {/* Grid decoration */}
                   <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.05)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,.05)_1px,transparent_1px)] bg-[size:20px_20px] z-0 opacity-30"></div>
                   
-                  {/* Dashboard Header */}
                   <div className="absolute top-0 inset-x-0 h-14 bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 border-b border-white/10 flex items-center px-6 z-20">
                     <div className="flex space-x-2">
                       <div className="w-3 h-3 rounded-full bg-neon-magenta/80"></div>
@@ -295,7 +291,6 @@ const Index = () => {
                     <div className="ml-6 text-white/90 text-sm font-medium">Patient Dashboard Pro</div>
                   </div>
                   
-                  {/* Dashboard Content */}
                   <div className="absolute top-14 inset-x-0 bottom-0 z-20 p-6 flex flex-col">
                     <motion.div 
                       className="bg-gradient-to-r from-white/10 to-white/5 rounded-lg p-4 mb-6"
@@ -314,7 +309,6 @@ const Index = () => {
                       </div>
                       
                       <div className="grid grid-cols-3 gap-2 mb-2">
-                        {/* Chart bars */}
                         {[40, 65, 35, 85, 45, 55, 75, 50, 65, 70, 60, 80].map((height, i) => (
                           <motion.div 
                             key={i}
@@ -333,7 +327,6 @@ const Index = () => {
                     </motion.div>
                     
                     <div className="flex-1 space-y-4">
-                      {/* Patient Records */}
                       {[1, 2, 3].map((i) => (
                         <motion.div
                           key={i}
@@ -372,7 +365,6 @@ const Index = () => {
                         </motion.div>
                       ))}
                       
-                      {/* Bottom Stats */}
                       <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -391,7 +383,6 @@ const Index = () => {
                     </div>
                   </div>
                   
-                  {/* Glow effect */}
                   <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-neon-cyan/20 to-transparent rounded-b-[2rem] blur-xl -z-5"></div>
                 </motion.div>
               </div>
@@ -399,7 +390,6 @@ const Index = () => {
           </div>
         </motion.div>
         
-        {/* Scroll down indicator */}
         <motion.div
           className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center cursor-pointer z-30"
           initial={{ opacity: 0, y: -20 }}
@@ -422,7 +412,6 @@ const Index = () => {
         </motion.div>
       </section>
       
-      {/* Stats Section - Moved up for better flow */}
       <motion.section 
         className="py-20 relative overflow-hidden bg-dark/50 backdrop-blur-sm"
         initial={{ opacity: 0 }}
@@ -478,7 +467,6 @@ const Index = () => {
         </div>
       </motion.section>
       
-      {/* Features Section */}
       <section ref={featuresRef} id="features" className="py-24 relative overflow-hidden">
         <motion.div 
           className="absolute -top-40 -right-40 w-96 h-96 bg-neon-cyan/5 rounded-full blur-3xl"
@@ -615,7 +603,6 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Benefits Section */}
       <section className="py-24 relative overflow-hidden bg-gradient-to-b from-dark to-dark-secondary/50">
         <div className="container mx-auto px-4 relative z-10">
           <motion.div 
@@ -650,7 +637,6 @@ const Index = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/20 to-neon-magenta/20 rounded-2xl blur-3xl opacity-30 -z-10"></div>
               <div className="rounded-2xl overflow-hidden border border-white/10 shadow-xl">
                 <div className="aspect-video bg-gradient-to-br from-dark-secondary to-dark relative flex items-center justify-center">
-                  {/* Video placeholder */}
                   <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.03)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,.03)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
                   <motion.div
                     whileHover={{ scale: 1.1 }}
@@ -716,13 +702,25 @@ const Index = () => {
         </div>
       </section>
     
-      {/* Success Stories */}
-      <section className="py-24 relative overflow-hidden">
+      <section ref={successStoriesRef} className="py-24 relative overflow-hidden">
         <motion.div 
-          className="absolute -top-40 -right-40 w-96 h-96 bg-neon-magenta/5 rounded-full blur-3xl"
+          className="absolute -top-40 -left-40 w-96 h-96 bg-neon-cyan/5 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.1, 1],
             opacity: [0.2, 0.3, 0.2],
+          }}
+          transition={{
+            duration: 7,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        />
+        
+        <motion.div 
+          className="absolute -bottom-20 -right-20 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.15, 1],
+            opacity: [0.15, 0.25, 0.15],
           }}
           transition={{
             duration: 6,
@@ -740,16 +738,33 @@ const Index = () => {
             viewport={{ once: true }}
           >
             <div className="inline-block mb-4">
-              <span className="px-4 py-1.5 rounded-full text-xs uppercase font-semibold tracking-wider inline-block bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 text-white border border-white/10">
+              <motion.span 
+                className="px-4 py-1.5 rounded-full text-xs uppercase font-semibold tracking-wider inline-block bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-white border border-white/10"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
                 Success Stories
-              </span>
+              </motion.span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight text-white">
-              Trusted by Healthcare Leaders
-            </h2>
-            <p className="text-white/70 max-w-xl mx-auto text-lg">
+            <motion.h2 
+              className="text-4xl md:text-5xl font-bold mb-4 tracking-tight"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              viewport={{ once: true }}
+            >
+              <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Trusted by</span>{" "}
+              <span className="text-white">Healthcare Leaders</span>
+            </motion.h2>
+            <motion.p 
+              className="text-white/70 max-w-xl mx-auto text-lg"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
               See why medical professionals worldwide choose our platform.
-            </p>
+            </motion.p>
           </motion.div>
           
           <motion.div 
@@ -759,14 +774,38 @@ const Index = () => {
             transition={{ duration: 0.7 }}
             viewport={{ once: true }}
           >
-            <div className="bg-gradient-to-br from-white/5 to-white/10 rounded-2xl p-8 md:p-10 backdrop-blur-sm border border-white/10 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-neon-cyan/20 to-neon-magenta/20 rounded-full blur-[100px] -z-10"></div>
+            <motion.div 
+              className="bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-indigo-500/10 rounded-2xl p-8 md:p-10 backdrop-blur-sm border border-white/10 relative overflow-hidden"
+              whileHover={{ 
+                boxShadow: "0 0 30px rgba(139, 92, 246, 0.15)",
+                transition: { duration: 0.3 }
+              }}
+            >
+              <motion.div 
+                className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-[100px] -z-10"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.2, 0.4, 0.2],
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  repeatType: "reverse"
+                }}
+              />
               
               <div className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-10">
                 <div className="flex-shrink-0">
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
-                    DU
-                  </div>
+                  <motion.div 
+                    className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold relative overflow-hidden"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 400 }}
+                    initial={{ rotate: -5 }}
+                    whileInView={{ rotate: 0 }}
+                  >
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.2),_transparent_70%)]"></div>
+                    <span className="relative z-10 drop-shadow-md">DU</span>
+                  </motion.div>
                 </div>
                 
                 <div className="flex-1">
@@ -774,9 +813,9 @@ const Index = () => {
                     {[1, 2, 3, 4, 5].map((star) => (
                       <motion.div 
                         key={star}
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.3 + (star * 0.1) }}
+                        initial={{ opacity: 0, scale: 0, rotate: -30 }}
+                        whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+                        transition={{ delay: 0.3 + (star * 0.1), type: "spring", stiffness: 200 }}
                         className="text-amber-400"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
@@ -786,22 +825,49 @@ const Index = () => {
                     ))}
                   </div>
                   
-                  <p className="text-white/90 text-lg md:text-xl mb-6 leading-relaxed italic">
+                  <motion.p 
+                    className="text-white/90 text-lg md:text-xl mb-6 leading-relaxed italic"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 1 }}
+                    viewport={{ once: true }}
+                  >
                     "Since implementing MediSphere's platform, our practice has seen a remarkable transformation. Patient wait times have decreased by 35%, administrative tasks are more streamlined, and our medical team can focus more on what matters most—delivering exceptional care. The analytics features have provided invaluable insights that have helped us optimize our operations and improve patient outcomes."
-                  </p>
+                  </motion.p>
                   
-                  <div className="border-t border-white/10 pt-6">
-                    <h4 className="text-white text-lg font-semibold">Dr. Usman Qamar</h4>
-                    <p className="text-white/70">Chief Medical Officer</p>
-                  </div>
+                  <motion.div 
+                    className="border-t border-white/10 pt-6"
+                    initial={{ width: "0%" }}
+                    whileInView={{ width: "100%" }}
+                    transition={{ delay: 0.8, duration: 1 }}
+                    viewport={{ once: true }}
+                  >
+                    <motion.h4 
+                      className="text-white text-lg font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1, duration: 0.5 }}
+                      viewport={{ once: true }}
+                    >
+                      Dr. Usman Qamar
+                    </motion.h4>
+                    <motion.p 
+                      className="text-white/70"
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.1, duration: 0.5 }}
+                      viewport={{ once: true }}
+                    >
+                      Chief Medical Officer
+                    </motion.p>
+                  </motion.div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
       
-      {/* CTA Section */}
       <section ref={ctaRef} className="py-24 relative overflow-hidden bg-gradient-to-b from-dark-secondary/50 to-dark">
         <motion.div 
           className="absolute -bottom-40 -right-40 w-96 h-96 bg-neon-cyan/5 rounded-full blur-3xl"
@@ -816,18 +882,40 @@ const Index = () => {
           }}
         />
         
+        <motion.div 
+          className="absolute top-20 left-20 w-80 h-80 bg-neon-magenta/5 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.15, 1],
+            opacity: [0.15, 0.25, 0.15],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        />
+        
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto">
             <motion.div 
-              className="bg-gradient-to-br from-dark/60 to-dark-secondary/60 backdrop-blur-md rounded-2xl p-10 border border-white/5 shadow-xl"
+              className="bg-gradient-to-br from-dark-secondary/40 to-dark/80 backdrop-blur-md rounded-2xl p-10 border border-white/5 shadow-xl relative overflow-hidden"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
+              whileHover={{ 
+                boxShadow: "0 0 40px rgba(0, 209, 255, 0.1)",
+                transition: { duration: 0.3 }
+              }}
             >
-              <div className="text-center mb-10">
+              <div className="absolute top-0 right-0 h-32 w-32 bg-gradient-to-br from-neon-cyan/10 to-transparent rounded-bl-full"></div>
+              <div className="absolute bottom-0 left-0 h-24 w-24 bg-gradient-to-tr from-neon-magenta/10 to-transparent rounded-tr-full"></div>
+              
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.03)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,.03)_1px,transparent_1px)] bg-[size:20px_20px] opacity-20"></div>
+              
+              <div className="text-center mb-10 relative z-10">
                 <motion.h2 
-                  className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-white"
+                  className="text-3xl md:text-5xl font-bold mb-6 tracking-tight bg-gradient-to-r from-neon-cyan via-white to-neon-magenta bg-clip-text text-transparent"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
@@ -837,7 +925,7 @@ const Index = () => {
                 </motion.h2>
                 
                 <motion.p 
-                  className="text-white/70 text-xl mb-10 max-w-2xl mx-auto"
+                  className="text-white/80 text-xl mb-10 max-w-2xl mx-auto"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.1 }}
@@ -855,15 +943,32 @@ const Index = () => {
                 viewport={{ once: true }}
               >
                 <Link to="/signup">
-                  <AnimatedButton variant="cyan" size="lg">
-                    Get Started
-                  </AnimatedButton>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+                    <AnimatedButton 
+                      variant="cyan" 
+                      size="lg"
+                      className="bg-gradient-to-r from-neon-cyan to-blue-500 text-white border-none"
+                    >
+                      <div className="flex items-center">
+                        Get Started
+                        <ArrowRight size={18} className="ml-2" />
+                      </div>
+                    </AnimatedButton>
+                  </motion.div>
                 </Link>
                 <a href="tel:023111758905">
-                  <AnimatedButton variant="outline" size="lg" className="flex items-center">
-                    <Phone size={18} className="mr-2" />
-                    Schedule Demo
-                  </AnimatedButton>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+                    <AnimatedButton 
+                      variant="outline" 
+                      size="lg" 
+                      className="border-2 border-neon-magenta/50 hover:border-neon-magenta bg-dark-secondary/30"
+                    >
+                      <div className="flex items-center">
+                        <Phone size={18} className="mr-2 text-neon-magenta" />
+                        <span className="bg-gradient-to-r from-neon-magenta to-purple-400 bg-clip-text text-transparent">Schedule Demo</span>
+                      </div>
+                    </AnimatedButton>
+                  </motion.div>
                 </a>
               </motion.div>
             </motion.div>
