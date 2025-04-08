@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HexagonBackground from "@/components/HexagonBackground";
@@ -27,6 +26,7 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { isToday, parseISO } from "date-fns";
 
 const PatientHistory = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -43,6 +43,7 @@ const PatientHistory = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   
   useEffect(() => {
     const storedUser = localStorage.getItem('currentUser');
@@ -50,9 +51,15 @@ const PatientHistory = () => {
       setCurrentUser(JSON.parse(storedUser));
     }
     
+    const urlParams = new URLSearchParams(location.search);
+    const filterParam = urlParams.get('filter');
+    
+    if (filterParam === 'today') {
+      setStatusFilter('Today');
+    }
+    
     fetchPatients();
 
-    // Close search results when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setShowSearchResults(false);
@@ -63,19 +70,24 @@ const PatientHistory = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [statusFilter]);
+  }, [location]);
   
-  // Apply search and filtering
   useEffect(() => {
     if (patients.length > 0) {
       let results = [...patients];
       
-      // Apply status filter if not "All"
-      if (statusFilter !== "All") {
+      if (statusFilter === 'Today') {
+        results = results.filter(patient => {
+          try {
+            return isToday(parseISO(patient.visitDate));
+          } catch (e) {
+            return false;
+          }
+        });
+      } else if (statusFilter !== "All") {
         results = results.filter(patient => patient.status === statusFilter);
       }
       
-      // Apply search query
       if (searchQuery.trim() !== '') {
         const query = searchQuery.toLowerCase();
         results = patients.filter(patient => 
@@ -108,24 +120,16 @@ const PatientHistory = () => {
       
       let query = supabase.from('patients').select('*');
       
-      // If user is doctor, only show their patients
       if (user.role === 'doctor') {
         query = query.eq('doctor_id', user.id);
       }
       
-      // Apply status filter if not "All"
-      if (statusFilter !== "All") {
-        query = query.eq('status', statusFilter);
-      }
-      
-      // Order by latest first
       query = query.order('created_at', { ascending: false });
       
       const { data, error } = await query;
       
       if (error) throw error;
       
-      // Map database fields to interface properties
       const mappedData: Patient[] = (data || []).map(item => ({
         id: item.id,
         name: item.name,
@@ -146,7 +150,22 @@ const PatientHistory = () => {
       }));
       
       setPatients(mappedData);
-      setFilteredPatients(mappedData);
+      
+      const urlParams = new URLSearchParams(location.search);
+      const filterParam = urlParams.get('filter');
+      
+      if (filterParam === 'today') {
+        const todayPatients = mappedData.filter(patient => {
+          try {
+            return isToday(parseISO(patient.visitDate));
+          } catch (e) {
+            return false;
+          }
+        });
+        setFilteredPatients(todayPatients);
+      } else {
+        setFilteredPatients(mappedData);
+      }
     } catch (error: any) {
       console.error('Error fetching patients:', error);
       toast({
@@ -264,6 +283,7 @@ const PatientHistory = () => {
                 </SelectTrigger>
                 <SelectContent className="bg-dark-secondary border-white/10">
                   <SelectItem value="All">All Patients</SelectItem>
+                  <SelectItem value="Today">Today's Patients</SelectItem>
                   <SelectItem value="Active">Active</SelectItem>
                   <SelectItem value="Follow-Up">Follow-Up</SelectItem>
                   <SelectItem value="Discharged">Discharged</SelectItem>
@@ -281,7 +301,6 @@ const PatientHistory = () => {
               />
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/40" />
               
-              {/* Search Results Dropdown */}
               {showSearchResults && searchResults.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-dark-secondary border border-white/10 rounded-md shadow-lg z-50 max-h-60 overflow-auto">
                   <div className="p-1">
@@ -427,7 +446,6 @@ const PatientHistory = () => {
           </div>
         )}
 
-        {/* Patient Detail Dialog */}
         <Dialog open={patientDialogOpen} onOpenChange={setPatientDialogOpen}>
           <DialogContent className="bg-[#071620] border border-white/10 max-w-3xl max-h-[90vh] overflow-y-auto">
             {selectedPatient && (

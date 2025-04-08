@@ -169,7 +169,6 @@ const CreatePatient = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Patient's full name"
                     className="bg-white/5 border-white/10 focus:border-neon-cyan"
                     required
                   />
@@ -185,7 +184,6 @@ const CreatePatient = () => {
                     type="number"
                     value={formData.age}
                     onChange={handleChange}
-                    placeholder="Patient's age"
                     className="bg-white/5 border-white/10 focus:border-neon-cyan"
                   />
                 </div>
@@ -215,7 +213,6 @@ const CreatePatient = () => {
                     name="cnic"
                     value={formData.cnic}
                     onChange={handleChange}
-                    placeholder="e.g. 12345-6789012-3"
                     className="bg-white/5 border-white/10 focus:border-neon-cyan"
                   />
                 </div>
@@ -229,7 +226,6 @@ const CreatePatient = () => {
                     name="phoneNumber"
                     value={formData.phoneNumber}
                     onChange={handleChange}
-                    placeholder="e.g. +92-300-1234567"
                     className="bg-white/5 border-white/10 focus:border-neon-cyan"
                   />
                 </div>
@@ -241,7 +237,6 @@ const CreatePatient = () => {
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
-                    placeholder="Patient's full address"
                     className="bg-white/5 border-white/10 focus:border-neon-cyan min-h-[80px]"
                   />
                 </div>
@@ -262,7 +257,6 @@ const CreatePatient = () => {
                     name="disease"
                     value={formData.disease}
                     onChange={handleChange}
-                    placeholder="Primary diagnosis"
                     className="bg-white/5 border-white/10 focus:border-neon-cyan"
                   />
                 </div>
@@ -307,7 +301,6 @@ const CreatePatient = () => {
                     name="diseaseDescription"
                     value={formData.diseaseDescription}
                     onChange={handleChange}
-                    placeholder="Detailed description of the patient's condition"
                     className="bg-white/5 border-white/10 focus:border-neon-cyan min-h-[120px]"
                   />
                 </div>
@@ -319,7 +312,6 @@ const CreatePatient = () => {
                     name="doctorNotes"
                     value={formData.doctorNotes}
                     onChange={handleChange}
-                    placeholder="Additional notes or observations"
                     className="bg-white/5 border-white/10 focus:border-neon-cyan min-h-[120px]"
                   />
                 </div>

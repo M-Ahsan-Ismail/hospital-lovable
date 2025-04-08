@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -20,7 +19,7 @@ import {
   BarChart3
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, fetchPatients } from "@/integrations/supabase/client";
 import { Patient, User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -142,10 +141,16 @@ const Dashboard = () => {
   useEffect(() => {
     let filtered = patients;
     
-    if (activeFilter !== "all") {
-      filtered = filtered.filter(patient => patient.status.toLowerCase() === activeFilter);
+    // Apply filter based on status
+    if (activeFilter === "active") {
+      filtered = filtered.filter(patient => patient.status === 'Active');
+    } else if (activeFilter === "follow-up") {
+      filtered = filtered.filter(patient => patient.status === 'Follow-Up');
+    } else if (activeFilter === "discharged") {
+      filtered = filtered.filter(patient => patient.status === 'Discharged');
     }
     
+    // Apply search filter if there's a search term
     if (searchTerm) {
       filtered = filtered.filter(patient => 
         patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
