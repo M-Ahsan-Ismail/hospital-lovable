@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -28,17 +29,21 @@ import {
   TabsList, 
   TabsTrigger 
 } from "@/components/ui/tabs";
+import { format, startOfWeek, isToday, parseISO } from "date-fns";
 
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [patients, setPatients] = useState<Patient[]>([]);
   const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
+  const [todayPatients, setTodayPatients] = useState<Patient[]>([]);
   const [stats, setStats] = useState({
     totalPatients: 0,
     activePatients: 0,
     followUpPatients: 0,
     dischargedPatients: 0,
     totalVisits: 0,
+    todayActiveCount: 0,
+    newPatientsThisWeek: 0,
   });
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -82,6 +87,30 @@ const Dashboard = () => {
         
         setPatients(formattedPatients);
         
+        // Calculate today's active patients
+        const today = new Date();
+        const activePatientsToday = formattedPatients.filter(p => {
+          try {
+            const visitDate = parseISO(p.visitDate);
+            return isToday(visitDate) && p.status === 'Active';
+          } catch (e) {
+            return false;
+          }
+        });
+        
+        setTodayPatients(activePatientsToday);
+        
+        // Calculate this week's new patients
+        const weekStart = startOfWeek(today);
+        const newPatientsThisWeek = formattedPatients.filter(p => {
+          try {
+            const createdDate = parseISO(p.createdAt || '');
+            return createdDate >= weekStart && createdDate <= today;
+          } catch (e) {
+            return false;
+          }
+        }).length;
+        
         const activePatients = formattedPatients.filter(p => p.status === 'Active').length;
         const followUpPatients = formattedPatients.filter(p => p.status === 'Follow-Up').length;
         const dischargedPatients = formattedPatients.filter(p => p.status === 'Discharged').length;
@@ -93,6 +122,8 @@ const Dashboard = () => {
           followUpPatients,
           dischargedPatients,
           totalVisits,
+          todayActiveCount: activePatientsToday.length,
+          newPatientsThisWeek,
         });
       } catch (error: any) {
         toast({
@@ -183,6 +214,30 @@ const Dashboard = () => {
       
       setPatients(formattedPatients);
       
+      // Calculate today's active patients
+      const today = new Date();
+      const activePatientsToday = formattedPatients.filter(p => {
+        try {
+          const visitDate = parseISO(p.visitDate);
+          return isToday(visitDate) && p.status === 'Active';
+        } catch (e) {
+          return false;
+        }
+      });
+      
+      setTodayPatients(activePatientsToday);
+      
+      // Calculate this week's new patients
+      const weekStart = startOfWeek(today);
+      const newPatientsThisWeek = formattedPatients.filter(p => {
+        try {
+          const createdDate = parseISO(p.createdAt || '');
+          return createdDate >= weekStart && createdDate <= today;
+        } catch (e) {
+          return false;
+        }
+      }).length;
+      
       const activePatients = formattedPatients.filter(p => p.status === 'Active').length;
       const followUpPatients = formattedPatients.filter(p => p.status === 'Follow-Up').length;
       const dischargedPatients = formattedPatients.filter(p => p.status === 'Discharged').length;
@@ -194,6 +249,8 @@ const Dashboard = () => {
         followUpPatients,
         dischargedPatients,
         totalVisits,
+        todayActiveCount: activePatientsToday.length,
+        newPatientsThisWeek,
       });
       
       toast({
@@ -416,8 +473,8 @@ const Dashboard = () => {
                     Today's Schedule
                   </h3>
                   <p className="text-sm text-white/70 mb-4 relative z-10">
-                    {stats.activePatients > 0 
-                      ? `You have ${stats.activePatients} active ${stats.activePatients === 1 ? 'case' : 'cases'} today`
+                    {stats.todayActiveCount > 0 
+                      ? `You have ${stats.todayActiveCount} active ${stats.todayActiveCount === 1 ? 'case' : 'cases'} today`
                       : "No active cases today"}
                   </p>
                   <AnimatedButton 
@@ -425,8 +482,11 @@ const Dashboard = () => {
                     size="sm" 
                     className="w-full bg-white/5 hover:bg-gradient-to-r hover:from-neon-cyan/20 hover:to-neon-magenta/20 relative z-10 button-glow"
                   >
-                    <Link to="/patients" className="w-full inline-block">
-                      View Active Cases
+                    <Link to={{ 
+                      pathname: "/patients",
+                      search: "?filter=today" 
+                    }} className="w-full inline-block">
+                      View Today's Cases
                     </Link>
                   </AnimatedButton>
                 </div>
@@ -440,18 +500,10 @@ const Dashboard = () => {
                   <div className="space-y-2 relative z-10">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-white/70">New Patients (Week)</span>
-                      <span className="text-sm text-neon-magenta font-semibold">{Math.floor(stats.totalPatients * 0.2)}</span>
+                      <span className="text-sm text-neon-magenta font-semibold">{stats.newPatientsThisWeek}</span>
                     </div>
                     <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
-                      <div className="bg-gradient-to-r from-neon-magenta to-neon-cyan h-full rounded-full" style={{ width: "65%" }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center mt-3">
-                      <span className="text-sm text-white/70">Appointments (Week)</span>
-                      <span className="text-sm text-neon-cyan font-semibold">{Math.floor(stats.totalVisits * 0.4)}</span>
-                    </div>
-                    <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
-                      <div className="bg-gradient-to-r from-neon-cyan to-neon-magenta h-full rounded-full" style={{ width: "78%" }}></div>
+                      <div className="bg-gradient-to-r from-neon-magenta to-neon-cyan h-full rounded-full" style={{ width: `${Math.min(Math.max(stats.newPatientsThisWeek * 10, 10), 100)}%` }}></div>
                     </div>
                   </div>
                 </div>
