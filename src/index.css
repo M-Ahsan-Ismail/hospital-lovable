@@ -79,6 +79,7 @@
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
     transform: scale(1);
     transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 238, 255, 0.1);
   }
   
   .hexagon::before {
@@ -108,6 +109,37 @@
   
   .cyber-glow-magenta {
     text-shadow: 0 0 10px rgba(255, 42, 109, 0.7), 0 0 20px rgba(255, 42, 109, 0.4);
+  }
+
+  /* New enhanced effects for the background */
+  .cyber-circuit {
+    background-image: 
+      radial-gradient(circle at 100% 100%, transparent 9px, var(--neon-cyan) 10px, transparent 11px),
+      radial-gradient(circle at 0% 0%, transparent 9px, var(--neon-magenta) 10px, transparent 11px),
+      linear-gradient(var(--neon-cyan), transparent 2px),
+      linear-gradient(90deg, var(--neon-magenta), transparent 2px);
+    background-size: 40px 40px, 40px 40px, 20px 20px, 20px 20px;
+    background-position: 0 0, 0 0, 0 0, 0 0;
+    animation: cyber-circuit 10s linear infinite;
+    opacity: 0.03;
+  }
+  
+  .scan-lines::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      transparent 100%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 1;
   }
 }
 
@@ -150,6 +182,15 @@
   }
   100% {
     background-position: 200% 0%;
+  }
+}
+
+@keyframes cyber-circuit {
+  0% {
+    background-position: 0 0, 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 40px 0, -40px 0, 20px 0, 0 20px;
   }
 }
 
@@ -206,4 +247,63 @@
   background-size: 100% 4px;
   pointer-events: none;
   z-index: 1;
+}
+
+/* Glitch effect */
+@keyframes glitch {
+  0% {
+    clip-path: inset(40% 0 61% 0);
+    transform: translate(-20px, -10px);
+  }
+  20% {
+    clip-path: inset(92% 0 1% 0);
+    transform: translate(20px, 10px);
+  }
+  40% {
+    clip-path: inset(43% 0 1% 0);
+    transform: translate(-20px, -10px);
+  }
+  60% {
+    clip-path: inset(25% 0 58% 0);
+    transform: translate(20px, 10px);
+  }
+  80% {
+    clip-path: inset(54% 0 7% 0);
+    transform: translate(-20px, -10px);
+  }
+  100% {
+    clip-path: inset(58% 0 43% 0);
+    transform: translate(20px, 10px);
+  }
+}
+
+.glitch-effect {
+  position: relative;
+}
+
+.glitch-effect::before,
+.glitch-effect::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch-effect:hover::before {
+  left: 2px;
+  text-shadow: -2px 0 #00eeff;
+  animation: glitch 0.3s infinite linear alternate-reverse;
+  background: transparent;
+  opacity: 0.8;
+}
+
+.glitch-effect:hover::after {
+  left: -2px;
+  text-shadow: 2px 0 #ff2a6d;
+  animation: glitch 0.3s infinite linear alternate-reverse;
+  animation-delay: 0.1s;
+  background: transparent;
+  opacity: 0.8;
 }
