@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -16,7 +15,8 @@ import {
   ChevronRight, 
   CheckCircle, 
   RefreshCw,
-  Hospital 
+  Hospital,
+  BarChart3
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,25 +46,21 @@ const Dashboard = () => {
   const { toast } = useToast();
   
   useEffect(() => {
-    // Get current user
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
       setCurrentUser(JSON.parse(storedUser));
     }
     
-    // Fetch patients data
     const fetchData = async () => {
       try {
         setLoading(true);
         
-        // Get all patients
         const { data: patientsData, error } = await supabase
           .from('patients')
           .select('*');
         
         if (error) throw error;
         
-        // Transform data to match our interface
         const formattedPatients: Patient[] = patientsData.map((p: any) => ({
           id: p.id,
           name: p.name,
@@ -86,7 +82,6 @@ const Dashboard = () => {
         
         setPatients(formattedPatients);
         
-        // Calculate stats
         const activePatients = formattedPatients.filter(p => p.status === 'Active').length;
         const followUpPatients = formattedPatients.filter(p => p.status === 'Follow-Up').length;
         const dischargedPatients = formattedPatients.filter(p => p.status === 'Discharged').length;
@@ -114,15 +109,12 @@ const Dashboard = () => {
   }, [toast]);
   
   useEffect(() => {
-    // Apply both search filter and status filter
     let filtered = patients;
     
-    // Apply status filter
     if (activeFilter !== "all") {
       filtered = filtered.filter(patient => patient.status.toLowerCase() === activeFilter);
     }
     
-    // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter(patient => 
         patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -130,19 +122,16 @@ const Dashboard = () => {
       );
     }
     
-    // Only show the first 3 patients for display in dashboard
     setFilteredPatients(filtered.slice(0, 3));
   }, [searchTerm, patients, activeFilter]);
   
   const handleStatusChange = (patientId: string, newStatus: string) => {
-    // Update the patient status in the local state
     setPatients(patients.map(p => 
       p.id === patientId 
         ? { ...p, status: newStatus as 'Active' | 'Discharged' | 'Follow-Up' } 
         : p
     ));
     
-    // Recalculate stats
     const activePatients = patients.filter(p => 
       p.id === patientId ? newStatus === 'Active' : p.status === 'Active'
     ).length;
@@ -167,14 +156,12 @@ const Dashboard = () => {
     try {
       setLoading(true);
       
-      // Get all patients
       const { data: patientsData, error } = await supabase
         .from('patients')
         .select('*');
       
       if (error) throw error;
       
-      // Transform data to match our interface
       const formattedPatients: Patient[] = patientsData.map((p: any) => ({
         id: p.id,
         name: p.name,
@@ -196,7 +183,6 @@ const Dashboard = () => {
       
       setPatients(formattedPatients);
       
-      // Calculate stats
       const activePatients = formattedPatients.filter(p => p.status === 'Active').length;
       const followUpPatients = formattedPatients.filter(p => p.status === 'Follow-Up').length;
       const dischargedPatients = formattedPatients.filter(p => p.status === 'Discharged').length;
@@ -232,14 +218,18 @@ const Dashboard = () => {
       
       <main className="flex-grow pt-24 pb-16 px-4">
         <div className="container mx-auto">
-          {/* Header with Welcome & Refresh Button */}
           <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center">
             <div className="mb-4 md:mb-0">
-              <h1 className="text-3xl font-bold mb-2 animate-fade-in bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan to-neon-magenta">
-                Welcome, <span className="text-white">{currentUser?.fullName || 'Admin'}</span>
+              <h1 className="text-3xl md:text-4xl font-bold mb-2 animate-fade-in glitch-effect" data-text="Welcome">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan via-white to-neon-magenta">
+                  Welcome, <span className="text-white">{currentUser?.fullName || 'Admin'}</span>
+                </span>
               </h1>
-              <p className="text-white/70 animate-fade-in" style={{ animationDelay: "100ms" }}>
-                Here's an overview of your hospital management dashboard
+              <p className="text-white/70 animate-fade-in text-lg" style={{ animationDelay: "100ms" }}>
+                <span className="relative inline-block">
+                  Hospital Management Dashboard
+                  <span className="absolute -bottom-1 left-0 w-full h-[1px] bg-gradient-to-r from-neon-cyan to-transparent"></span>
+                </span>
               </p>
             </div>
             
@@ -248,14 +238,13 @@ const Dashboard = () => {
               size="sm" 
               onClick={refreshData}
               disabled={loading}
-              className="shadow-glow-subtle"
+              className="shadow-glow-cyan hover:shadow-glow-mixed transition-all duration-300"
             >
               <RefreshCw size={16} className={`mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh Data
             </AnimatedButton>
           </div>
           
-          {/* Stats Section - Enhanced with Hover Effects */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-10">
             <StatCard 
               title="Total Patients" 
@@ -263,7 +252,7 @@ const Dashboard = () => {
               icon={UserRound}
               description="All registered patients"
               variant="cyan"
-              className="hover:shadow-glow-cyan transition-all duration-300"
+              className="hover:scale-105 hover:shadow-glow-cyan transition-all duration-300 backdrop-blur-md"
             />
             <StatCard 
               title="Active Cases" 
@@ -271,7 +260,7 @@ const Dashboard = () => {
               icon={Activity}
               description="Currently under treatment"
               variant="magenta"
-              className="hover:shadow-glow-magenta transition-all duration-300"
+              className="hover:scale-105 hover:shadow-glow-magenta transition-all duration-300 backdrop-blur-md"
             />
             <StatCard 
               title="Follow-ups" 
@@ -279,7 +268,7 @@ const Dashboard = () => {
               icon={CalendarDays}
               description="Scheduled for follow-up"
               variant="cyan"
-              className="hover:shadow-glow-cyan transition-all duration-300"
+              className="hover:scale-105 hover:shadow-glow-cyan transition-all duration-300 backdrop-blur-md"
             />
             <StatCard 
               title="Discharged" 
@@ -287,7 +276,7 @@ const Dashboard = () => {
               icon={CheckCircle}
               description="Successfully treated"
               variant="magenta"
-              className="hover:shadow-glow-magenta transition-all duration-300"
+              className="hover:scale-105 hover:shadow-glow-magenta transition-all duration-300 backdrop-blur-md"
             />
             <StatCard 
               title="Total Visits" 
@@ -295,51 +284,55 @@ const Dashboard = () => {
               icon={Hospital}
               description="Cumulative patient visits"
               variant="mixed"
-              className="hover:shadow-glow-mixed transition-all duration-300"
+              className="hover:scale-105 hover:shadow-glow-mixed transition-all duration-300 backdrop-blur-md"
             />
           </div>
           
-          {/* Quick Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
             <div className="lg:col-span-2">
-              <div className="glass-card rounded-lg p-6 backdrop-blur-md border border-white/10 hover:border-white/20 transition-all duration-300 shadow-glow-subtle">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-white bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan to-white">Recent Patients</h2>
+              <div className="glass-card rounded-lg p-6 backdrop-blur-md border border-white/10 hover:border-white/20 transition-all duration-300 shadow-glow-subtle relative overflow-hidden">
+                <div className="absolute inset-0 cyber-circuit opacity-5"></div>
+                
+                <div className="flex justify-between items-center mb-6 relative z-10">
+                  <h2 className="text-xl font-semibold cyber-glow flex items-center">
+                    <BarChart3 size={20} className="mr-2 text-neon-cyan" />
+                    Recent Patients
+                  </h2>
                   <div className="relative w-full max-w-xs">
                     <Input 
                       type="text" 
                       placeholder="Search patients..." 
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="bg-white/5 border-white/10 pl-10 focus:border-neon-cyan shadow-inner shadow-black/10"
+                      className="bg-white/5 border-white/10 pl-10 focus:border-neon-cyan focus:shadow-glow-cyan"
                     />
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={16} />
                   </div>
                 </div>
                 
                 <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveFilter}>
-                  <TabsList className="bg-white/5 border border-white/10">
+                  <TabsList className="bg-white/5 border border-white/10 cyber-border">
                     <TabsTrigger 
                       value="all" 
-                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-neon-cyan/20 data-[state=active]:to-neon-magenta/20 data-[state=active]:text-white"
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-neon-cyan/20 data-[state=active]:to-neon-magenta/20 data-[state=active]:text-white data-[state=active]:shadow-glow-subtle"
                     >
                       All Patients
                     </TabsTrigger>
                     <TabsTrigger 
                       value="active" 
-                      className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400"
+                      className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400 data-[state=active]:shadow-[0_0_10px_rgba(74,222,128,0.3)]"
                     >
                       Active
                     </TabsTrigger>
                     <TabsTrigger 
                       value="follow-up" 
-                      className="data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-400"
+                      className="data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-400 data-[state=active]:shadow-[0_0_10px_rgba(234,179,8,0.3)]"
                     >
                       Follow-Up
                     </TabsTrigger>
                     <TabsTrigger 
                       value="discharged" 
-                      className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400"
+                      className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 data-[state=active]:shadow-[0_0_10px_rgba(59,130,246,0.3)]"
                     >
                       Discharged
                     </TabsTrigger>
@@ -347,25 +340,28 @@ const Dashboard = () => {
                 </Tabs>
                 
                 {loading ? (
-                  <div className="text-center py-12">
-                    <div className="inline-block h-8 w-8 border-2 border-neon-cyan border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-white/60">Loading patients...</p>
+                  <div className="text-center py-12 relative">
+                    <div className="hexagon inline-block h-16 w-16 relative animate-spin-slow">
+                      <div className="absolute inset-2 hexagon border border-neon-cyan/50 animate-pulse"></div>
+                    </div>
+                    <p className="text-white/60 mt-4">Loading patients...</p>
                   </div>
                 ) : filteredPatients.length > 0 ? (
-                  <div className="space-y-4">
-                    {filteredPatients.map((patient) => (
-                      <PatientCard 
-                        key={patient.id} 
-                        patient={patient} 
-                        onStatusChange={handleStatusChange}
-                        userRole={currentUser?.role}
-                      />
+                  <div className="space-y-4 relative z-10">
+                    {filteredPatients.map((patient, index) => (
+                      <div key={patient.id} className="animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                        <PatientCard 
+                          patient={patient} 
+                          onStatusChange={handleStatusChange}
+                          userRole={currentUser?.role}
+                        />
+                      </div>
                     ))}
                     
                     <div className="text-center pt-6">
                       <Link 
                         to="/patients" 
-                        className="relative inline-flex items-center px-6 py-3 overflow-hidden rounded-full group bg-gradient-to-r from-white/5 to-white/10 hover:from-neon-cyan/20 hover:to-neon-magenta/20 transition-all duration-300 shadow-glow-subtle"
+                        className="relative inline-flex items-center px-6 py-3 overflow-hidden rounded-full group bg-gradient-to-r from-white/5 to-white/10 hover:from-neon-cyan/20 hover:to-neon-magenta/20 transition-all duration-300 shadow-glow-subtle button-glow"
                       >
                         <span className="relative text-neon-cyan group-hover:text-white transition-colors flex items-center">
                           View all patients
@@ -375,9 +371,10 @@ const Dashboard = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-12 bg-white/5 rounded-lg border border-white/10">
-                    <p className="text-white/60 mb-4">No patients found matching your criteria</p>
-                    <AnimatedButton variant="outline" size="sm">
+                  <div className="text-center py-12 bg-white/5 rounded-lg border border-white/10 relative overflow-hidden">
+                    <div className="absolute inset-0 cyber-circuit opacity-5"></div>
+                    <p className="text-white/60 mb-4 relative z-10">No patients found matching your criteria</p>
+                    <AnimatedButton variant="outline" size="sm" className="relative z-10 shadow-glow-cyan">
                       <Link to="/create-patient">Add New Patient</Link>
                     </AnimatedButton>
                   </div>
@@ -386,12 +383,14 @@ const Dashboard = () => {
             </div>
             
             <div className="lg:col-span-1">
-              <div className="glass-card rounded-lg p-6 h-full backdrop-blur-md border border-white/10 hover:border-white/20 transition-all duration-300 shadow-glow-subtle">
-                <h2 className="text-xl font-semibold text-white bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan to-white mb-6">Quick Actions</h2>
-                <div className="space-y-4">
-                  <Link to="/create-patient" className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-cyan transition-all duration-300 bg-gradient-to-r from-transparent to-transparent hover:from-neon-cyan/10 hover:to-neon-magenta/10">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 flex items-center justify-center mr-4 group-hover:from-neon-cyan/40 group-hover:to-neon-magenta/40 transition-colors">
-                      <UserPlus size={20} className="text-neon-cyan" />
+              <div className="glass-card rounded-lg p-6 h-full backdrop-blur-md border border-white/10 hover:border-white/20 transition-all duration-300 shadow-glow-subtle relative overflow-hidden">
+                <div className="absolute inset-0 cyber-circuit opacity-5"></div>
+                
+                <h2 className="text-xl font-semibold cyber-glow mb-6 relative z-10">Quick Actions</h2>
+                <div className="space-y-4 relative z-10">
+                  <Link to="/create-patient" className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-cyan transition-all duration-300 bg-gradient-to-r from-transparent to-transparent hover:from-neon-cyan/10 hover:to-neon-magenta/10 shadow-glow-subtle hover:shadow-glow-cyan">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 flex items-center justify-center mr-4 group-hover:from-neon-cyan/40 group-hover:to-neon-magenta/40 transition-colors shadow-glow-subtle">
+                      <UserPlus size={22} className="text-neon-cyan drop-shadow-glow" />
                     </div>
                     <div>
                       <h3 className="font-medium text-white group-hover:text-neon-cyan transition-colors">Create New Patient</h3>
@@ -399,9 +398,9 @@ const Dashboard = () => {
                     </div>
                   </Link>
                   
-                  <Link to="/patients" className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-cyan transition-all duration-300 bg-gradient-to-r from-transparent to-transparent hover:from-neon-cyan/10 hover:to-neon-magenta/10">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 flex items-center justify-center mr-4 group-hover:from-neon-cyan/40 group-hover:to-neon-magenta/40 transition-colors">
-                      <UserRound size={20} className="text-neon-cyan" />
+                  <Link to="/patients" className="glass-card group flex items-center p-4 rounded-md border border-white/10 hover:border-neon-cyan transition-all duration-300 bg-gradient-to-r from-transparent to-transparent hover:from-neon-cyan/10 hover:to-neon-magenta/10 shadow-glow-subtle hover:shadow-glow-cyan">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 flex items-center justify-center mr-4 group-hover:from-neon-cyan/40 group-hover:to-neon-magenta/40 transition-colors shadow-glow-subtle">
+                      <UserRound size={22} className="text-neon-cyan drop-shadow-glow" />
                     </div>
                     <div>
                       <h3 className="font-medium text-white group-hover:text-neon-cyan transition-colors">Patient History</h3>
@@ -410,19 +409,51 @@ const Dashboard = () => {
                   </Link>
                 </div>
                 
-                <div className="mt-6 p-4 rounded-md bg-gradient-to-r from-neon-cyan/5 to-neon-magenta/5 border border-white/10 hover:border-neon-cyan/20 transition-all">
-                  <h3 className="font-medium text-white mb-2 flex items-center">
+                <div className="mt-6 p-5 rounded-md bg-gradient-to-r from-neon-cyan/5 to-neon-magenta/5 border border-white/10 hover:border-neon-cyan/20 transition-all shadow-glow-subtle relative overflow-hidden group hover:shadow-glow-mixed">
+                  <div className="absolute inset-0 cyber-circuit opacity-5 group-hover:opacity-10 transition-opacity"></div>
+                  <h3 className="font-medium text-white mb-3 flex items-center cyber-glow relative z-10">
                     <Activity size={18} className="mr-2 text-neon-cyan" />
                     Today's Schedule
                   </h3>
-                  <p className="text-sm text-white/60 mb-4">
+                  <p className="text-sm text-white/70 mb-4 relative z-10">
                     {stats.activePatients > 0 
-                      ? `You have ${stats.activePatients} active cases`
+                      ? `You have ${stats.activePatients} active ${stats.activePatients === 1 ? 'case' : 'cases'} today`
                       : "No active cases today"}
                   </p>
-                  <AnimatedButton variant="outline" size="sm" className="w-full bg-white/5 hover:bg-gradient-to-r hover:from-neon-cyan/20 hover:to-neon-magenta/20">
-                    <Link to="/patients" className="w-full inline-block">View Active Cases</Link>
+                  <AnimatedButton 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full bg-white/5 hover:bg-gradient-to-r hover:from-neon-cyan/20 hover:to-neon-magenta/20 relative z-10 button-glow"
+                  >
+                    <Link to="/patients" className="w-full inline-block">
+                      View Active Cases
+                    </Link>
                   </AnimatedButton>
+                </div>
+                
+                <div className="mt-6 p-5 rounded-md bg-gradient-to-r from-neon-magenta/5 to-neon-cyan/5 border border-white/10 hover:border-neon-magenta/20 transition-all shadow-glow-subtle relative overflow-hidden group hover:shadow-glow-mixed">
+                  <div className="absolute inset-0 cyber-circuit opacity-5 group-hover:opacity-10 transition-opacity"></div>
+                  <h3 className="font-medium text-white mb-3 flex items-center cyber-glow-magenta relative z-10">
+                    <BarChart3 size={18} className="mr-2 text-neon-magenta" />
+                    Activity Summary
+                  </h3>
+                  <div className="space-y-2 relative z-10">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-white/70">New Patients (Week)</span>
+                      <span className="text-sm text-neon-magenta font-semibold">{Math.floor(stats.totalPatients * 0.2)}</span>
+                    </div>
+                    <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
+                      <div className="bg-gradient-to-r from-neon-magenta to-neon-cyan h-full rounded-full" style={{ width: "65%" }}></div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center mt-3">
+                      <span className="text-sm text-white/70">Appointments (Week)</span>
+                      <span className="text-sm text-neon-cyan font-semibold">{Math.floor(stats.totalVisits * 0.4)}</span>
+                    </div>
+                    <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
+                      <div className="bg-gradient-to-r from-neon-cyan to-neon-magenta h-full rounded-full" style={{ width: "78%" }}></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

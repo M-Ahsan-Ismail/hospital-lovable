@@ -307,3 +307,47 @@
   background: transparent;
   opacity: 0.8;
 }
+
+/* New animations for Dashboard */
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 10s linear infinite;
+}
+
+/* Pulse border animation */
+@keyframes pulse-border {
+  0%, 100% {
+    border-color: rgba(0, 238, 255, 0.3);
+  }
+  50% {
+    border-color: rgba(0, 238, 255, 0.7);
+  }
+}
+
+.pulse-border {
+  animation: pulse-border 2s ease-in-out infinite;
+}
+
+/* Shimmer effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
