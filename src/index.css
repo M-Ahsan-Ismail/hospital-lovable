@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -20,6 +21,14 @@
     --foreground: #FFFFFF;
     --card-bg: rgba(255, 255, 255, 0.05);
     --card-border: rgba(255, 255, 255, 0.1);
+    --sidebar-background: rgba(28, 37, 38, 0.95);
+    --sidebar-foreground: #FFFFFF;
+    --sidebar-primary: var(--neon-cyan);
+    --sidebar-primary-foreground: #000000;
+    --sidebar-accent: rgba(0, 238, 255, 0.1);
+    --sidebar-accent-foreground: #FFFFFF;
+    --sidebar-border: rgba(255, 255, 255, 0.1);
+    --sidebar-ring: rgba(0, 238, 255, 0.3);
   }
 
   .light {
@@ -27,6 +36,14 @@
     --foreground: #040D12;
     --card-bg: rgba(0, 0, 0, 0.02);
     --card-border: rgba(0, 0, 0, 0.1);
+    --sidebar-background: rgba(241, 241, 241, 0.95);
+    --sidebar-foreground: #040D12;
+    --sidebar-primary: var(--neon-magenta);
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: rgba(255, 42, 109, 0.1);
+    --sidebar-accent-foreground: #040D12;
+    --sidebar-border: rgba(0, 0, 0, 0.1);
+    --sidebar-ring: rgba(255, 42, 109, 0.3);
   }
 
   body {
@@ -36,7 +53,7 @@
 
 @layer components {
   .glass-card {
-    @apply bg-opacity-10 backdrop-filter backdrop-blur-md border;
+    @apply bg-opacity-10 backdrop-filter backdrop-blur-md border transition-colors duration-300;
     background-color: var(--card-bg);
     border-color: var(--card-border);
   }
@@ -87,6 +104,10 @@
     pointer-events: none; /* Ensure clicks go through */
   }
   
+  .light .cyber-border::after {
+    background: linear-gradient(90deg, transparent, var(--neon-magenta), transparent);
+  }
+  
   .cyber-border:hover::after {
     opacity: 0.5;
   }
@@ -100,6 +121,11 @@
     box-shadow: 0 0 10px rgba(0, 238, 255, 0.1);
   }
   
+  .light .hexagon {
+    background-color: rgba(0, 0, 0, 0.03);
+    box-shadow: 0 0 10px rgba(255, 42, 109, 0.1);
+  }
+  
   .hexagon::before {
     content: '';
     position: absolute;
@@ -109,6 +135,10 @@
     opacity: 0;
     transition: opacity 0.5s ease;
     pointer-events: none; /* Ensure clicks go through */
+  }
+  
+  .light .hexagon::before {
+    background-color: rgba(255, 42, 109, 0.05);
   }
   
   .hexagon:hover::before {
@@ -132,11 +162,19 @@
     text-shadow: 0 0 10px rgba(0, 238, 255, 0.7), 0 0 20px rgba(0, 238, 255, 0.4);
   }
   
+  .light .cyber-glow {
+    text-shadow: 0 0 10px rgba(255, 42, 109, 0.7), 0 0 20px rgba(255, 42, 109, 0.4);
+  }
+  
   .cyber-glow-magenta {
     text-shadow: 0 0 10px rgba(255, 42, 109, 0.7), 0 0 20px rgba(255, 42, 109, 0.4);
   }
+  
+  .light .cyber-glow-magenta {
+    text-shadow: 0 0 10px rgba(0, 238, 255, 0.7), 0 0 20px rgba(0, 238, 255, 0.4);
+  }
 
-  /* New enhanced effects for the background */
+  /* Circuit background effect */
   .cyber-circuit {
     background-image: 
       radial-gradient(circle at 100% 100%, transparent 9px, var(--neon-cyan) 10px, transparent 11px),
@@ -148,6 +186,14 @@
     animation: cyber-circuit 10s linear infinite;
     opacity: 0.03;
     pointer-events: none; /* Ensure clicks go through */
+  }
+  
+  .light .cyber-circuit {
+    background-image: 
+      radial-gradient(circle at 100% 100%, transparent 9px, var(--neon-magenta) 10px, transparent 11px),
+      radial-gradient(circle at 0% 0%, transparent 9px, var(--neon-cyan) 10px, transparent 11px),
+      linear-gradient(var(--neon-magenta), transparent 2px),
+      linear-gradient(90deg, var(--neon-cyan), transparent 2px);
   }
   
   .scan-lines::before {
