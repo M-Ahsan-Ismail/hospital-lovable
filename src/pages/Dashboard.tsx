@@ -305,28 +305,28 @@ const Dashboard = () => {
                 </div>
                 
                 <Tabs defaultValue="all" className="mb-6" onValueChange={handleTabChange} value={activeFilter}>
-                  <TabsList className="bg-white/5 border border-white/10 cyber-border">
+                  <TabsList className="grid grid-cols-4 bg-white/5 border border-white/10">
                     <TabsTrigger 
                       value="all" 
-                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-neon-cyan/20 data-[state=active]:to-neon-magenta/20 data-[state=active]:text-white data-[state=active]:shadow-glow-subtle"
+                      className="cursor-pointer data-[state=active]:bg-gradient-to-r data-[state=active]:from-neon-cyan/20 data-[state=active]:to-neon-magenta/20 data-[state=active]:text-white"
                     >
                       All Patients
                     </TabsTrigger>
                     <TabsTrigger 
                       value="active" 
-                      className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400 data-[state=active]:shadow-[0_0_10px_rgba(74,222,128,0.3)]"
+                      className="cursor-pointer data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400"
                     >
                       Active
                     </TabsTrigger>
                     <TabsTrigger 
                       value="follow-up" 
-                      className="data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-400 data-[state=active]:shadow-[0_0_10px_rgba(234,179,8,0.3)]"
+                      className="cursor-pointer data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-400"
                     >
                       Follow-Up
                     </TabsTrigger>
                     <TabsTrigger 
                       value="discharged" 
-                      className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 data-[state=active]:shadow-[0_0_10px_rgba(59,130,246,0.3)]"
+                      className="cursor-pointer data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400"
                     >
                       Discharged
                     </TabsTrigger>
