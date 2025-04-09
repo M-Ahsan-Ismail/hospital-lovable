@@ -71,11 +71,6 @@ export default {
 				neon: {
 					cyan: '#00D1FF',
 					magenta: '#FF007A',
-				},
-				light: {
-					DEFAULT: '#FFFFFF',
-					secondary: '#F1F1F1',
-					accent: '#F1F0FB'
 				}
 			},
 			borderRadius: {
@@ -146,7 +141,6 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-dark': 'linear-gradient(to bottom right, #1C2526, #2D3A3E)',
-				'gradient-light': 'linear-gradient(to bottom right, #FFFFFF, #F1F1F1)',
 			},
 		}
 	},

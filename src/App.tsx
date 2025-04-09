@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,7 +15,6 @@ import PatientHistory from "./pages/PatientHistory";
 import NotFound from "./pages/NotFound";
 import { supabase } from "./integrations/supabase/client";
 import { toast } from "./components/ui/use-toast";
-import { ThemeProvider } from "./providers/ThemeProvider";
 
 // Create a persistent QueryClient with retry logic
 const queryClient = new QueryClient({
@@ -212,64 +212,62 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={
-                user ? (
-                  user.role === 'doctor' ? 
-                  <Navigate to="/doctor-home" replace /> : 
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <Index />
-                )
-              } />
-              <Route path="/signup" element={
-                user ? (
-                  user.role === 'doctor' ? 
-                  <Navigate to="/doctor-home" replace /> : 
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <SignUp />
-                )
-              } />
-              <Route path="/signin" element={
-                user ? (
-                  user.role === 'doctor' ? 
-                  <Navigate to="/doctor-home" replace /> : 
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <SignIn />
-                )
-              } />
-              <Route path="/dashboard" element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/doctor-home" element={
-                <ProtectedRoute allowedRoles={['doctor']}>
-                  <DoctorHome />
-                </ProtectedRoute>
-              } />
-              <Route path="/create-patient" element={
-                <ProtectedRoute allowedRoles={['doctor', 'admin']}>
-                  <CreatePatient />
-                </ProtectedRoute>
-              } />
-              <Route path="/patients" element={
-                <ProtectedRoute allowedRoles={['admin', 'doctor']}>
-                  <PatientHistory />
-                </ProtectedRoute>
-              } />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={
+              user ? (
+                user.role === 'doctor' ? 
+                <Navigate to="/doctor-home" replace /> : 
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Index />
+              )
+            } />
+            <Route path="/signup" element={
+              user ? (
+                user.role === 'doctor' ? 
+                <Navigate to="/doctor-home" replace /> : 
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <SignUp />
+              )
+            } />
+            <Route path="/signin" element={
+              user ? (
+                user.role === 'doctor' ? 
+                <Navigate to="/doctor-home" replace /> : 
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <SignIn />
+              )
+            } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/doctor-home" element={
+              <ProtectedRoute allowedRoles={['doctor']}>
+                <DoctorHome />
+              </ProtectedRoute>
+            } />
+            <Route path="/create-patient" element={
+              <ProtectedRoute allowedRoles={['doctor', 'admin']}>
+                <CreatePatient />
+              </ProtectedRoute>
+            } />
+            <Route path="/patients" element={
+              <ProtectedRoute allowedRoles={['admin', 'doctor']}>
+                <PatientHistory />
+              </ProtectedRoute>
+            } />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 };
