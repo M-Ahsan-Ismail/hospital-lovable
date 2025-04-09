@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+
+import React, { useState, useEffect, useCallback } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HexagonBackground from "@/components/HexagonBackground";
@@ -31,6 +32,7 @@ import {
 import { format, startOfWeek, isToday, parseISO } from "date-fns";
 
 const Dashboard = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [patients, setPatients] = useState<Patient[]>([]);
   const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
@@ -49,152 +51,15 @@ const Dashboard = () => {
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const { toast } = useToast();
   
-  useEffect(() => {
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
-    }
-    
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        
-        const { data: patientsData, error } = await supabase
-          .from('patients')
-          .select('*');
-        
-        if (error) throw error;
-        
-        const formattedPatients: Patient[] = patientsData.map((p: any) => ({
-          id: p.id,
-          name: p.name,
-          age: p.age,
-          gender: p.gender,
-          cnic: p.cnic,
-          phoneNumber: p.phone_number,
-          email: p.email,
-          address: p.address,
-          disease: p.disease,
-          diseaseDescription: p.disease_description,
-          visitDate: p.visit_date,
-          visitCount: p.visit_count,
-          doctorNotes: p.doctor_notes,
-          status: p.status,
-          doctorId: p.doctor_id,
-          createdAt: p.created_at,
-        }));
-        
-        setPatients(formattedPatients);
-        
-        // Calculate today's active patients
-        const today = new Date();
-        const activePatientsToday = formattedPatients.filter(p => {
-          try {
-            const visitDate = parseISO(p.visitDate);
-            return isToday(visitDate) && p.status === 'Active';
-          } catch (e) {
-            return false;
-          }
-        });
-        
-        setTodayPatients(activePatientsToday);
-        
-        // Calculate this week's new patients
-        const weekStart = startOfWeek(today);
-        const newPatientsThisWeek = formattedPatients.filter(p => {
-          try {
-            const createdDate = parseISO(p.createdAt || '');
-            return createdDate >= weekStart && createdDate <= today;
-          } catch (e) {
-            return false;
-          }
-        }).length;
-        
-        const activePatients = formattedPatients.filter(p => p.status === 'Active').length;
-        const followUpPatients = formattedPatients.filter(p => p.status === 'Follow-Up').length;
-        const dischargedPatients = formattedPatients.filter(p => p.status === 'Discharged').length;
-        const totalVisits = formattedPatients.reduce((sum, p) => sum + p.visitCount, 0);
-        
-        setStats({
-          totalPatients: formattedPatients.length,
-          activePatients,
-          followUpPatients,
-          dischargedPatients,
-          totalVisits,
-          todayActiveCount: activePatientsToday.length,
-          newPatientsThisWeek,
-        });
-      } catch (error: any) {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to fetch data",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchData();
-  }, [toast]);
-  
-  useEffect(() => {
-    let filtered = patients;
-    
-    // Apply filter based on status
-    if (activeFilter === "active") {
-      filtered = filtered.filter(patient => patient.status === 'Active');
-    } else if (activeFilter === "follow-up") {
-      filtered = filtered.filter(patient => patient.status === 'Follow-Up');
-    } else if (activeFilter === "discharged") {
-      filtered = filtered.filter(patient => patient.status === 'Discharged');
-    }
-    
-    // Apply search filter if there's a search term
-    if (searchTerm) {
-      filtered = filtered.filter(patient => 
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.disease.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    
-    setFilteredPatients(filtered.slice(0, 3));
-  }, [searchTerm, patients, activeFilter]);
-  
-  const handleStatusChange = (patientId: string, newStatus: string) => {
-    setPatients(patients.map(p => 
-      p.id === patientId 
-        ? { ...p, status: newStatus as 'Active' | 'Discharged' | 'Follow-Up' } 
-        : p
-    ));
-    
-    const activePatients = patients.filter(p => 
-      p.id === patientId ? newStatus === 'Active' : p.status === 'Active'
-    ).length;
-    
-    const followUpPatients = patients.filter(p => 
-      p.id === patientId ? newStatus === 'Follow-Up' : p.status === 'Follow-Up'
-    ).length;
-    
-    const dischargedPatients = patients.filter(p => 
-      p.id === patientId ? newStatus === 'Discharged' : p.status === 'Discharged'
-    ).length;
-    
-    setStats({
-      ...stats,
-      activePatients,
-      followUpPatients,
-      dischargedPatients
-    });
-  };
-  
-  const refreshData = async () => {
+  // Memoize fetchData function to prevent unnecessary renders
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       
       const { data: patientsData, error } = await supabase
         .from('patients')
-        .select('*');
+        .select('*')
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       
@@ -257,20 +122,87 @@ const Dashboard = () => {
         todayActiveCount: activePatientsToday.length,
         newPatientsThisWeek,
       });
-      
-      toast({
-        title: "Success",
-        description: "Dashboard data refreshed",
-      });
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to refresh data",
+        description: error.message || "Failed to fetch data",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
+  }, [toast]);
+  
+  useEffect(() => {
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
+    }
+    
+    fetchData();
+  }, [fetchData]);
+  
+  useEffect(() => {
+    let filtered = patients;
+    
+    // Apply filter based on status
+    if (activeFilter === "active") {
+      filtered = filtered.filter(patient => patient.status === 'Active');
+    } else if (activeFilter === "follow-up") {
+      filtered = filtered.filter(patient => patient.status === 'Follow-Up');
+    } else if (activeFilter === "discharged") {
+      filtered = filtered.filter(patient => patient.status === 'Discharged');
+    }
+    
+    // Apply search filter if there's a search term
+    if (searchTerm) {
+      filtered = filtered.filter(patient => 
+        patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient.disease.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    setFilteredPatients(filtered.slice(0, 3));
+  }, [searchTerm, patients, activeFilter]);
+  
+  const handleStatusChange = (patientId: string, newStatus: string) => {
+    setPatients(patients.map(p => 
+      p.id === patientId 
+        ? { ...p, status: newStatus as 'Active' | 'Discharged' | 'Follow-Up' } 
+        : p
+    ));
+    
+    const activePatients = patients.filter(p => 
+      p.id === patientId ? newStatus === 'Active' : p.status === 'Active'
+    ).length;
+    
+    const followUpPatients = patients.filter(p => 
+      p.id === patientId ? newStatus === 'Follow-Up' : p.status === 'Follow-Up'
+    ).length;
+    
+    const dischargedPatients = patients.filter(p => 
+      p.id === patientId ? newStatus === 'Discharged' : p.status === 'Discharged'
+    ).length;
+    
+    setStats({
+      ...stats,
+      activePatients,
+      followUpPatients,
+      dischargedPatients
+    });
+  };
+  
+  const refreshData = async () => {
+    await fetchData();
+    toast({
+      title: "Success",
+      description: "Dashboard data refreshed",
+    });
+  };
+
+  // Handle tab change
+  const handleTabChange = (value: string) => {
+    setActiveFilter(value);
   };
   
   return (
@@ -372,7 +304,7 @@ const Dashboard = () => {
                   </div>
                 </div>
                 
-                <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveFilter}>
+                <Tabs defaultValue="all" className="mb-6" onValueChange={handleTabChange} value={activeFilter}>
                   <TabsList className="bg-white/5 border border-white/10 cyber-border">
                     <TabsTrigger 
                       value="all" 
@@ -422,7 +354,7 @@ const Dashboard = () => {
                     
                     <div className="text-center pt-6">
                       <Link 
-                        to="/patients" 
+                        to={`/patients${activeFilter !== 'all' ? `?status=${activeFilter}` : ''}`}
                         className="relative inline-flex items-center px-6 py-3 overflow-hidden rounded-full group bg-gradient-to-r from-white/5 to-white/10 hover:from-neon-cyan/20 hover:to-neon-magenta/20 transition-all duration-300 shadow-glow-subtle button-glow"
                       >
                         <span className="relative text-neon-cyan group-hover:text-white transition-colors flex items-center">
@@ -487,10 +419,7 @@ const Dashboard = () => {
                     size="sm" 
                     className="w-full bg-white/5 hover:bg-gradient-to-r hover:from-neon-cyan/20 hover:to-neon-magenta/20 relative z-10 button-glow"
                   >
-                    <Link to={{ 
-                      pathname: "/patients",
-                      search: "?filter=today" 
-                    }} className="w-full inline-block">
+                    <Link to="/patients?filter=today" className="w-full inline-block">
                       View Today's Cases
                     </Link>
                   </AnimatedButton>
