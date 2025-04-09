@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -16,14 +15,30 @@
     scroll-behavior: smooth;
   }
 
+  .dark {
+    --background: #040D12;
+    --foreground: #FFFFFF;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --card-border: rgba(255, 255, 255, 0.1);
+  }
+
+  .light {
+    --background: #FFFFFF;
+    --foreground: #040D12;
+    --card-bg: rgba(0, 0, 0, 0.02);
+    --card-border: rgba(0, 0, 0, 0.1);
+  }
+
   body {
-    @apply bg-[#040D12] text-white font-orbit;
+    @apply bg-[var(--background)] text-[var(--foreground)] font-orbit transition-colors duration-300;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-opacity-10 bg-white backdrop-filter backdrop-blur-md border border-white/10;
+    @apply bg-opacity-10 backdrop-filter backdrop-blur-md border;
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
   }
 
   .drop-shadow-glow {
@@ -47,12 +62,14 @@
   }
 
   .bg-blur {
-    @apply bg-black/70 backdrop-blur-md;
+    @apply backdrop-blur-md transition-colors duration-300;
+    background-color: var(--card-bg);
   }
   
   /* Cyberpunk-inspired UI elements */
   .cyber-border {
-    @apply border border-white/10 relative;
+    @apply border relative transition-colors duration-300;
+    border-color: var(--card-border);
   }
   
   .cyber-border::after {
@@ -105,6 +122,12 @@
       linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   }
   
+  .light .cyber-grid {
+    background-image: 
+      linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  }
+  
   .cyber-glow {
     text-shadow: 0 0 10px rgba(0, 238, 255, 0.7), 0 0 20px rgba(0, 238, 255, 0.4);
   }
@@ -143,6 +166,16 @@
     background-size: 100% 4px;
     pointer-events: none;
     z-index: 1;
+  }
+
+  .light .scan-lines::before {
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.02) 50%,
+      transparent 100%
+    );
+    background-size: 100% 4px;
   }
 }
 
