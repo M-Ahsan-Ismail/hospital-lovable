@@ -17,13 +17,13 @@
   }
 
   body {
-    @apply bg-white dark:bg-[#040D12] text-gray-900 dark:text-white font-orbit;
+    @apply bg-[#040D12] text-white font-orbit;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply dark:bg-opacity-10 bg-opacity-80 bg-white dark:backdrop-filter backdrop-blur-md dark:border dark:border-white/10 border border-gray-200;
+    @apply bg-opacity-10 bg-white backdrop-filter backdrop-blur-md border border-white/10;
   }
 
   .drop-shadow-glow {
@@ -47,12 +47,12 @@
   }
 
   .bg-blur {
-    @apply dark:bg-black/70 bg-white/70 backdrop-blur-md;
+    @apply bg-black/70 backdrop-blur-md;
   }
   
-  /* Cyberpunk-inspired UI elements - optimized for performance */
+  /* Cyberpunk-inspired UI elements */
   .cyber-border {
-    @apply dark:border dark:border-white/10 border border-gray-200 relative;
+    @apply border border-white/10 relative;
   }
   
   .cyber-border::after {
@@ -68,7 +68,6 @@
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none; /* Ensure clicks go through */
-    will-change: opacity; /* Performance optimization */
   }
   
   .cyber-border:hover::after {
@@ -79,8 +78,8 @@
     position: relative;
     background-color: rgba(255, 255, 255, 0.05);
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    transform: translateZ(0); /* Performance optimization */
-    transition: transform 0.3s ease;
+    transform: scale(1);
+    transition: all 0.3s ease;
     box-shadow: 0 0 10px rgba(0, 238, 255, 0.1);
   }
   
@@ -114,7 +113,7 @@
     text-shadow: 0 0 10px rgba(255, 42, 109, 0.7), 0 0 20px rgba(255, 42, 109, 0.4);
   }
 
-  /* Performance optimized effects for the background */
+  /* New enhanced effects for the background */
   .cyber-circuit {
     background-image: 
       radial-gradient(circle at 100% 100%, transparent 9px, var(--neon-cyan) 10px, transparent 11px),
@@ -126,7 +125,6 @@
     animation: cyber-circuit 10s linear infinite;
     opacity: 0.03;
     pointer-events: none; /* Ensure clicks go through */
-    will-change: background-position; /* Performance optimization */
   }
   
   .scan-lines::before {
@@ -145,7 +143,6 @@
     background-size: 100% 4px;
     pointer-events: none;
     z-index: 1;
-    will-change: transform; /* Performance optimization */
   }
 }
 
@@ -153,13 +150,12 @@
   font-family: 'Outfit', sans-serif;
 }
 
-/* Optimized animations for better performance */
 @keyframes float {
   0%, 100% {
-    transform: translateY(0) translateZ(0);
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(-10px) translateZ(0);
+    transform: translateY(-10px);
   }
 }
 
@@ -175,11 +171,11 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px) translateZ(0);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) translateZ(0);
+    transform: translateY(0);
   }
 }
 
@@ -203,20 +199,17 @@
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
-  will-change: transform; /* Performance optimization */
 }
 
 .animate-pulse-slow {
   animation: pulse 3s ease-in-out infinite;
-  will-change: opacity; /* Performance optimization */
 }
 
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
-  will-change: opacity, transform; /* Performance optimization */
 }
 
-/* 3D layered text effect - simplified for performance */
+/* 3D layered text effect */
 .text-3d {
   text-shadow: 
     0 1px 0 rgba(255, 255, 255, 0.4),
@@ -226,7 +219,7 @@
     0 5px 10px rgba(0, 0, 0, 0.4);
 }
 
-/* Optimized glowing button animation */
+/* Glowing button animation */
 @keyframes button-glow {
   0%, 100% {
     box-shadow: 0 0 5px rgba(0, 238, 255, 0.5), 0 0 10px rgba(0, 238, 255, 0.3);
@@ -238,10 +231,9 @@
 
 .button-glow {
   animation: button-glow 3s infinite ease-in-out;
-  will-change: box-shadow; /* Performance optimization */
 }
 
-/* Scan line effect - simplified for better performance */
+/* Scan line effect */
 .scan-lines::before {
   content: "";
   position: absolute;
@@ -260,31 +252,31 @@
   z-index: 1;
 }
 
-/* Optimized glitch effect */
+/* Glitch effect - optimized to not interfere with clickability */
 @keyframes glitch {
   0% {
     clip-path: inset(40% 0 61% 0);
-    transform: translate(-20px, -10px) translateZ(0);
+    transform: translate(-20px, -10px);
   }
   20% {
     clip-path: inset(92% 0 1% 0);
-    transform: translate(20px, 10px) translateZ(0);
+    transform: translate(20px, 10px);
   }
   40% {
     clip-path: inset(43% 0 1% 0);
-    transform: translate(-20px, -10px) translateZ(0);
+    transform: translate(-20px, -10px);
   }
   60% {
     clip-path: inset(25% 0 58% 0);
-    transform: translate(20px, 10px) translateZ(0);
+    transform: translate(20px, 10px);
   }
   80% {
     clip-path: inset(54% 0 7% 0);
-    transform: translate(-20px, -10px) translateZ(0);
+    transform: translate(-20px, -10px);
   }
   100% {
     clip-path: inset(58% 0 43% 0);
-    transform: translate(20px, 10px) translateZ(0);
+    transform: translate(20px, 10px);
   }
 }
 
@@ -320,22 +312,21 @@
   opacity: 0.8;
 }
 
-/* New animations for Dashboard - optimized */
+/* New animations for Dashboard */
 @keyframes spin-slow {
   0% {
-    transform: rotate(0deg) translateZ(0);
+    transform: rotate(0deg);
   }
   100% {
-    transform: rotate(360deg) translateZ(0);
+    transform: rotate(360deg);
   }
 }
 
 .animate-spin-slow {
   animation: spin-slow 10s linear infinite;
-  will-change: transform;
 }
 
-/* Optimized pulse border animation */
+/* Pulse border animation */
 @keyframes pulse-border {
   0%, 100% {
     border-color: rgba(0, 238, 255, 0.3);
@@ -347,10 +338,9 @@
 
 .pulse-border {
   animation: pulse-border 2s ease-in-out infinite;
-  will-change: border-color;
 }
 
-/* Optimized shimmer effect */
+/* Shimmer effect */
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -364,5 +354,4 @@
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
-  will-change: background-position;
 }
