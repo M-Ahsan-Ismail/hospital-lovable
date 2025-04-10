@@ -270,19 +270,21 @@ const Index = () => {
                 <motion.div 
                   className="w-80 h-80 md:w-[520px] md:h-[520px] rounded-[2rem] overflow-hidden relative border border-white/10"
                   initial={{ y: 20 }}
-                  animate={{ y: 0 }}
+                  animate={{ 
+                    y: [0, -15, 0],
+                  }}
                   transition={{
-                    duration: 0.8, 
-                    delay: 0.5,
-                    type: "spring",
-                    stiffness: 100
+                    duration: 6,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    ease: "easeInOut"
                   }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-dark-secondary/80 to-dark/95 backdrop-blur-md z-10"></div>
                   
                   <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.05)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,.05)_1px,transparent_1px)] bg-[size:20px_20px] z-0 opacity-30"></div>
                   
-                  <div className="absolute top-0 inset-x-0 h-14 bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 border-b border-white/10 flex items-center px-6 z-20">
+                  <div className="absolute top-0 inset-x-0 h-14 bg-gradient-to-r from-neon-cyan/20 to-neon-magenta border-b border-white/10 flex items-center px-6 z-20">
                     <div className="flex space-x-2">
                       <div className="w-3 h-3 rounded-full bg-neon-magenta/80"></div>
                       <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>

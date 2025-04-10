@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -117,12 +116,18 @@ export default {
 					'50%': { boxShadow: '0 0 10px 2px rgba(0, 209, 255, 0.5)' }
 				},
 				'float': {
-					'0%, 100%': { transform: 'translateY(0)' },
-					'50%': { transform: 'translateY(-10px)' }
+					'0%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-10px)' },
+					'100%': { transform: 'translateY(0)' }
 				},
 				'rotate-slow': {
 					'0%': { transform: 'rotate(0deg)' },
 					'100%': { transform: 'rotate(360deg)' }
+				},
+				'dashboard-float': {
+					'0%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-15px)' },
+					'100%': { transform: 'translateY(0)' }
 				}
 			},
 			animation: {
@@ -139,6 +144,7 @@ export default {
 				'pulse-glow': 'pulse-glow 2.5s infinite ease-in-out',
 				'float': 'float 4s infinite ease-in-out',
 				'rotate-slow': 'rotate-slow 30s linear infinite',
+				'dashboard-float': 'dashboard-float 6s infinite ease-in-out',
 			},
 			backgroundImage: {
 				'gradient-dark': 'linear-gradient(to bottom right, #1C2526, #2D3A3E)',
