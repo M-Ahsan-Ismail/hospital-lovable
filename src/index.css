@@ -50,7 +50,7 @@
     @apply bg-black/70 backdrop-blur-md;
   }
   
-  /* Optimized cyberpunk-inspired UI elements */
+  /* Optimized cyberpunk-inspired UI elements - simplified */
   .cyber-border {
     @apply border border-white/10 relative;
   }
@@ -65,41 +65,38 @@
     background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
     background-size: 200% 100%;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.4s ease;
     pointer-events: none;
   }
   
   .cyber-border:hover::after {
-    opacity: 0.5;
+    opacity: 0.4;
   }
   
   .hexagon {
     position: relative;
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.03);
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    transition: transform 0.3s ease;
-    box-shadow: 0 0 10px rgba(0, 238, 255, 0.1);
-    will-change: transform;
+    transition: transform 0.4s ease;
+    box-shadow: 0 0 10px rgba(0, 238, 255, 0.05);
   }
   
   .cyber-grid {
-    background-size: 50px 50px;
+    background-size: 60px 60px;
     background-image: 
-      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
   }
   
-  .cyber-glow {
-    text-shadow: 0 0 10px rgba(0, 238, 255, 0.7), 0 0 20px rgba(0, 238, 255, 0.4);
-  }
+  /* Removed cyber-glow for performance */
 
   /* Simplified background effects */
   .cyber-circuit {
     background-image: 
       linear-gradient(var(--neon-cyan), transparent 2px),
       linear-gradient(90deg, var(--neon-magenta), transparent 2px);
-    background-size: 40px 40px;
-    opacity: 0.03;
+    background-size: 80px 80px;
+    opacity: 0.01;
     pointer-events: none;
   }
   
@@ -113,10 +110,10 @@
     background: repeating-linear-gradient(
       to bottom,
       transparent 0%,
-      rgba(255, 255, 255, 0.03) 50%,
+      rgba(255, 255, 255, 0.01) 50%,
       transparent 100%
     );
-    background-size: 100% 4px;
+    background-size: 100% 6px; /* Increased size for better performance */
     pointer-events: none;
     z-index: 1;
   }
@@ -126,7 +123,7 @@
   font-family: 'Outfit', sans-serif;
 }
 
-/* Optimized animations */
+/* Optimized and simplified animations */
 @keyframes float {
   0%, 100% {
     transform: translateY(0);
@@ -138,10 +135,10 @@
 
 @keyframes pulse {
   0%, 100% {
-    opacity: 0.7;
+    opacity: 0.5;
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.3;
   }
 }
 
@@ -156,6 +153,7 @@
   }
 }
 
+/* Simplified cyber border animation */
 @keyframes cyber-border-glow {
   0% {
     background-position: 0% 0%;
@@ -165,47 +163,45 @@
   }
 }
 
-/* Simplified cyber circuit animation */
+/* Simplified circuit animation */
 @keyframes cyber-circuit {
   100% {
-    background-position: 40px 40px;
+    background-position: 80px 80px;
   }
 }
 
 .animate-float {
-  animation: float 3s ease-in-out infinite;
-  will-change: transform;
+  animation: float 5s ease-in-out infinite;
 }
 
 .animate-pulse-slow {
-  animation: pulse 3s ease-in-out infinite;
-  will-change: opacity;
+  animation: pulse 4s ease-in-out infinite;
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
+  animation: fadeIn 0.7s ease-out forwards;
 }
 
-/* Simplified 3D text effect */
+/* Simplified text effect */
 .text-3d {
   text-shadow: 
-    0 1px 0 rgba(255, 255, 255, 0.4),
-    0 2px 0 rgba(255, 255, 255, 0.3),
-    0 3px 5px rgba(0, 0, 0, 0.4);
+    0 1px 0 rgba(255, 255, 255, 0.3),
+    0 2px 0 rgba(255, 255, 255, 0.2),
+    0 3px 5px rgba(0, 0, 0, 0.3);
 }
 
 /* Optimized button glow animation */
 @keyframes button-glow {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(0, 238, 255, 0.5);
+    box-shadow: 0 0 5px rgba(0, 238, 255, 0.4);
   }
   50% {
-    box-shadow: 0 0 10px rgba(0, 238, 255, 0.7);
+    box-shadow: 0 0 8px rgba(0, 238, 255, 0.6);
   }
 }
 
 .button-glow {
-  animation: button-glow 3s infinite ease-in-out;
+  animation: button-glow 4s infinite ease-in-out;
 }
 
 /* Optimized scan line effect */
@@ -219,30 +215,15 @@
   background: repeating-linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.01) 50%,
     transparent 100%
   );
-  background-size: 100% 4px;
+  background-size: 100% 6px;
   pointer-events: none;
   z-index: 1;
 }
 
-/* Simplified glitch effect */
-@keyframes glitch {
-  0% {
-    clip-path: inset(40% 0 61% 0);
-    transform: translate(-5px, -3px);
-  }
-  50% {
-    clip-path: inset(25% 0 58% 0);
-    transform: translate(5px, 3px);
-  }
-  100% {
-    clip-path: inset(58% 0 43% 0);
-    transform: translate(-5px, -3px);
-  }
-}
-
+/* Greatly simplified glitch effect */
 .glitch-effect:hover::before,
 .glitch-effect:hover::after {
   content: attr(data-text);
@@ -252,21 +233,7 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-}
-
-.glitch-effect:hover::before {
-  left: 2px;
-  text-shadow: -1px 0 #00eeff;
-  animation: glitch 0.4s infinite linear alternate-reverse;
-  opacity: 0.7;
-}
-
-.glitch-effect:hover::after {
-  left: -2px;
-  text-shadow: 1px 0 #ff2a6d;
-  animation: glitch 0.4s infinite linear alternate-reverse;
-  animation-delay: 0.1s;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 /* Simplified spin animation */
@@ -277,18 +244,18 @@
 }
 
 .animate-spin-slow {
-  animation: spin-slow 20s linear infinite;
+  animation: spin-slow 30s linear infinite;
 }
 
 /* Simplified pulse border animation */
 @keyframes pulse-border {
   50% {
-    border-color: rgba(0, 238, 255, 0.6);
+    border-color: rgba(0, 238, 255, 0.4);
   }
 }
 
 .pulse-border {
-  animation: pulse-border 2s ease-in-out infinite;
+  animation: pulse-border 3s ease-in-out infinite;
 }
 
 /* Simplified shimmer effect */
@@ -299,10 +266,9 @@
 }
 
 .shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
   background-size: 200% 100%;
-  animation: shimmer 2s infinite linear;
-  will-change: background-position;
+  animation: shimmer 3s infinite linear;
 }
 
 /* Footer visibility fix */

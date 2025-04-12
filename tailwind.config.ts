@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -77,7 +78,7 @@ export default {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
-			// Optimized keyframes with fewer animation steps
+			// Simplified keyframes with fewer animation steps
 			keyframes: {
 				'accordion-down': {
 					from: { height: '0' },
@@ -115,6 +116,7 @@ export default {
 					'0%, 100%': { boxShadow: '0 0 5px 0 rgba(0, 209, 255, 0.3)' },
 					'50%': { boxShadow: '0 0 10px 2px rgba(0, 209, 255, 0.5)' }
 				},
+				// Optimized with fewer keyframes
 				'float': {
 					'0%': { transform: 'translateY(0)' },
 					'50%': { transform: 'translateY(-10px)' },
@@ -141,9 +143,10 @@ export default {
 				'slide-out-right': 'slide-out-right 0.3s ease-out',
 				'enter': 'fade-in 0.25s ease-out',
 				'exit': 'fade-out 0.25s ease-out',
-				'pulse-glow': 'pulse-glow 2.5s infinite ease-in-out',
-				'float': 'float 4s infinite ease-in-out',
-				'rotate-slow': 'rotate-slow 30s linear infinite',
+				// Slower animations for better performance
+				'pulse-glow': 'pulse-glow 3.5s infinite ease-in-out',
+				'float': 'float 6s infinite ease-in-out',
+				'rotate-slow': 'rotate-slow 45s linear infinite',
 				'dashboard-float': 'dashboard-float 6s infinite ease-in-out',
 			},
 			backgroundImage: {
