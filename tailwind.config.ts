@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -63,7 +62,6 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom colors
 				dark: {
 					DEFAULT: '#1C2526',
 					secondary: '#2D3A3E'
@@ -78,7 +76,6 @@ export default {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
-			// Simplified keyframes with fewer animation steps
 			keyframes: {
 				'accordion-down': {
 					from: { height: '0' },
@@ -89,47 +86,46 @@ export default {
 					to: { height: '0' }
 				},
 				'fade-in': {
-					'0%': { opacity: '0', transform: 'translateY(8px)' },
-					'100%': { opacity: '1', transform: 'translateY(0)' }
+					'0%': { opacity: '0', transform: 'translateY(8px) translateZ(0)' },
+					'100%': { opacity: '1', transform: 'translateY(0) translateZ(0)' }
 				},
 				'fade-out': {
-					'0%': { opacity: '1', transform: 'translateY(0)' },
-					'100%': { opacity: '0', transform: 'translateY(8px)' }
+					'0%': { opacity: '1', transform: 'translateY(0) translateZ(0)' },
+					'100%': { opacity: '0', transform: 'translateY(8px) translateZ(0)' }
 				},
 				'scale-in': {
-					'0%': { transform: 'scale(0.95)', opacity: '0' },
-					'100%': { transform: 'scale(1)', opacity: '1' }
+					'0%': { transform: 'scale(0.95) translateZ(0)', opacity: '0' },
+					'100%': { transform: 'scale(1) translateZ(0)', opacity: '1' }
 				},
 				'scale-out': {
-					from: { transform: 'scale(1)', opacity: '1' },
-					to: { transform: 'scale(0.95)', opacity: '0' }
+					from: { transform: 'scale(1) translateZ(0)', opacity: '1' },
+					to: { transform: 'scale(0.95) translateZ(0)', opacity: '0' }
 				},
 				'slide-in-right': {
-					'0%': { transform: 'translateX(100%)' },
-					'100%': { transform: 'translateX(0)' }
+					'0%': { transform: 'translateX(100%) translateZ(0)' },
+					'100%': { transform: 'translateX(0) translateZ(0)' }
 				},
 				'slide-out-right': {
-					'0%': { transform: 'translateX(0)' },
-					'100%': { transform: 'translateX(100%)' }
+					'0%': { transform: 'translateX(0) translateZ(0)' },
+					'100%': { transform: 'translateX(100%) translateZ(0)' }
 				},
 				'pulse-glow': {
 					'0%, 100%': { boxShadow: '0 0 5px 0 rgba(0, 209, 255, 0.3)' },
 					'50%': { boxShadow: '0 0 10px 2px rgba(0, 209, 255, 0.5)' }
 				},
-				// Optimized with fewer keyframes
 				'float': {
-					'0%': { transform: 'translateY(0)' },
-					'50%': { transform: 'translateY(-10px)' },
-					'100%': { transform: 'translateY(0)' }
+					'0%': { transform: 'translateY(0) translateZ(0)' },
+					'50%': { transform: 'translateY(-10px) translateZ(0)' },
+					'100%': { transform: 'translateY(0) translateZ(0)' }
 				},
 				'rotate-slow': {
-					'0%': { transform: 'rotate(0deg)' },
-					'100%': { transform: 'rotate(360deg)' }
+					'0%': { transform: 'rotate(0deg) translateZ(0)' },
+					'100%': { transform: 'rotate(360deg) translateZ(0)' }
 				},
 				'dashboard-float': {
-					'0%': { transform: 'translateY(0)' },
-					'50%': { transform: 'translateY(-15px)' },
-					'100%': { transform: 'translateY(0)' }
+					'0%': { transform: 'translateY(0) translateZ(0)' },
+					'50%': { transform: 'translateY(-15px) translateZ(0)' },
+					'100%': { transform: 'translateY(0) translateZ(0)' }
 				}
 			},
 			animation: {
@@ -143,7 +139,6 @@ export default {
 				'slide-out-right': 'slide-out-right 0.3s ease-out',
 				'enter': 'fade-in 0.25s ease-out',
 				'exit': 'fade-out 0.25s ease-out',
-				// Slower animations for better performance
 				'pulse-glow': 'pulse-glow 3.5s infinite ease-in-out',
 				'float': 'float 6s infinite ease-in-out',
 				'rotate-slow': 'rotate-slow 45s linear infinite',

@@ -18,6 +18,8 @@
 
   body {
     @apply bg-[#040D12] text-white font-orbit;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -50,9 +52,11 @@
     @apply bg-black/70 backdrop-blur-md;
   }
   
-  /* Optimized cyberpunk-inspired UI elements - simplified */
+  /* Optimized cyberpunk-inspired UI elements with hardware acceleration */
   .cyber-border {
     @apply border border-white/10 relative;
+    will-change: transform, opacity;
+    transform: translateZ(0);
   }
   
   .cyber-border::after {
@@ -67,6 +71,7 @@
     opacity: 0;
     transition: opacity 0.4s ease;
     pointer-events: none;
+    will-change: opacity;
   }
   
   .cyber-border:hover::after {
@@ -79,6 +84,8 @@
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
     transition: transform 0.4s ease;
     box-shadow: 0 0 10px rgba(0, 238, 255, 0.05);
+    will-change: transform;
+    transform: translateZ(0);
   }
   
   .cyber-grid {
@@ -87,10 +94,7 @@
       linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
   }
-  
-  /* Removed cyber-glow for performance */
 
-  /* Simplified background effects */
   .cyber-circuit {
     background-image: 
       linear-gradient(var(--neon-cyan), transparent 2px),
@@ -113,7 +117,7 @@
       rgba(255, 255, 255, 0.01) 50%,
       transparent 100%
     );
-    background-size: 100% 6px; /* Increased size for better performance */
+    background-size: 100% 6px;
     pointer-events: none;
     z-index: 1;
   }
@@ -123,13 +127,13 @@
   font-family: 'Outfit', sans-serif;
 }
 
-/* Optimized and simplified animations */
+/* Optimized animations with hardware acceleration */
 @keyframes float {
   0%, 100% {
-    transform: translateY(0);
+    transform: translateY(0) translateZ(0);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-10px) translateZ(0);
   }
 }
 
@@ -145,15 +149,14 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(5px);
+    transform: translateY(5px) translateZ(0);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) translateZ(0);
   }
 }
 
-/* Simplified cyber border animation */
 @keyframes cyber-border-glow {
   0% {
     background-position: 0% 0%;
@@ -163,7 +166,6 @@
   }
 }
 
-/* Simplified circuit animation */
 @keyframes cyber-circuit {
   100% {
     background-position: 80px 80px;
@@ -172,17 +174,21 @@
 
 .animate-float {
   animation: float 5s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .animate-pulse-slow {
   animation: pulse 4s ease-in-out infinite;
+  will-change: opacity;
 }
 
 .animate-fade-in {
   animation: fadeIn 0.7s ease-out forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
-/* Simplified text effect */
 .text-3d {
   text-shadow: 
     0 1px 0 rgba(255, 255, 255, 0.3),
@@ -190,7 +196,6 @@
     0 3px 5px rgba(0, 0, 0, 0.3);
 }
 
-/* Optimized button glow animation */
 @keyframes button-glow {
   0%, 100% {
     box-shadow: 0 0 5px rgba(0, 238, 255, 0.4);
@@ -202,9 +207,9 @@
 
 .button-glow {
   animation: button-glow 4s infinite ease-in-out;
+  will-change: box-shadow;
 }
 
-/* Optimized scan line effect */
 .scan-lines::before {
   content: "";
   position: absolute;
@@ -223,7 +228,6 @@
   z-index: 1;
 }
 
-/* Greatly simplified glitch effect */
 .glitch-effect:hover::before,
 .glitch-effect:hover::after {
   content: attr(data-text);
@@ -234,20 +238,21 @@
   height: 100%;
   pointer-events: none;
   opacity: 0.5;
+  will-change: transform, opacity;
 }
 
-/* Simplified spin animation */
 @keyframes spin-slow {
   to {
-    transform: rotate(360deg);
+    transform: rotate(360deg) translateZ(0);
   }
 }
 
 .animate-spin-slow {
   animation: spin-slow 30s linear infinite;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
-/* Simplified pulse border animation */
 @keyframes pulse-border {
   50% {
     border-color: rgba(0, 238, 255, 0.4);
@@ -256,9 +261,9 @@
 
 .pulse-border {
   animation: pulse-border 3s ease-in-out infinite;
+  will-change: border-color;
 }
 
-/* Simplified shimmer effect */
 @keyframes shimmer {
   to {
     background-position: 200% 0;
@@ -269,6 +274,7 @@
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
   background-size: 200% 100%;
   animation: shimmer 3s infinite linear;
+  will-change: background-position;
 }
 
 /* Footer visibility fix */
