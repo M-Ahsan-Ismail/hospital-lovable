@@ -95,14 +95,14 @@ const Index = () => {
   ];
   
   return (
-    <div className="min-h-screen flex flex-col bg-dark bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-dark-secondary/20 via-dark to-dark/95 overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-dark bg-hero-gradient overflow-hidden">
       <HexagonBackground />
       <Navbar />
       
-      <section ref={heroRef} className="pt-24 md:pt-32 relative min-h-[90vh] flex items-center">
+      <section ref={heroRef} className="relative min-h-[90vh] flex items-center pt-24 md:pt-32">
         <div className="absolute inset-0 z-0">
           <motion.div 
-            className="absolute top-20 right-[5%] w-64 h-64 rounded-full bg-neon-cyan/10 blur-[100px]"
+            className="absolute top-20 right-[5%] w-96 h-96 rounded-full bg-neon-cyan/10 blur-[120px]"
             animate={{
               scale: [1, 1.2, 1],
               opacity: [0.3, 0.5, 0.3],
@@ -115,23 +115,10 @@ const Index = () => {
           />
           
           <motion.div 
-            className="absolute bottom-[10%] left-[5%] w-[30rem] h-[30rem] rounded-full bg-neon-magenta/10 blur-[120px]"
+            className="absolute bottom-20 left-[5%] w-[40rem] h-[40rem] rounded-full bg-neon-magenta/10 blur-[150px]"
             animate={{
               scale: [1, 1.1, 1],
-              opacity: [0.2, 0.3, 0.2],
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
-          />
-          
-          <motion.div 
-            className="absolute top-[25%] left-[30%] w-[20rem] h-[20rem] rounded-full bg-purple-500/5 blur-[80px]"
-            animate={{
-              scale: [1, 1.15, 1],
-              opacity: [0.15, 0.25, 0.15],
+              opacity: [0.2, 0.4, 0.2],
             }}
             transition={{
               duration: 7,
@@ -142,15 +129,12 @@ const Index = () => {
         </div>
         
         <motion.div 
-          style={{ 
-            opacity: heroOpacity,
-            scale: heroScale
-          }}
+          style={{ opacity: heroOpacity, scale: heroScale }}
           className="container mx-auto px-6 relative z-10"
         >
-          <div className="flex flex-col md:flex-row items-center">
+          <div className="flex flex-col md:flex-row items-center gap-12">
             <motion.div 
-              className="md:w-1/2 mb-12 md:mb-0 relative z-30"
+              className="md:w-1/2 relative z-30"
               initial="hidden"
               animate="visible"
               variants={staggerContainer}
@@ -159,34 +143,34 @@ const Index = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
-                className="mb-6"
+                className="mb-8"
               >
-                <span className="px-4 py-1.5 rounded-full text-xs uppercase font-semibold tracking-wider inline-block bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 text-white border border-white/10 shadow-lg shadow-neon-cyan/5">
+                <span className="px-5 py-2 rounded-full text-sm font-semibold tracking-wider inline-block bg-gradient-to-r from-neon-cyan/20 to-neon-magenta/20 text-white border border-white/10 shadow-lg shadow-neon-cyan/5 backdrop-blur-xl">
                   Next-Gen Healthcare Platform
                 </span>
               </motion.div>
               
               <motion.h1 
-                className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight tracking-tight"
+                className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-tight tracking-tight"
                 variants={fadeIn}
                 custom={0}
               >
                 <span className="text-white">Redefine </span>
-                <span className="relative inline-block">
-                  <span className="bg-gradient-to-r from-neon-cyan to-neon-magenta bg-clip-text text-transparent">
+                <span className="relative">
+                  <span className="relative z-10 bg-gradient-to-r from-neon-cyan via-white to-neon-magenta bg-clip-text text-transparent">
                     Patient Care
                   </span>
-                  <motion.span 
-                    className="absolute -bottom-1 left-0 w-full h-1 bg-gradient-to-r from-neon-cyan to-neon-magenta rounded-full"
+                  <motion.div 
+                    className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-neon-cyan to-neon-magenta rounded-full opacity-75"
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
                     transition={{ delay: 0.8, duration: 1 }}
-                  ></motion.span>
+                  />
                 </span>
               </motion.h1>
               
               <motion.p 
-                className="text-white/70 text-lg md:text-xl mb-10 max-w-xl leading-relaxed"
+                className="text-white/80 text-lg md:text-xl mb-12 max-w-xl leading-relaxed"
                 variants={fadeIn}
                 custom={1}
               >
@@ -195,38 +179,39 @@ const Index = () => {
               </motion.p>
               
               <motion.div 
-                className="flex flex-col sm:flex-row gap-5"
+                className="flex flex-col sm:flex-row gap-6"
                 variants={fadeIn}
                 custom={2}
               >
                 <AnimatedButton 
                   variant="cyan" 
                   size="lg" 
-                  className="group"
+                  className="group relative overflow-hidden bg-gradient-to-r from-neon-cyan to-neon-magenta"
                   onClick={() => scrollToSection(ctaRef)}
                 >
-                  <div className="flex items-center">
+                  <div className="absolute inset-0 bg-white/10 group-hover:bg-transparent transition-colors duration-300" />
+                  <div className="relative flex items-center text-lg">
                     Learn More
                     <motion.span 
                       initial={{ x: 0 }}
                       whileHover={{ x: 5 }}
                       transition={{ type: "spring", stiffness: 400 }}
                     >
-                      <ArrowRight className="ml-2" size={18} />
+                      <ArrowRight className="ml-2" size={20} />
                     </motion.span>
                   </div>
                 </AnimatedButton>
                 
-                <motion.div
+                <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center cursor-pointer group"
+                  className="flex items-center group"
                 >
-                  <div className="mr-3 rounded-full bg-neon-cyan/20 p-3 group-hover:bg-neon-cyan/30 transition-all">
-                    <Play size={16} className="text-neon-cyan fill-neon-cyan ml-0.5" />
+                  <div className="mr-4 rounded-full bg-gradient-to-br from-neon-cyan/20 to-neon-magenta/20 p-4 backdrop-blur-xl border border-white/10 group-hover:border-white/20 transition-all duration-300">
+                    <Play size={18} className="text-white fill-white ml-0.5" />
                   </div>
-                  <span className="text-white group-hover:text-neon-cyan transition-colors">Watch Demo</span>
-                </motion.div>
+                  <span className="text-white/90 group-hover:text-white transition-colors text-lg">Watch Demo</span>
+                </motion.button>
               </motion.div>
               
               <motion.div 
@@ -265,11 +250,12 @@ const Index = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/10 to-neon-magenta/10 rounded-[2rem] blur-3xl transform scale-90 opacity-40 -z-10"></div>
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-neon-cyan/30 to-neon-magenta/30 rounded-[2rem] blur-3xl transform scale-95 opacity-30 -z-10 animate-pulse-glow"
+                />
                 
                 <motion.div 
-                  className="w-80 h-80 md:w-[520px] md:h-[520px] rounded-[2rem] overflow-hidden relative border border-white/10"
-                  initial={{ y: 20 }}
+                  className="w-full max-w-[600px] aspect-square rounded-[2rem] overflow-hidden relative border border-white/10 backdrop-blur-xl"
                   animate={{ 
                     y: [0, -15, 0],
                   }}
