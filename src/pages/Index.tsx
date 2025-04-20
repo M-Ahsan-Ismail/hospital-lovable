@@ -967,7 +967,7 @@ const Index = () => {
     >
       <div className="flex items-center">
         <Phone size={18} className="mr-2 text-neon-magenta" />
-        <span className="bg-gradient-to-r from-neon-magenta to-purple-400 bg-clip-text text-transparent">Schedule Demo</span>
+        <span className="bg-gradient-to-r from-neon-magenta to-purple-400 bg-clip-text text-transparent">Schedule Appointment</span>
       </div>
     </AnimatedButton>
   </motion.div>
