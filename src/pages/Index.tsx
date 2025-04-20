@@ -958,20 +958,21 @@ const Index = () => {
                     </AnimatedButton>
                   </motion.div>
                 </Link>
-                <a href="tel:023111758905">
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                    <AnimatedButton 
-                      variant="outline" 
-                      size="lg" 
-                      className="border-2 border-neon-magenta/50 hover:border-neon-magenta bg-dark-secondary/30"
-                    >
-                      <div className="flex items-center">
-                        <Phone size={18} className="mr-2 text-neon-magenta" />
-                        <span className="bg-gradient-to-r from-neon-magenta to-purple-400 bg-clip-text text-transparent">Schedule Demo</span>
-                      </div>
-                    </AnimatedButton>
-                  </motion.div>
-                </a>
+                <a href="https://wa.me/923041998458" target="_blank" rel="noopener noreferrer">
+  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+    <AnimatedButton 
+      variant="outline" 
+      size="lg" 
+      className="border-2 border-neon-magenta/50 hover:border-neon-magenta bg-dark-secondary/30"
+    >
+      <div className="flex items-center">
+        <Phone size={18} className="mr-2 text-neon-magenta" />
+        <span className="bg-gradient-to-r from-neon-magenta to-purple-400 bg-clip-text text-transparent">Schedule Demo</span>
+      </div>
+    </AnimatedButton>
+  </motion.div>
+</a>
+
               </motion.div>
             </motion.div>
           </div>
