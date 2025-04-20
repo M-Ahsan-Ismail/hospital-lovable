@@ -185,7 +185,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
     links = [
       { title: "Home", href: "/" },
       { title: "Sign In", href: "/signin" },
-      { title: "Sign Up", href: "/signup", isButton: true }
+      // { title: "Sign Up", href: "/signup", isButton: true }
     ];
   } else if (currentUser.role === 'doctor') {
     // Doctor links
