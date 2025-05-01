@@ -1,9 +1,9 @@
 
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { FileText, User, Phone, Calendar as CalendarIcon, Trash2, Check } from "lucide-react";
+import { FileText, User, Calendar as CalendarIcon, Trash2, Check } from "lucide-react";
 import { Patient } from "@/lib/types";
-import { updatePatientStatus, deletePatient, updatePatientFollowUpDate } from "@/integrations/supabase/client";
+import { updatePatientStatus, deletePatient } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -210,12 +210,14 @@ const PatientCard: React.FC<PatientCardProps> = ({
             </span>
           </div>
           
-          <div className="flex items-center text-white/70">
-            <Phone size={16} className="mr-2 text-neon-cyan" />
-            <span className="text-sm">
-              {patient.phoneNumber}
-            </span>
-          </div>
+          {patient.email && (
+            <div className="flex items-center text-white/70">
+              <span className="mr-2 text-neon-cyan">@</span>
+              <span className="text-sm">
+                {patient.email}
+              </span>
+            </div>
+          )}
           
           <div className="flex items-center text-white/70">
             <CalendarIcon size={16} className="mr-2 text-neon-cyan" />
@@ -243,9 +245,6 @@ const PatientCard: React.FC<PatientCardProps> = ({
       
       <div className="p-4 bg-white/5 border-t border-white/10 flex justify-between">
         <span className="text-xs text-white/50">
-          CNIC: {patient.cnic}
-        </span>
-        <span className="text-xs text-white/50">
           Previous Visits: {patient.visitCount || 1}
         </span>
       </div>
@@ -264,7 +263,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
             <Calendar
               mode="single"
               selected={selectedDate}
-              onSelect={setSelectedDate}
+              onSelect={(date) => setSelectedDate(date)}
               disabled={(date) => date < new Date()}
               className="bg-[#0C1824] border border-white/10 rounded-md p-2 pointer-events-auto"
             />

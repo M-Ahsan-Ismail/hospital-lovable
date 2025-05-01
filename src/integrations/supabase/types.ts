@@ -13,7 +13,6 @@ export type Database = {
         Row: {
           address: string | null
           age: number
-          cnic: string
           created_at: string
           disease: string
           disease_description: string | null
@@ -24,7 +23,6 @@ export type Database = {
           gender: string
           id: string
           name: string
-          phone_number: string
           status: string
           visit_count: number
           visit_date: string
@@ -32,7 +30,6 @@ export type Database = {
         Insert: {
           address?: string | null
           age: number
-          cnic: string
           created_at?: string
           disease: string
           disease_description?: string | null
@@ -43,7 +40,6 @@ export type Database = {
           gender: string
           id?: string
           name: string
-          phone_number: string
           status: string
           visit_count?: number
           visit_date: string
@@ -51,7 +47,6 @@ export type Database = {
         Update: {
           address?: string | null
           age?: number
-          cnic?: string
           created_at?: string
           disease?: string
           disease_description?: string | null
@@ -62,7 +57,6 @@ export type Database = {
           gender?: string
           id?: string
           name?: string
-          phone_number?: string
           status?: string
           visit_count?: number
           visit_date?: string

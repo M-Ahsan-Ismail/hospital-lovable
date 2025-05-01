@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -8,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Patient } from "@/lib/types";
-import { Trash2, RefreshCw, FilterIcon, Search, X, ChevronUp, ChevronDown } from "lucide-react";
+import { Trash2, RefreshCw, FilterIcon, Search, X, ChevronUp, ChevronDown, Check, Calendar } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -26,7 +27,10 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { isToday, parseISO } from "date-fns";
+import { isToday, parseISO, format, addDays } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { updatePatientStatus } from "@/integrations/supabase/client";
 
 const PatientHistory = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -40,6 +44,10 @@ const PatientHistory = () => {
   const [searchResults, setSearchResults] = useState<Patient[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [patientDialogOpen, setPatientDialogOpen] = useState(false);
+  const [showFollowUpDialog, setShowFollowUpDialog] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(addDays(new Date(), 7));
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [updatingPatientId, setUpdatingPatientId] = useState<string | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -135,8 +143,6 @@ const PatientHistory = () => {
         name: item.name,
         age: item.age,
         gender: item.gender as 'Male' | 'Female' | 'Other',
-        cnic: item.cnic,
-        phoneNumber: item.phone_number,
         email: item.email,
         address: item.address,
         disease: item.disease,
@@ -146,7 +152,8 @@ const PatientHistory = () => {
         doctorNotes: item.doctor_notes,
         status: item.status as 'Active' | 'Discharged' | 'Follow-Up',
         doctorId: item.doctor_id,
-        createdAt: item.created_at
+        createdAt: item.created_at,
+        followUpDate: item.follow_up_date
       }));
       
       setPatients(mappedData);
@@ -254,6 +261,75 @@ const PatientHistory = () => {
       day: 'numeric' 
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+  
+  const handleStatusChange = (patient: Patient, newStatus: string) => {
+    if (patient.status === newStatus) return;
+    
+    // If changing to follow-up, show the follow-up date dialog
+    if (newStatus === "Follow-Up") {
+      setSelectedPatient(patient);
+      setSelectedDate(patient.followUpDate ? new Date(patient.followUpDate) : addDays(new Date(), 7));
+      setShowFollowUpDialog(true);
+      return;
+    }
+    
+    updatePatientStatusInternal(patient.id, newStatus);
+  };
+  
+  const handleFollowUpConfirm = async () => {
+    if (!selectedPatient || !selectedDate) return;
+    
+    const formattedDate = format(selectedDate, "yyyy-MM-dd");
+    await updatePatientStatusInternal(selectedPatient.id, "Follow-Up", formattedDate);
+    setShowFollowUpDialog(false);
+  };
+  
+  const updatePatientStatusInternal = async (patientId: string, newStatus: string, followUpDate?: string) => {
+    setUpdatingStatus(true);
+    setUpdatingPatientId(patientId);
+    
+    try {
+      const { data, error } = await updatePatientStatus(patientId, newStatus, followUpDate);
+      
+      if (error) throw error;
+      
+      // Update the patient in the local state
+      setPatients(prevPatients => 
+        prevPatients.map(p => 
+          p.id === patientId 
+            ? { 
+                ...p, 
+                status: newStatus as 'Active' | 'Discharged' | 'Follow-Up',
+                followUpDate: followUpDate
+              } 
+            : p
+        )
+      );
+      
+      // If the dialog is open with this patient, update the selected patient
+      if (selectedPatient && selectedPatient.id === patientId) {
+        setSelectedPatient({
+          ...selectedPatient,
+          status: newStatus as 'Active' | 'Discharged' | 'Follow-Up',
+          followUpDate
+        });
+      }
+      
+      toast({
+        title: "Status Updated",
+        description: `Patient status changed to ${newStatus}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update status",
+        variant: "destructive",
+      });
+    } finally {
+      setUpdatingStatus(false);
+      setUpdatingPatientId(null);
+    }
   };
   
   return (
@@ -378,17 +454,67 @@ const PatientHistory = () => {
                 <div className="p-6 flex-grow">
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="text-xl font-semibold text-white">{patient.name}</h3>
-                    <span 
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        patient.status === 'Active' 
-                          ? 'bg-neon-cyan/20 text-neon-cyan' 
-                          : patient.status === 'Follow-Up'
-                            ? 'bg-neon-purple/20 text-neon-purple'
-                            : 'bg-neon-magenta/20 text-neon-magenta'
-                      }`}
-                    >
-                      {patient.status}
-                    </span>
+                    <div className="relative">
+                      <div 
+                        className={`px-2 py-1 rounded-full text-xs font-medium cursor-pointer ${
+                          patient.status === 'Active' 
+                            ? 'bg-neon-cyan/20 text-neon-cyan' 
+                            : patient.status === 'Follow-Up'
+                              ? 'bg-neon-purple/20 text-neon-purple'
+                              : 'bg-neon-magenta/20 text-neon-magenta'
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Toggle status selection dropdown
+                          const dropdown = e.currentTarget.nextElementSibling;
+                          if (dropdown) {
+                            dropdown.classList.toggle('hidden');
+                          }
+                        }}
+                      >
+                        {updatingStatus && updatingPatientId === patient.id ? "Updating..." : patient.status}
+                      </div>
+                      <div className="absolute right-0 top-full mt-1 bg-dark-secondary z-10 border border-white/10 rounded shadow-lg hidden w-40">
+                        <div className="py-1">
+                          <button
+                            className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStatusChange(patient, "Active");
+                              e.currentTarget.parentElement?.parentElement?.classList.add('hidden');
+                            }}
+                          >
+                            <div className="w-2 h-2 rounded-full bg-green-400 mr-2"></div>
+                            Active
+                            {patient.status === "Active" && <Check size={14} className="ml-auto" />}
+                          </button>
+                          <button
+                            className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStatusChange(patient, "Follow-Up");
+                              e.currentTarget.parentElement?.parentElement?.classList.add('hidden');
+                            }}
+                          >
+                            <div className="w-2 h-2 rounded-full bg-yellow-400 mr-2"></div>
+                            Follow-Up
+                            {patient.status === "Follow-Up" && <Check size={14} className="ml-auto" />}
+                          </button>
+                          <button
+                            className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStatusChange(patient, "Discharged");
+                              e.currentTarget.parentElement?.parentElement?.classList.add('hidden');
+                            }}
+                          >
+                            <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
+                            Discharged
+                            {patient.status === "Discharged" && <Check size={14} className="ml-auto" />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   
                   <div className="space-y-2 mb-4">
@@ -398,12 +524,11 @@ const PatientHistory = () => {
                     <p className="text-white/70">
                       <span className="text-white/50">Gender:</span> {patient.gender}
                     </p>
-                    <p className="text-white/70">
-                      <span className="text-white/50">CNIC:</span> {patient.cnic}
-                    </p>
-                    <p className="text-white/70">
-                      <span className="text-white/50">Phone:</span> {patient.phoneNumber}
-                    </p>
+                    {patient.email && (
+                      <p className="text-white/70">
+                        <span className="text-white/50">Email:</span> {patient.email}
+                      </p>
+                    )}
                     <p className="text-white/70">
                       <span className="text-white/50">Diagnosis:</span> {patient.disease}
                     </p>
@@ -415,6 +540,15 @@ const PatientHistory = () => {
                     <p className="text-white/70">
                       <span className="text-white/50">Visit Date:</span> {new Date(patient.visitDate).toLocaleDateString()}
                     </p>
+                    
+                    {patient.status === "Follow-Up" && patient.followUpDate && (
+                      <div className="flex items-center text-yellow-300 bg-yellow-500/10 px-3 py-2 rounded-md">
+                        <Calendar size={16} className="mr-2 text-yellow-400" />
+                        <span className="text-sm">
+                          Follow-Up Date: {formatDate(patient.followUpDate)}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   
                   {patient.doctorNotes && (
@@ -455,17 +589,64 @@ const PatientHistory = () => {
                     <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan to-neon-magenta">
                       Patient Details
                     </DialogTitle>
-                    <span 
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        selectedPatient.status === 'Active' 
-                          ? 'bg-neon-cyan/20 text-neon-cyan' 
-                          : selectedPatient.status === 'Follow-Up'
-                            ? 'bg-neon-purple/20 text-neon-purple'
-                            : 'bg-neon-magenta/20 text-neon-magenta'
-                      }`}
-                    >
-                      {selectedPatient.status}
-                    </span>
+                    <div className="relative inline-block">
+                      <div 
+                        className={`px-3 py-1 rounded-full text-sm font-medium cursor-pointer ${
+                          selectedPatient.status === 'Active' 
+                            ? 'bg-neon-cyan/20 text-neon-cyan' 
+                            : selectedPatient.status === 'Follow-Up'
+                              ? 'bg-neon-purple/20 text-neon-purple'
+                              : 'bg-neon-magenta/20 text-neon-magenta'
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Toggle status selection dropdown
+                          const dropdown = e.currentTarget.nextElementSibling;
+                          if (dropdown) {
+                            dropdown.classList.toggle('hidden');
+                          }
+                        }}
+                      >
+                        {updatingStatus && updatingPatientId === selectedPatient.id ? "Updating..." : selectedPatient.status}
+                      </div>
+                      <div className="absolute right-0 top-full mt-1 bg-dark-secondary z-10 border border-white/10 rounded shadow-lg hidden w-40">
+                        <div className="py-1">
+                          <button
+                            className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                            onClick={() => {
+                              handleStatusChange(selectedPatient, "Active");
+                              document.querySelector('.status-dropdown')?.classList.add('hidden');
+                            }}
+                          >
+                            <div className="w-2 h-2 rounded-full bg-green-400 mr-2"></div>
+                            Active
+                            {selectedPatient.status === "Active" && <Check size={14} className="ml-auto" />}
+                          </button>
+                          <button
+                            className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                            onClick={() => {
+                              handleStatusChange(selectedPatient, "Follow-Up");
+                              document.querySelector('.status-dropdown')?.classList.add('hidden');
+                            }}
+                          >
+                            <div className="w-2 h-2 rounded-full bg-yellow-400 mr-2"></div>
+                            Follow-Up
+                            {selectedPatient.status === "Follow-Up" && <Check size={14} className="ml-auto" />}
+                          </button>
+                          <button
+                            className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                            onClick={() => {
+                              handleStatusChange(selectedPatient, "Discharged");
+                              document.querySelector('.status-dropdown')?.classList.add('hidden');
+                            }}
+                          >
+                            <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
+                            Discharged
+                            {selectedPatient.status === "Discharged" && <Check size={14} className="ml-auto" />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   <DialogDescription className="text-white/70">
                     Full medical record for {selectedPatient.name}
@@ -493,16 +674,6 @@ const PatientHistory = () => {
                             <p className="text-white/50 text-sm">Gender</p>
                             <p className="text-white">{selectedPatient.gender}</p>
                           </div>
-                        </div>
-                        
-                        <div>
-                          <p className="text-white/50 text-sm">CNIC</p>
-                          <p className="text-white">{selectedPatient.cnic}</p>
-                        </div>
-                        
-                        <div>
-                          <p className="text-white/50 text-sm">Phone Number</p>
-                          <p className="text-white">{selectedPatient.phoneNumber}</p>
                         </div>
                         
                         {selectedPatient.email && (
@@ -544,6 +715,13 @@ const PatientHistory = () => {
                           </div>
                         </div>
                         
+                        {selectedPatient.status === "Follow-Up" && selectedPatient.followUpDate && (
+                          <div className="bg-yellow-500/10 p-3 rounded-md">
+                            <p className="text-white/50 text-sm">Follow-Up Date</p>
+                            <p className="text-yellow-300">{formatDate(selectedPatient.followUpDate)}</p>
+                          </div>
+                        )}
+                        
                         {selectedPatient.diseaseDescription && (
                           <div>
                             <p className="text-white/50 text-sm">Description</p>
@@ -577,6 +755,44 @@ const PatientHistory = () => {
                 </DialogFooter>
               </>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Follow-Up Date Dialog */}
+        <Dialog open={showFollowUpDialog} onOpenChange={setShowFollowUpDialog}>
+          <DialogContent className="bg-[#071620] border border-white/10 sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-white">Set Follow-Up Date</DialogTitle>
+              <DialogDescription className="text-white/70">
+                Please select the next visit date for this patient.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="py-4 flex justify-center">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => setSelectedDate(date)}
+                disabled={(date) => date < new Date()}
+                className="bg-[#0C1824] border border-white/10 rounded-md p-2 pointer-events-auto"
+              />
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowFollowUpDialog(false)}
+                className="border-white/20 text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleFollowUpConfirm}
+                className="bg-gradient-to-r from-neon-cyan to-neon-magenta text-white"
+              >
+                Save
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
         

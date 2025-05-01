@@ -114,23 +114,6 @@ export const updatePatientStatus = async (patientId: string, status: string, fol
   }
 };
 
-// Helper function to update patient follow-up date only
-export const updatePatientFollowUpDate = async (patientId: string, followUpDate: string) => {
-  try {
-    const { data, error } = await supabase
-      .from('patients')
-      .update({ follow_up_date: followUpDate })
-      .eq('id', patientId)
-      .select();
-      
-    if (error) throw error;
-    return { data, error: null };
-  } catch (error: any) {
-    console.error('Error updating patient follow-up date:', error);
-    return { data: null, error };
-  }
-};
-
 // Helper function to get patient stats
 export const getPatientStats = async () => {
   try {

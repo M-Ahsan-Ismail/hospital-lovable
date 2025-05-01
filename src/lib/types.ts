@@ -4,8 +4,6 @@ export interface Patient {
   name: string;
   age: number;
   gender: 'Male' | 'Female' | 'Other';
-  cnic: string;
-  phoneNumber: string;
   email?: string;
   address?: string;
   disease: string;
@@ -16,7 +14,7 @@ export interface Patient {
   status: 'Active' | 'Discharged' | 'Follow-Up';
   doctorId?: string;
   createdAt?: string;
-  followUpDate?: string; // New field for follow-up date
+  followUpDate?: string; // Follow-up date field
 }
 
 export interface User {
