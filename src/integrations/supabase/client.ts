@@ -87,12 +87,22 @@ export const deletePatient = async (patientId: string) => {
   }
 };
 
-// Helper function to update patient status
-export const updatePatientStatus = async (patientId: string, status: string) => {
+// Helper function to update patient status and optionally follow-up date
+export const updatePatientStatus = async (patientId: string, status: string, followUpDate?: string) => {
   try {
+    const updateData: { status: string; follow_up_date?: string | null } = { status };
+    
+    // If status is Follow-Up and followUpDate is provided, add it to the update data
+    if (status === "Follow-Up" && followUpDate) {
+      updateData.follow_up_date = followUpDate;
+    } else {
+      // If status is not Follow-Up, set follow_up_date to null
+      updateData.follow_up_date = null;
+    }
+    
     const { data, error } = await supabase
       .from('patients')
-      .update({ status })
+      .update(updateData)
       .eq('id', patientId)
       .select();
       
@@ -100,6 +110,23 @@ export const updatePatientStatus = async (patientId: string, status: string) => 
     return { data, error: null };
   } catch (error: any) {
     console.error('Error updating patient status:', error);
+    return { data: null, error };
+  }
+};
+
+// Helper function to update patient follow-up date only
+export const updatePatientFollowUpDate = async (patientId: string, followUpDate: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('patients')
+      .update({ follow_up_date: followUpDate })
+      .eq('id', patientId)
+      .select();
+      
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error: any) {
+    console.error('Error updating patient follow-up date:', error);
     return { data: null, error };
   }
 };

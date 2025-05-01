@@ -16,6 +16,7 @@ export interface Patient {
   status: 'Active' | 'Discharged' | 'Follow-Up';
   doctorId?: string;
   createdAt?: string;
+  followUpDate?: string; // New field for follow-up date
 }
 
 export interface User {

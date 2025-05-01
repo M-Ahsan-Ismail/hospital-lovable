@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { FileText, User, Phone, Calendar, Trash2, Check } from "lucide-react";
 import { Patient } from "@/lib/types";
-import { updatePatientStatus, deletePatient } from "@/integrations/supabase/client";
+import { updatePatientStatus, deletePatient, updatePatientFollowUpDate } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -17,11 +17,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { format, addDays } from "date-fns";
 
 interface PatientCardProps {
   patient: Patient;
   className?: string;
-  onStatusChange?: (patientId: string, newStatus: string) => void;
+  onStatusChange?: (patientId: string, newStatus: string, followUpDate?: string) => void;
   onDeletePatient?: (patientId: string) => void;
   selected?: boolean;
   onSelect?: (patientId: string) => void;
@@ -38,6 +49,10 @@ const PatientCard: React.FC<PatientCardProps> = ({
   userRole = 'doctor'
 }) => {
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showFollowUpDialog, setShowFollowUpDialog] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    patient.followUpDate ? new Date(patient.followUpDate) : addDays(new Date(), 7)
+  );
   const { toast } = useToast();
   
   // Format date from YYYY-MM-DD to readable format
@@ -56,9 +71,19 @@ const PatientCard: React.FC<PatientCardProps> = ({
   const handleStatusChange = async (newStatus: string) => {
     if (patient.status === newStatus) return;
     
+    // If changing to follow-up, show the follow-up date dialog
+    if (newStatus === "Follow-Up") {
+      setShowFollowUpDialog(true);
+      return;
+    }
+    
+    await updatePatientStatusInternal(newStatus);
+  };
+  
+  const updatePatientStatusInternal = async (newStatus: string, followUpDate?: string) => {
     setIsUpdating(true);
     try {
-      const { data, error } = await updatePatientStatus(patient.id, newStatus);
+      const { data, error } = await updatePatientStatus(patient.id, newStatus, followUpDate);
       
       if (error) throw error;
       
@@ -68,7 +93,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
       });
       
       if (onStatusChange) {
-        onStatusChange(patient.id, newStatus);
+        onStatusChange(patient.id, newStatus, followUpDate);
       }
     } catch (error: any) {
       toast({
@@ -79,6 +104,14 @@ const PatientCard: React.FC<PatientCardProps> = ({
     } finally {
       setIsUpdating(false);
     }
+  };
+  
+  const handleFollowUpConfirm = async () => {
+    if (!selectedDate) return;
+    
+    const formattedDate = format(selectedDate, "yyyy-MM-dd");
+    await updatePatientStatusInternal("Follow-Up", formattedDate);
+    setShowFollowUpDialog(false);
   };
   
   const handleDelete = async () => {
@@ -190,6 +223,15 @@ const PatientCard: React.FC<PatientCardProps> = ({
               Last Visit: {formatDate(patient.visitDate)}
             </span>
           </div>
+
+          {patient.status === "Follow-Up" && patient.followUpDate && (
+            <div className="flex items-center text-white/70 bg-yellow-500/10 px-3 py-2 rounded-md">
+              <Calendar size={16} className="mr-2 text-yellow-400" />
+              <span className="text-sm text-yellow-300">
+                Follow-Up Date: {formatDate(patient.followUpDate)}
+              </span>
+            </div>
+          )}
         </div>
         
         {patient.diseaseDescription && (
@@ -207,6 +249,44 @@ const PatientCard: React.FC<PatientCardProps> = ({
           Previous Visits: {patient.visitCount || 1}
         </span>
       </div>
+
+      {/* Follow-Up Date Dialog */}
+      <Dialog open={showFollowUpDialog} onOpenChange={setShowFollowUpDialog}>
+        <DialogContent className="bg-[#071620] border border-white/10 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white">Set Follow-Up Date</DialogTitle>
+            <DialogDescription className="text-white/70">
+              Please select the next visit date for this patient.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4 flex justify-center">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              disabled={(date) => date < new Date()}
+              className="bg-[#0C1824] border border-white/10 rounded-md p-2 pointer-events-auto"
+            />
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowFollowUpDialog(false)}
+              className="border-white/20 text-white hover:bg-white/10"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleFollowUpConfirm}
+              className="bg-gradient-to-r from-neon-cyan to-neon-magenta text-white"
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

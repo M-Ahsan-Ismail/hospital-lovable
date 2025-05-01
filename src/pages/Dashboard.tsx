@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -80,6 +79,7 @@ const Dashboard = () => {
         status: p.status,
         doctorId: p.doctor_id,
         createdAt: p.created_at,
+        followUpDate: p.follow_up_date,
       }));
       
       setPatients(formattedPatients);
@@ -165,10 +165,14 @@ const Dashboard = () => {
     setFilteredPatients(filtered.slice(0, 3));
   }, [searchTerm, patients, activeFilter]);
   
-  const handleStatusChange = (patientId: string, newStatus: string) => {
+  const handleStatusChange = (patientId: string, newStatus: string, followUpDate?: string) => {
     setPatients(patients.map(p => 
       p.id === patientId 
-        ? { ...p, status: newStatus as 'Active' | 'Discharged' | 'Follow-Up' } 
+        ? { 
+            ...p, 
+            status: newStatus as 'Active' | 'Discharged' | 'Follow-Up',
+            followUpDate: newStatus === 'Follow-Up' ? followUpDate : undefined
+          } 
         : p
     ));
     
