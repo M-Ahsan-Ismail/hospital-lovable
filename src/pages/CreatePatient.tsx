@@ -25,8 +25,6 @@ const CreatePatient = () => {
     name: "",
     age: "",
     gender: "",
-    cnic: "",
-    phoneNumber: "",
     address: "",
     disease: "",
     diseaseDescription: "",
@@ -74,8 +72,6 @@ const CreatePatient = () => {
         name: formData.name,
         age: formData.age ? parseInt(formData.age) : null,
         gender: formData.gender as 'Male' | 'Female' | 'Other' || null,
-        cnic: formData.cnic || null,
-        phone_number: formData.phoneNumber || null,
         address: formData.address || null,
         disease: formData.disease || null,
         disease_description: formData.diseaseDescription || null,
@@ -202,32 +198,6 @@ const CreatePatient = () => {
                       <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="cnic">
-                    CNIC
-                  </Label>
-                  <Input
-                    id="cnic"
-                    name="cnic"
-                    value={formData.cnic}
-                    onChange={handleChange}
-                    className="bg-white/5 border-white/10 focus:border-neon-cyan"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="phoneNumber">
-                    Phone Number
-                  </Label>
-                  <Input
-                    id="phoneNumber"
-                    name="phoneNumber"
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    className="bg-white/5 border-white/10 focus:border-neon-cyan"
-                  />
                 </div>
                 
                 <div className="md:col-span-2 space-y-2">
