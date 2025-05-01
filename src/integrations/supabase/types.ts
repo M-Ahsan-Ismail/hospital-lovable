@@ -20,6 +20,7 @@ export type Database = {
           doctor_id: string | null
           doctor_notes: string | null
           email: string | null
+          follow_up_date: string | null
           gender: string
           id: string
           name: string
@@ -38,6 +39,7 @@ export type Database = {
           doctor_id?: string | null
           doctor_notes?: string | null
           email?: string | null
+          follow_up_date?: string | null
           gender: string
           id?: string
           name: string
@@ -56,6 +58,7 @@ export type Database = {
           doctor_id?: string | null
           doctor_notes?: string | null
           email?: string | null
+          follow_up_date?: string | null
           gender?: string
           id?: string
           name?: string

@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { FileText, User, Phone, Calendar, Trash2, Check } from "lucide-react";
+import { FileText, User, Phone, Calendar as CalendarIcon, Trash2, Check } from "lucide-react";
 import { Patient } from "@/lib/types";
 import { updatePatientStatus, deletePatient, updatePatientFollowUpDate } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -218,7 +218,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
           </div>
           
           <div className="flex items-center text-white/70">
-            <Calendar size={16} className="mr-2 text-neon-cyan" />
+            <CalendarIcon size={16} className="mr-2 text-neon-cyan" />
             <span className="text-sm">
               Last Visit: {formatDate(patient.visitDate)}
             </span>
@@ -226,7 +226,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
 
           {patient.status === "Follow-Up" && patient.followUpDate && (
             <div className="flex items-center text-white/70 bg-yellow-500/10 px-3 py-2 rounded-md">
-              <Calendar size={16} className="mr-2 text-yellow-400" />
+              <CalendarIcon size={16} className="mr-2 text-yellow-400" />
               <span className="text-sm text-yellow-300">
                 Follow-Up Date: {formatDate(patient.followUpDate)}
               </span>
