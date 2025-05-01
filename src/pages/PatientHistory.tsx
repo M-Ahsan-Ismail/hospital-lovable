@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -9,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Patient } from "@/lib/types";
-import { Trash2, RefreshCw, FilterIcon, Search, X, ChevronUp, ChevronDown, Check, Calendar } from "lucide-react";
+import { Trash2, RefreshCw, FilterIcon, Search, X, ChevronUp, ChevronDown, Check, CalendarIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -543,7 +542,7 @@ const PatientHistory = () => {
                     
                     {patient.status === "Follow-Up" && patient.followUpDate && (
                       <div className="flex items-center text-yellow-300 bg-yellow-500/10 px-3 py-2 rounded-md">
-                        <Calendar size={16} className="mr-2 text-yellow-400" />
+                        <CalendarIcon size={16} className="mr-2 text-yellow-400" />
                         <span className="text-sm">
                           Follow-Up Date: {formatDate(patient.followUpDate)}
                         </span>
@@ -772,7 +771,7 @@ const PatientHistory = () => {
               <Calendar
                 mode="single"
                 selected={selectedDate}
-                onSelect={(date) => setSelectedDate(date)}
+                onSelect={setSelectedDate}
                 disabled={(date) => date < new Date()}
                 className="bg-[#0C1824] border border-white/10 rounded-md p-2 pointer-events-auto"
               />
