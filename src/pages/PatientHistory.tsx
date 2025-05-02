@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Patient } from "@/lib/types";
-import { Trash2, RefreshCw, FilterIcon, Search, X, ChevronUp, ChevronDown, Check, CalendarIcon } from "lucide-react";
+import { Trash2, RefreshCw, FilterIcon, Search, X, ChevronUp, ChevronDown, Check, CalendarIcon, Edit, Save } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -29,6 +29,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { isToday, parseISO, format, addDays } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Textarea } from "@/components/ui/textarea";
 import { updatePatientStatus } from "@/integrations/supabase/client";
 
 const PatientHistory = () => {
@@ -47,6 +48,9 @@ const PatientHistory = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(addDays(new Date(), 7));
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [updatingPatientId, setUpdatingPatientId] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editablePatient, setEditablePatient] = useState<Patient | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -243,7 +247,9 @@ const PatientHistory = () => {
 
   const handlePatientClick = (patient: Patient) => {
     setSelectedPatient(patient);
+    setEditablePatient({...patient});
     setPatientDialogOpen(true);
+    setIsEditing(false); // Reset edit mode when opening a new patient
   };
 
   const handleSearchFocus = () => {
@@ -328,6 +334,87 @@ const PatientHistory = () => {
     } finally {
       setUpdatingStatus(false);
       setUpdatingPatientId(null);
+    }
+  };
+  
+  const handleEditToggle = () => {
+    if (selectedPatient) {
+      if (isEditing) {
+        // Cancel editing
+        setEditablePatient({...selectedPatient});
+        setIsEditing(false);
+      } else {
+        // Start editing
+        setEditablePatient({...selectedPatient});
+        setIsEditing(true);
+      }
+    }
+  };
+
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    if (editablePatient) {
+      setEditablePatient({
+        ...editablePatient,
+        [name]: value
+      });
+    }
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    if (editablePatient) {
+      setEditablePatient({
+        ...editablePatient,
+        [name]: value
+      });
+    }
+  };
+
+  const savePatientChanges = async () => {
+    if (!editablePatient) return;
+    
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('patients')
+        .update({
+          name: editablePatient.name,
+          age: parseInt(String(editablePatient.age)),
+          gender: editablePatient.gender,
+          email: editablePatient.email || null,
+          address: editablePatient.address || null,
+          disease: editablePatient.disease,
+          disease_description: editablePatient.diseaseDescription || null,
+          doctor_notes: editablePatient.doctorNotes || null
+        })
+        .eq('id', editablePatient.id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setPatients(prevPatients => 
+        prevPatients.map(p => 
+          p.id === editablePatient.id ? editablePatient : p
+        )
+      );
+      
+      setSelectedPatient(editablePatient);
+      
+      toast({
+        title: "Success",
+        description: "Patient information updated successfully",
+      });
+      
+      setIsEditing(false);
+    } catch (error: any) {
+      console.error('Error updating patient:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update patient information",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
   
@@ -579,72 +666,98 @@ const PatientHistory = () => {
           </div>
         )}
 
-        <Dialog open={patientDialogOpen} onOpenChange={setPatientDialogOpen}>
+        <Dialog open={patientDialogOpen} onOpenChange={(open) => {
+          if (!open) setIsEditing(false);
+          setPatientDialogOpen(open);
+        }}>
           <DialogContent className="bg-[#071620] border border-white/10 max-w-3xl max-h-[90vh] overflow-y-auto">
-            {selectedPatient && (
+            {selectedPatient && editablePatient && (
               <>
                 <DialogHeader>
                   <div className="flex justify-between items-center mb-4">
                     <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan to-neon-magenta">
                       Patient Details
                     </DialogTitle>
-                    <div className="relative inline-block">
-                      <div 
-                        className={`px-3 py-1 rounded-full text-sm font-medium cursor-pointer ${
-                          selectedPatient.status === 'Active' 
-                            ? 'bg-neon-cyan/20 text-neon-cyan' 
-                            : selectedPatient.status === 'Follow-Up'
-                              ? 'bg-neon-purple/20 text-neon-purple'
-                              : 'bg-neon-magenta/20 text-neon-magenta'
-                        }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Toggle status selection dropdown
-                          const dropdown = e.currentTarget.nextElementSibling;
-                          if (dropdown) {
-                            dropdown.classList.toggle('hidden');
-                          }
-                        }}
-                      >
-                        {updatingStatus && updatingPatientId === selectedPatient.id ? "Updating..." : selectedPatient.status}
-                      </div>
-                      <div className="absolute right-0 top-full mt-1 bg-dark-secondary z-10 border border-white/10 rounded shadow-lg hidden w-40">
-                        <div className="py-1">
-                          <button
-                            className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                            onClick={() => {
-                              handleStatusChange(selectedPatient, "Active");
-                              document.querySelector('.status-dropdown')?.classList.add('hidden');
-                            }}
-                          >
-                            <div className="w-2 h-2 rounded-full bg-green-400 mr-2"></div>
-                            Active
-                            {selectedPatient.status === "Active" && <Check size={14} className="ml-auto" />}
-                          </button>
-                          <button
-                            className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                            onClick={() => {
-                              handleStatusChange(selectedPatient, "Follow-Up");
-                              document.querySelector('.status-dropdown')?.classList.add('hidden');
-                            }}
-                          >
-                            <div className="w-2 h-2 rounded-full bg-yellow-400 mr-2"></div>
-                            Follow-Up
-                            {selectedPatient.status === "Follow-Up" && <Check size={14} className="ml-auto" />}
-                          </button>
-                          <button
-                            className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
-                            onClick={() => {
-                              handleStatusChange(selectedPatient, "Discharged");
-                              document.querySelector('.status-dropdown')?.classList.add('hidden');
-                            }}
-                          >
-                            <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
-                            Discharged
-                            {selectedPatient.status === "Discharged" && <Check size={14} className="ml-auto" />}
-                          </button>
+                    <div className="flex items-center gap-3">
+                      <div className="relative inline-block">
+                        <div 
+                          className={`px-3 py-1 rounded-full text-sm font-medium cursor-pointer ${
+                            selectedPatient.status === 'Active' 
+                              ? 'bg-neon-cyan/20 text-neon-cyan' 
+                              : selectedPatient.status === 'Follow-Up'
+                                ? 'bg-neon-purple/20 text-neon-purple'
+                                : 'bg-neon-magenta/20 text-neon-magenta'
+                          }`}
+                          onClick={(e) => {
+                            if (!isEditing) {
+                              e.stopPropagation();
+                              // Toggle status selection dropdown
+                              const dropdown = e.currentTarget.nextElementSibling;
+                              if (dropdown) {
+                                dropdown.classList.toggle('hidden');
+                              }
+                            }
+                          }}
+                        >
+                          {updatingStatus && updatingPatientId === selectedPatient.id ? "Updating..." : selectedPatient.status}
+                        </div>
+                        <div className="absolute right-0 top-full mt-1 bg-dark-secondary z-10 border border-white/10 rounded shadow-lg hidden w-40 status-dropdown">
+                          <div className="py-1">
+                            <button
+                              className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                              onClick={() => {
+                                handleStatusChange(selectedPatient, "Active");
+                                document.querySelector('.status-dropdown')?.classList.add('hidden');
+                              }}
+                            >
+                              <div className="w-2 h-2 rounded-full bg-green-400 mr-2"></div>
+                              Active
+                              {selectedPatient.status === "Active" && <Check size={14} className="ml-auto" />}
+                            </button>
+                            <button
+                              className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                              onClick={() => {
+                                handleStatusChange(selectedPatient, "Follow-Up");
+                                document.querySelector('.status-dropdown')?.classList.add('hidden');
+                              }}
+                            >
+                              <div className="w-2 h-2 rounded-full bg-yellow-400 mr-2"></div>
+                              Follow-Up
+                              {selectedPatient.status === "Follow-Up" && <Check size={14} className="ml-auto" />}
+                            </button>
+                            <button
+                              className="flex items-center w-full px-3 py-2 text-sm text-white/80 hover:bg-white/5"
+                              onClick={() => {
+                                handleStatusChange(selectedPatient, "Discharged");
+                                document.querySelector('.status-dropdown')?.classList.add('hidden');
+                              }}
+                            >
+                              <div className="w-2 h-2 rounded-full bg-blue-400 mr-2"></div>
+                              Discharged
+                              {selectedPatient.status === "Discharged" && <Check size={14} className="ml-auto" />}
+                            </button>
+                          </div>
                         </div>
                       </div>
+                      
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex items-center gap-1 border-white/20"
+                        onClick={handleEditToggle}
+                      >
+                        {isEditing ? (
+                          <>
+                            <X size={14} className="mr-1" />
+                            Cancel
+                          </>
+                        ) : (
+                          <>
+                            <Edit size={14} className="mr-1" />
+                            Edit
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </div>
                   <DialogDescription className="text-white/70">
@@ -660,34 +773,83 @@ const PatientHistory = () => {
                       <div className="space-y-3">
                         <div>
                           <p className="text-white/50 text-sm">Full Name</p>
-                          <p className="text-white text-lg">{selectedPatient.name}</p>
+                          {isEditing ? (
+                            <Input
+                              name="name"
+                              value={editablePatient.name}
+                              onChange={handleEditChange}
+                              className="bg-white/5 border-white/10 focus:border-neon-cyan mt-1"
+                            />
+                          ) : (
+                            <p className="text-white text-lg">{selectedPatient.name}</p>
+                          )}
                         </div>
                         
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <p className="text-white/50 text-sm">Age</p>
-                            <p className="text-white">{selectedPatient.age} years</p>
+                            {isEditing ? (
+                              <Input
+                                name="age"
+                                type="number"
+                                value={editablePatient.age}
+                                onChange={handleEditChange}
+                                className="bg-white/5 border-white/10 focus:border-neon-cyan mt-1"
+                              />
+                            ) : (
+                              <p className="text-white">{selectedPatient.age} years</p>
+                            )}
                           </div>
                           
                           <div>
                             <p className="text-white/50 text-sm">Gender</p>
-                            <p className="text-white">{selectedPatient.gender}</p>
+                            {isEditing ? (
+                              <Select 
+                                value={editablePatient.gender} 
+                                onValueChange={(value) => handleSelectChange("gender", value)}
+                              >
+                                <SelectTrigger className="bg-white/5 border-white/10 mt-1">
+                                  <SelectValue placeholder="Select gender" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-dark-secondary border-white/10">
+                                  <SelectItem value="Male">Male</SelectItem>
+                                  <SelectItem value="Female">Female</SelectItem>
+                                  <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <p className="text-white">{selectedPatient.gender}</p>
+                            )}
                           </div>
                         </div>
                         
-                        {selectedPatient.email && (
-                          <div>
-                            <p className="text-white/50 text-sm">Email</p>
-                            <p className="text-white">{selectedPatient.email}</p>
-                          </div>
-                        )}
+                        <div>
+                          <p className="text-white/50 text-sm">Email</p>
+                          {isEditing ? (
+                            <Input
+                              name="email"
+                              value={editablePatient.email || ""}
+                              onChange={handleEditChange}
+                              className="bg-white/5 border-white/10 focus:border-neon-cyan mt-1"
+                            />
+                          ) : (
+                            <p className="text-white">{selectedPatient.email || "N/A"}</p>
+                          )}
+                        </div>
                         
-                        {selectedPatient.address && (
-                          <div>
-                            <p className="text-white/50 text-sm">Address</p>
-                            <p className="text-white">{selectedPatient.address}</p>
-                          </div>
-                        )}
+                        <div>
+                          <p className="text-white/50 text-sm">Address</p>
+                          {isEditing ? (
+                            <Textarea
+                              name="address"
+                              value={editablePatient.address || ""}
+                              onChange={handleEditChange}
+                              className="bg-white/5 border-white/10 focus:border-neon-cyan mt-1 min-h-[80px]"
+                            />
+                          ) : (
+                            <p className="text-white">{selectedPatient.address || "N/A"}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -699,7 +861,16 @@ const PatientHistory = () => {
                       <div className="space-y-3">
                         <div>
                           <p className="text-white/50 text-sm">Diagnosis</p>
-                          <p className="text-white text-lg">{selectedPatient.disease}</p>
+                          {isEditing ? (
+                            <Input
+                              name="disease"
+                              value={editablePatient.disease}
+                              onChange={handleEditChange}
+                              className="bg-white/5 border-white/10 focus:border-neon-cyan mt-1"
+                            />
+                          ) : (
+                            <p className="text-white text-lg">{selectedPatient.disease}</p>
+                          )}
                         </div>
                         
                         <div className="grid grid-cols-2 gap-4">
@@ -721,23 +892,37 @@ const PatientHistory = () => {
                           </div>
                         )}
                         
-                        {selectedPatient.diseaseDescription && (
-                          <div>
-                            <p className="text-white/50 text-sm">Description</p>
-                            <p className="text-white">{selectedPatient.diseaseDescription}</p>
-                          </div>
-                        )}
+                        <div>
+                          <p className="text-white/50 text-sm">Description</p>
+                          {isEditing ? (
+                            <Textarea
+                              name="diseaseDescription"
+                              value={editablePatient.diseaseDescription || ""}
+                              onChange={handleEditChange}
+                              className="bg-white/5 border-white/10 focus:border-neon-cyan mt-1 min-h-[100px]"
+                            />
+                          ) : (
+                            <p className="text-white">{selectedPatient.diseaseDescription || "N/A"}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
                     
-                    {selectedPatient.doctorNotes && (
-                      <div className="glass-card rounded-lg border border-neon-cyan/20 p-4">
-                        <h3 className="text-lg font-semibold text-white mb-3">Doctor's Notes</h3>
+                    <div className="glass-card rounded-lg border border-neon-cyan/20 p-4">
+                      <h3 className="text-lg font-semibold text-white mb-3">Doctor's Notes</h3>
+                      {isEditing ? (
+                        <Textarea
+                          name="doctorNotes"
+                          value={editablePatient.doctorNotes || ""}
+                          onChange={handleEditChange}
+                          className="bg-white/5 border-white/10 focus:border-neon-cyan mt-1 min-h-[120px]"
+                        />
+                      ) : (
                         <p className="text-white/90 bg-white/5 p-3 rounded border border-white/5">
-                          {selectedPatient.doctorNotes}
+                          {selectedPatient.doctorNotes || "No notes available"}
                         </p>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
                 
@@ -745,12 +930,33 @@ const PatientHistory = () => {
                   <div className="text-white/50 text-sm mr-auto">
                     Patient ID: {selectedPatient.id}
                   </div>
-                  <AnimatedButton 
-                    variant="outline" 
-                    onClick={() => setPatientDialogOpen(false)}
-                  >
-                    Close
-                  </AnimatedButton>
+                  
+                  {isEditing ? (
+                    <Button
+                      onClick={savePatientChanges}
+                      className="bg-gradient-to-r from-neon-cyan to-neon-magenta text-white"
+                      disabled={isSaving}
+                    >
+                      {isSaving ? (
+                        <>
+                          <div className="h-4 w-4 border-2 border-dark border-t-transparent rounded-full animate-spin mr-2"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save size={16} className="mr-2" />
+                          Save Changes
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <AnimatedButton 
+                      variant="outline" 
+                      onClick={() => setPatientDialogOpen(false)}
+                    >
+                      Close
+                    </AnimatedButton>
+                  )}
                 </DialogFooter>
               </>
             )}
