@@ -5,6 +5,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HexagonBackground from "@/components/HexagonBackground";
 import AnimatedButton from "@/components/AnimatedButton";
+import ProgressBar from "@/components/ProgressBar";
+import { useWeeklyStats } from "@/hooks/use-weekly-stats";
 import {
   Database,
   Stethoscope,
@@ -20,7 +22,8 @@ import {
   CheckCircle2,
   Laptop,
   Lightbulb,
-  Phone
+  Phone,
+  CalendarIcon
 } from "lucide-react";
 
 const fadeIn = {
@@ -93,6 +96,16 @@ const Index = () => {
     { name: "HealthGroup", color: "from-green-400/30 to-emerald-400/30" },
     { name: "CarePoint", color: "from-sky-400/30 to-indigo-400/30" }
   ];
+  
+  const {
+    patientCheckInPercentage,
+    medicalRecordsPercentage,
+    appointmentSchedulePercentage,
+    isLoading,
+    growthRate,
+    recoveryRate,
+    satisfaction
+  } = useWeeklyStats();
   
   return (
     <div className="min-h-screen flex flex-col bg-dark bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-dark-secondary/20 via-dark to-dark/95 overflow-hidden">
@@ -306,7 +319,9 @@ const Index = () => {
                           <div className="text-white/50 text-sm">Last 30 days</div>
                         </div>
                         <div className="bg-neon-cyan/20 rounded-md px-2 py-1">
-                          <span className="text-neon-cyan text-xs">+24.5%</span>
+                          <span className="text-neon-cyan text-xs">
+                            {isLoading ? "..." : `+${growthRate}%`}
+                          </span>
                         </div>
                       </div>
                       
@@ -329,43 +344,89 @@ const Index = () => {
                     </motion.div>
                     
                     <div className="flex-1 space-y-4">
-                      {[1, 2, 3].map((i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 1.2 + (i * 0.15) }}
-                          className="bg-white/5 rounded-lg p-3 flex items-center hover:bg-white/10 transition-colors cursor-pointer group"
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1.2 }}
+                        className="bg-white/5 rounded-lg p-3 flex items-center hover:bg-white/10 transition-colors cursor-pointer group"
+                      >
+                        <div className="rounded-full p-2 bg-gradient-to-br from-neon-cyan/20 to-neon-magenta/20 mr-3">
+                          <Users size={14} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-white mb-1">
+                            Patient Check-in
+                          </div>
+                          <ProgressBar 
+                            value={isLoading ? 0 : patientCheckInPercentage} 
+                            variant="cyan"
+                            isLoading={isLoading}
+                          />
+                        </div>
+                        <motion.div 
+                          className="ml-2 text-white/40"
+                          whileHover={{ x: 3 }}
+                          transition={{ type: "spring", stiffness: 300 }}
                         >
-                          <div className="rounded-full p-2 bg-gradient-to-br from-neon-cyan/20 to-neon-magenta/20 mr-3">
-                            {i === 1 && <Users size={14} className="text-white" />}
-                            {i === 2 && <Stethoscope size={14} className="text-white" />}
-                            {i === 3 && <Clock size={14} className="text-white" />}
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-sm font-medium text-white">
-                              {i === 1 && "Patient Check-in"}
-                              {i === 2 && "Medical Records"}
-                              {i === 3 && "Appointment Schedule"}
-                            </div>
-                            <div className="h-1.5 bg-white/10 rounded-full mt-1.5 overflow-hidden">
-                              <motion.div 
-                                className="h-full bg-gradient-to-r from-neon-cyan to-neon-magenta"
-                                initial={{ width: "0%" }}
-                                animate={{ width: `${i * 30}%` }}
-                                transition={{ delay: 1.5 + (i * 0.2), duration: 0.7 }}
-                              />
-                            </div>
-                          </div>
-                          <motion.div 
-                            className="ml-2 text-white/40"
-                            whileHover={{ x: 3 }}
-                            transition={{ type: "spring", stiffness: 300 }}
-                          >
-                            <ArrowRight size={14} className="group-hover:text-neon-cyan transition-colors" />
-                          </motion.div>
+                          <ArrowRight size={14} className="group-hover:text-neon-cyan transition-colors" />
                         </motion.div>
-                      ))}
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1.35 }}
+                        className="bg-white/5 rounded-lg p-3 flex items-center hover:bg-white/10 transition-colors cursor-pointer group"
+                      >
+                        <div className="rounded-full p-2 bg-gradient-to-br from-neon-cyan/20 to-neon-magenta/20 mr-3">
+                          <Stethoscope size={14} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-white mb-1">
+                            Medical Records
+                          </div>
+                          <ProgressBar 
+                            value={isLoading ? 0 : medicalRecordsPercentage} 
+                            variant="magenta"
+                            isLoading={isLoading}
+                          />
+                        </div>
+                        <motion.div 
+                          className="ml-2 text-white/40"
+                          whileHover={{ x: 3 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                        >
+                          <ArrowRight size={14} className="group-hover:text-neon-cyan transition-colors" />
+                        </motion.div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1.5 }}
+                        className="bg-white/5 rounded-lg p-3 flex items-center hover:bg-white/10 transition-colors cursor-pointer group"
+                      >
+                        <div className="rounded-full p-2 bg-gradient-to-br from-neon-cyan/20 to-neon-magenta/20 mr-3">
+                          <CalendarIcon size={14} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-white mb-1">
+                            Appointment Schedule
+                          </div>
+                          <ProgressBar 
+                            value={isLoading ? 0 : appointmentSchedulePercentage} 
+                            variant="mixed"
+                            isLoading={isLoading}
+                          />
+                        </div>
+                        <motion.div 
+                          className="ml-2 text-white/40"
+                          whileHover={{ x: 3 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                        >
+                          <ArrowRight size={14} className="group-hover:text-neon-cyan transition-colors" />
+                        </motion.div>
+                      </motion.div>
                       
                       <motion.div 
                         initial={{ opacity: 0 }}
@@ -375,11 +436,15 @@ const Index = () => {
                       >
                         <div className="bg-gradient-to-br from-neon-cyan/10 to-neon-cyan/5 rounded-lg p-3 border border-neon-cyan/20">
                           <div className="text-xs text-white/70 mb-1">Recovery Rate</div>
-                          <div className="text-neon-cyan text-lg font-semibold">94.2%</div>
+                          <div className="text-neon-cyan text-lg font-semibold">
+                            {isLoading ? "..." : `${recoveryRate}%`}
+                          </div>
                         </div>
                         <div className="bg-gradient-to-br from-neon-magenta/10 to-neon-magenta/5 rounded-lg p-3 border border-neon-magenta/20">
                           <div className="text-xs text-white/70 mb-1">Patient Satisfaction</div>
-                          <div className="text-neon-magenta text-lg font-semibold">96.8%</div>
+                          <div className="text-neon-magenta text-lg font-semibold">
+                            {isLoading ? "..." : `${satisfaction}%`}
+                          </div>
                         </div>
                       </motion.div>
                     </div>
@@ -427,7 +492,7 @@ const Index = () => {
               { label: "Hospitals", value: "200+", color: "from-cyan-500 to-blue-600", icon: Database },
               { label: "Doctors", value: "3,500+", color: "from-fuchsia-500 to-pink-600", icon: Stethoscope },
               { label: "Patients", value: "1M+", color: "from-amber-500 to-orange-600", icon: Users },
-              { label: "Daily Records", value: "25K+", color: "from-emerald-500 to-teal-600", icon: BarChart3 },
+              { label: "Daily Records", value: isLoading ? "..." : `${growthRate}%+`, color: "from-emerald-500 to-teal-600", icon: BarChart3 },
             ].map((stat, index) => (
               <motion.div 
                 key={index}
