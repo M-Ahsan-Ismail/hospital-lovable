@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -69,6 +70,45 @@ export default {
 				neon: {
 					cyan: '#00D1FF',
 					magenta: '#FF007A',
+				},
+				// Add light theme specific colors
+				blue: {
+					25: '#F5F9FF',
+					50: '#EBF5FF',
+					100: '#E1EFFE',
+					200: '#C3DDFD',
+					300: '#A4CAFE',
+					400: '#76A9FA',
+					500: '#3F83F8',
+					600: '#1C64F2',
+					700: '#1A56DB',
+					800: '#1E429F',
+					900: '#233876',
+				},
+				pink: {
+					25: '#FFF5F7',
+					50: '#FFF0F5',
+					100: '#FFDEEB',
+					200: '#FBB6CE',
+					300: '#F687B3',
+					400: '#ED64A6',
+					500: '#D53F8C',
+					600: '#B83280',
+					700: '#97266D',
+					800: '#702459',
+					900: '#521B41',
+				},
+				gray: {
+					50: '#F9FAFB',
+					100: '#F3F4F6',
+					200: '#E5E7EB',
+					300: '#D1D5DB',
+					400: '#9CA3AF',
+					500: '#6B7280',
+					600: '#4B5563',
+					700: '#374151',
+					800: '#1F2937',
+					900: '#111827',
 				}
 			},
 			borderRadius: {
@@ -146,6 +186,7 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-dark': 'linear-gradient(to bottom right, #1C2526, #2D3A3E)',
+				'gradient-light': 'linear-gradient(to bottom right, #F9FAFB, #F3F4F6)',
 			},
 		}
 	},
