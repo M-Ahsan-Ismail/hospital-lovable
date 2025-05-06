@@ -24,6 +24,7 @@ import {
   Lightbulb,
   Phone
 } from "lucide-react";
+import StatCard from "@/components/StatCard";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -718,4 +719,5 @@ const IndexContent = () => {
             transition={{ duration: 0.6 }}
           >
             <div className="inline-block mb-4">
-              <span className="px-4 py-1.5 rounded-full text-xs uppercase font-semibold tracking-wider inline-block bg-gradient-to-r from-neon-magenta/20 to-neon-cyan/20 text-white border border-white/10">
+              <span className={cn(
+                "px-4 py-1.5 rounded-full text-xs uppercase font-semibold tracking-wider inline-block bg-gradient-to-r from-neon-magenta/20 to-neon-
