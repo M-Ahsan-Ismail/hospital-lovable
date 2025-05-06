@@ -25,6 +25,7 @@ import {
   Phone
 } from "lucide-react";
 import StatCard from "@/components/StatCard";
+import { cn } from "@/lib/utils";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -135,6 +136,7 @@ const IndexContent = () => {
       
       <Navbar theme={theme} />
       
+      {/* Hero Section */}
       <section ref={heroRef} className="pt-24 md:pt-32 relative min-h-[90vh] flex items-center">
         <div className="absolute inset-0 z-0">
           {isDark ? (
@@ -720,4 +722,95 @@ const IndexContent = () => {
           >
             <div className="inline-block mb-4">
               <span className={cn(
-                "px-4 py-1.5 rounded-full text-xs uppercase font-semibold tracking-wider inline-block bg-gradient-to-r from-neon-magenta/20 to-neon-
+                "px-4 py-1.5 rounded-full text-xs uppercase font-semibold tracking-wider inline-block bg-gradient-to-r",
+                isDark 
+                  ? "from-neon-magenta/20 to-neon-cyan/20 text-white border border-white/10"
+                  : "from-pink-100 to-blue-100 text-gray-800 border border-gray-200"
+              )}>
+                Key Features
+              </span>
+            </div>
+            
+            <motion.div 
+              className="text-4xl font-bold mb-10"
+              variants={fadeIn}
+              custom={4}
+            >
+              <span className={isDark ? "text-white" : "text-gray-800"}>Transform Your Healthcare Facility</span>
+            </motion.div>
+            
+            <motion.div 
+              className="text-lg md:text-xl mb-10 max-w-xl leading-relaxed"
+              variants={fadeIn}
+              custom={5}
+            >
+              <span className={isDark ? "text-white/70" : "text-gray-600"}>Secure, efficient, and designed for the future of medicine.</span>
+            </motion.div>
+            
+            <motion.div 
+              className="flex flex-col sm:flex-row gap-5"
+              variants={fadeIn}
+              custom={6}
+            >
+              <AnimatedButton 
+                variant={isDark ? "cyan" : "light"} 
+                size="lg" 
+                className="group"
+                onClick={() => scrollToSection(ctaRef)}
+              >
+                <div className="flex items-center">
+                  Learn More
+                  <motion.span 
+                    initial={{ x: 0 }}
+                    whileHover={{ x: 5 }}
+                    transition={{ type: "spring", stiffness: 400 }}
+                  >
+                    <ArrowRight className="ml-2" size={18} />
+                  </motion.span>
+                </div>
+              </AnimatedButton>
+              
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex items-center cursor-pointer group"
+              >
+                <div className={cn(
+                  "mr-3 rounded-full p-3 transition-all",
+                  isDark 
+                    ? "bg-neon-cyan/20 group-hover:bg-neon-cyan/30"
+                    : "bg-blue-100 group-hover:bg-blue-200"
+                )}>
+                  <Play size={16} className={isDark 
+                    ? "text-neon-cyan fill-neon-cyan ml-0.5"
+                    : "text-blue-600 fill-blue-600 ml-0.5"
+                  } />
+                </div>
+                <span className={cn(
+                  "transition-colors",
+                  isDark 
+                    ? "text-white group-hover:text-neon-cyan" 
+                    : "text-gray-800 group-hover:text-blue-600"
+                )}>
+                  Watch Demo
+                </span>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+      
+      <Footer theme={theme} />
+    </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <ThemeProvider>
+      <IndexContent />
+    </ThemeProvider>
+  );
+};
+
+export default Index;
