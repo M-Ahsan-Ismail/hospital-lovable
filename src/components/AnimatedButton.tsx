@@ -1,78 +1,64 @@
 
 import React from "react";
-import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type AnimatedButtonVariant = "default" | "outline" | "cyan" | "magenta" | "light";
-type AnimatedButtonSize = "default" | "sm" | "lg" | "xl";
-
-interface AnimatedButtonProps {
+interface AnimatedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "cyan" | "magenta" | "outline";
+  size?: "default" | "sm" | "lg";
   children: React.ReactNode;
-  onClick?: () => void;
   className?: string;
-  variant?: AnimatedButtonVariant;
-  size?: AnimatedButtonSize;
-  disabled?: boolean;
-  type?: "button" | "submit" | "reset";
+  animated?: boolean;
 }
 
 const AnimatedButton: React.FC<AnimatedButtonProps> = ({
-  children,
-  onClick,
-  className,
-  variant = "default",
+  variant = "cyan",
   size = "default",
-  disabled = false,
-  type = "button",
+  children,
+  className,
+  animated = true,
+  ...props
 }) => {
+  const getVariantClasses = () => {
+    switch (variant) {
+      case "cyan":
+        return "bg-neon-cyan text-dark hover:bg-neon-cyan/90 focus:ring-neon-cyan/20";
+      case "magenta":
+        return "bg-neon-magenta text-white hover:bg-neon-magenta/90 focus:ring-neon-magenta/20";
+      case "outline":
+        return "bg-transparent border border-neon-cyan text-neon-cyan hover:bg-neon-cyan/10";
+      default:
+        return "bg-neon-cyan text-dark hover:bg-neon-cyan/90 focus:ring-neon-cyan/20";
+    }
+  };
+
+  const getSizeClasses = () => {
+    switch (size) {
+      case "sm":
+        return "py-1 px-3 text-sm";
+      case "lg":
+        return "py-3 px-8 text-lg";
+      default:
+        return "py-2 px-6";
+    }
+  };
+
   return (
-    <motion.button
-      whileTap={{ scale: disabled ? 1 : 0.98 }}
-      whileHover={{ scale: disabled ? 1 : 1.02 }}
-      onClick={onClick}
-      disabled={disabled}
-      type={type}
+    <Button
       className={cn(
-        "relative rounded-full overflow-hidden transition-all duration-300",
-        "font-semibold text-white outline-none focus:outline-none",
-        "flex items-center justify-center",
-        // Size variants
-        size === "default" && "px-6 py-2.5 text-sm",
-        size === "sm" && "px-4 py-1.5 text-xs",
-        size === "lg" && "px-8 py-3 text-base",
-        size === "xl" && "px-12 py-4 text-lg",
-        // Button variants
-        variant === "default" && "bg-white/10 hover:bg-white/15 backdrop-blur-sm border border-white/10",
-        variant === "outline" && "bg-transparent border border-white/20 hover:border-white/50 backdrop-blur-sm",
-        variant === "cyan" && "bg-gradient-to-r from-neon-cyan/80 to-neon-cyan/60 hover:from-neon-cyan hover:to-neon-cyan/80 shadow-glow-cyan",
-        variant === "magenta" && "bg-gradient-to-r from-neon-magenta/80 to-neon-magenta/60 hover:from-neon-magenta hover:to-neon-magenta/80 shadow-glow-magenta",
-        variant === "light" && "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-sm text-white border-none",
-        // Disabled state
-        disabled && "opacity-50 cursor-not-allowed hover:scale-100",
+        "relative font-medium rounded-md transition-all duration-300 transform",
+        "focus:outline-none focus:ring-4 focus:ring-opacity-50",
+        getVariantClasses(),
+        getSizeClasses(),
+        animated && "hover:scale-105 active:scale-95",
+        animated && variant === "cyan" && "hover:shadow-[0_0_20px_rgba(0,209,255,0.7)]",
+        animated && variant === "magenta" && "hover:shadow-[0_0_20px_rgba(255,0,122,0.7)]",
         className
       )}
+      {...props}
     >
       {children}
-
-      {/* Add animated glow effect for the neon variants */}
-      {(variant === "cyan" || variant === "magenta") && (
-        <motion.div
-          className={cn(
-            "absolute inset-0 opacity-0",
-            variant === "cyan" && "bg-neon-cyan",
-            variant === "magenta" && "bg-neon-magenta"
-          )}
-          animate={{
-            opacity: [0, 0.2, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            repeatType: "loop",
-          }}
-        />
-      )}
-    </motion.button>
+    </Button>
   );
 };
 

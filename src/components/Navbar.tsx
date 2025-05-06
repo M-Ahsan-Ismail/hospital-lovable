@@ -1,243 +1,339 @@
 
-import React, { useEffect, useState } from 'react';
-import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { cn } from '@/lib/utils';
-import { toast } from '@/hooks/use-toast';
-import AnimatedButton from './AnimatedButton';
-import ThemeToggle from './ThemeToggle';
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, LogOut } from "lucide-react";
+import { cn } from "@/lib/utils";
+import AnimatedButton from "./AnimatedButton";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-interface NavbarProps {
-  theme?: 'dark' | 'light';
+interface NavLink {
+  title: string;
+  href: string;
+  isButton?: boolean;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ theme = 'dark' }) => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
+const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const location = useLocation();
-  const isDark = theme === 'dark';
-  const isLandingPage = location.pathname === '/';
-
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  
   useEffect(() => {
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      setIsScrolled(scrollPosition > 50);
+    // Check if user is logged in
+    const checkUserAuth = async () => {
+      try {
+        // Try to get from localStorage first for faster UI update
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+          setCurrentUser(JSON.parse(storedUser));
+        }
+        
+        // Then verify with Supabase
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          if (!storedUser) {
+            // If we have a session but no stored user, get user data
+            const { data: userData, error } = await supabase
+              .from('users')
+              .select('id, email, full_name, role')
+              .eq('id', data.session.user.id)
+              .maybeSingle(); // Using maybeSingle instead of single to avoid errors
+              
+            if (userData) {
+              const userInfo = {
+                id: userData.id,
+                email: userData.email,
+                fullName: userData.full_name,
+                role: userData.role
+              };
+              setCurrentUser(userInfo);
+              localStorage.setItem('currentUser', JSON.stringify(userInfo));
+            }
+          }
+        } else if (storedUser) {
+          // If no session but we have a stored user, clear it
+          localStorage.removeItem('currentUser');
+          setCurrentUser(null);
+        }
+      } catch (error) {
+        console.error("Error checking user auth:", error);
+        // Clear localStorage on error
+        localStorage.removeItem('currentUser');
+        setCurrentUser(null);
+      }
     };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    checkUserAuth();
+    
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
+  
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Navbar auth state changed:", event);
+        
+        if (event === 'SIGNED_OUT') {
+          setCurrentUser(null);
+          localStorage.removeItem('currentUser');
+          navigate('/', { replace: true });
+        } else if (event === 'SIGNED_IN' && session) {
+          // We'll use setTimeout to avoid potential auth state deadlocks
+          setTimeout(async () => {
+            try {
+              // Get user info
+              const { data: userData, error } = await supabase
+                .from('users')
+                .select('id, email, full_name, role')
+                .eq('id', session.user.id)
+                .maybeSingle();
+                
+              if (userData) {
+                const userInfo = {
+                  id: userData.id,
+                  email: userData.email,
+                  fullName: userData.full_name,
+                  role: userData.role
+                };
+                setCurrentUser(userInfo);
+                localStorage.setItem('currentUser', JSON.stringify(userInfo));
+              } else {
+                // Fallback to stored user or session metadata
+                const storedUser = localStorage.getItem('currentUser');
+                if (storedUser) {
+                  setCurrentUser(JSON.parse(storedUser));
+                } else if (session.user.user_metadata) {
+                  const userInfo = {
+                    id: session.user.id,
+                    email: session.user.email,
+                    fullName: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'User',
+                    role: session.user.user_metadata.role || 'doctor'
+                  };
+                  setCurrentUser(userInfo);
+                  localStorage.setItem('currentUser', JSON.stringify(userInfo));
+                }
+              }
+            } catch (error) {
+              console.error("Error processing sign in:", error);
+            }
+          }, 0);
+        }
+      }
+    );
+    
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [navigate]);
+  
   const handleLogout = async () => {
+    // Prevent multiple clicks
+    if (isLoggingOut) return;
+    
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      setIsLoggingOut(true);
+      console.log("Logging out...");
       
+      // Clear local storage first to immediately update UI
       localStorage.removeItem('currentUser');
-      setUser(null);
+      setCurrentUser(null);
+      
+      // Then sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Logout error:", error);
+        throw error;
+      }
+      
       toast({
-        title: "Logged out successfully",
-        description: "You have been logged out of your account.",
+        title: "Success",
+        description: "Logged out successfully",
       });
-      navigate('/');
-    } catch (error) {
-      console.error('Error logging out:', error);
+      
+      // Navigate to home page
+      navigate('/', { replace: true });
+    } catch (error: any) {
+      console.error("Logout failed:", error);
       toast({
-        title: "Error logging out",
-        description: "There was a problem logging out. Please try again.",
+        title: "Error",
+        description: error.message || "Failed to log out",
         variant: "destructive",
       });
+      
+      // Force navigate anyway as fallback
+      navigate('/', { replace: true });
+    } finally {
+      setIsLoggingOut(false);
     }
   };
-
-  const navLinks = user 
-    ? [
-        { text: 'Dashboard', href: user.role === 'doctor' ? '/doctor-home' : '/dashboard' },
-        { text: 'Patients', href: '/patients' },
-        { text: 'New Patient', href: '/create-patient' },
-      ] 
-    : [
-        { text: 'Features', href: '/#features' },
-        { text: 'About', href: '/#about' },
-        { text: 'Contact', href: '/#contact' },
-      ];
-
+  
+  // Define links based on authentication and role
+  let links: NavLink[] = [];
+  
+  if (!currentUser) {
+    // Public links
+    links = [
+      { title: "Home", href: "/" },
+      { title: "Sign In", href: "/signin" }
+    ];
+  } else if (currentUser.role === 'doctor') {
+    // Doctor links
+    links = [
+      { title: "Home", href: "/doctor-home" },
+      { title: "Create Patient", href: "/create-patient" },
+      { title: "Patient History", href: "/patients" }
+    ];
+  } else if (currentUser.role === 'admin') {
+    // Admin links
+    links = [
+      { title: "Dashboard", href: "/dashboard" },
+      { title: "Patient History", href: "/patients" },
+      { title: "Create Patient", href: "/create-patient" }
+    ];
+  }
+  
+  const navigateToHome = () => {
+    if (!currentUser) {
+      navigate('/');
+    } else if (currentUser.role === 'doctor') {
+      navigate('/doctor-home', { replace: true });
+    } else if (currentUser.role === 'admin') {
+      navigate('/dashboard', { replace: true });
+    }
+  };
+  
   return (
-    <header
+    <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled 
-          ? (isDark 
-              ? "bg-dark-secondary/80 backdrop-blur-lg shadow-lg" 
-              : "bg-white/80 backdrop-blur-lg shadow-sm")
-          : "bg-transparent"
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-orbit",
+        isScrolled || isMobileMenuOpen 
+          ? "bg-blur border-b border-white/10 py-3" 
+          : "py-5"
       )}
     >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between py-4">
-          <RouterLink to="/" className="flex items-center space-x-2">
-            <div className={cn(
-              "w-10 h-10 rounded-lg flex items-center justify-center",
-              isDark 
-                ? "bg-gradient-to-br from-neon-cyan to-neon-magenta" 
-                : "bg-gradient-to-br from-blue-500 to-pink-500"
-            )}>
-              <span className={cn(
-                "text-lg font-bold",
-                isDark ? "text-white" : "text-white"
-              )}>MS</span>
-            </div>
-            <span className={cn(
-              "text-xl font-semibold",
-              isDark ? "text-white" : "text-gray-800"
-            )}>MediSphere</span>
-          </RouterLink>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <nav className="flex items-center space-x-6">
-              {navLinks.map((link, index) => (
-                <RouterLink 
-                  key={index} 
-                  to={link.href} 
+      <div className="container mx-auto px-4 flex justify-between items-center">
+        <div 
+          onClick={navigateToHome} 
+          className="flex items-center relative group cursor-pointer"
+        >
+          <span className={cn(
+            "text-2xl font-bold text-white group-hover:text-neon-cyan transition-colors duration-300",
+            isScrolled && "text-xl"
+          )}>
+            MediSphere<span className="text-neon-cyan">.</span>
+          </span>
+          <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300" />
+        </div>
+        
+        
+        
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-6">
+          {links.map((link) => 
+            link.isButton ? (
+              <AnimatedButton key={link.title} variant="cyan" size="sm" className="ml-2">
+                <Link to={link.href}>{link.title}</Link>
+              </AnimatedButton>
+            ) : (
+              <Link
+                key={link.title}
+                to={link.href}
+                className={cn(
+                  "relative py-2 text-white/80 hover:text-neon-cyan transition-colors duration-300 group",
+                  location.pathname === link.href && "text-neon-cyan"
+                )}
+              >
+                {link.title}
+                <span
                   className={cn(
-                    "relative overflow-hidden font-medium transition-colors duration-300",
-                    isDark 
-                      ? "text-white/70 hover:text-white" 
-                      : "text-gray-600 hover:text-gray-900"
+                    "absolute bottom-0 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300",
+                    location.pathname === link.href && "w-full"
                   )}
-                >
-                  {link.text}
-                </RouterLink>
-              ))}
-            </nav>
-
-            {isLandingPage && <ThemeToggle />}
-            
-            <div className="flex items-center space-x-4">
-              {!user ? (
-                <>
-                  <RouterLink to="/signin">
-                    <AnimatedButton variant={isDark ? "outline" : "light"} size="default">
-                      Sign In
-                    </AnimatedButton>
-                  </RouterLink>
-                  <RouterLink to="/signup">
-                    <AnimatedButton variant={isDark ? "cyan" : "light"} size="default">
-                      Sign Up
-                    </AnimatedButton>
-                  </RouterLink>
-                </>
-              ) : (
-                <>
-                  <div className={cn(
-                    "text-sm font-medium",
-                    isDark ? "text-white/80" : "text-gray-700"
-                  )}>
-                    {user.fullName || user.email}
-                  </div>
-                  <AnimatedButton variant={isDark ? "magenta" : "light"} size="default" onClick={handleLogout}>
-                    Logout
-                  </AnimatedButton>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
-            {isLandingPage && <ThemeToggle />}
+                />
+              </Link>
+            )
+          )}
+          
+          {/* Logout button for authenticated users */}
+          {currentUser && (
             <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className={cn(
-                "ml-2 p-2 rounded-md", 
-                isDark 
-                  ? "text-white hover:bg-white/10" 
-                  : "text-gray-800 hover:bg-gray-100"
-              )}
-              aria-label="Toggle menu"
+              onClick={handleLogout}
+              className="relative py-2 text-white/80 hover:text-neon-cyan transition-colors duration-300 group flex items-center"
             >
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
+              <LogOut size={16} className="mr-2" />
+              Logout
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300" />
             </button>
+          )}
+        </div>
+        
+        {/* Mobile Menu Button */}
+        <button 
+          className="md:hidden text-white hover:text-neon-cyan transition-colors"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+      
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-blur border-t border-white/10 animate-fade-in">
+          <div className="container mx-auto py-4 px-4 flex flex-col space-y-4">
+           
+            
+            {links.map((link) => 
+              link.isButton ? (
+                <AnimatedButton key={link.title} variant="cyan" size="sm" className="w-full">
+                  <Link 
+                    to={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.title}
+                  </Link>
+                </AnimatedButton>
+              ) : (
+                <Link
+                  key={link.title}
+                  to={link.href}
+                  className={cn(
+                    "py-2 px-4 rounded-md hover:bg-white/5 text-white/80 hover:text-neon-cyan transition-colors duration-300",
+                    location.pathname === link.href && "bg-white/5 text-neon-cyan"
+                  )}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.title}
+                </Link>
+              )
+            )}
+            
+            {/* Logout button for mobile */}
+            {currentUser && (
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="py-2 px-4 rounded-md hover:bg-white/5 text-white/80 hover:text-neon-cyan transition-colors duration-300 flex items-center"
+              >
+                <LogOut size={16} className="mr-2" />
+                Logout
+              </button>
+            )}
           </div>
         </div>
-      </div>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className={cn(
-              "overflow-hidden md:hidden",
-              isDark ? "bg-dark-secondary/95 backdrop-blur-lg" : "bg-white/95 backdrop-blur-lg"
-            )}
-          >
-            <div className="container mx-auto px-4 py-4 space-y-4">
-              <nav className="flex flex-col space-y-3">
-                {navLinks.map((link, index) => (
-                  <RouterLink
-                    key={index}
-                    to={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className={cn(
-                      "py-2 px-4 rounded-lg transition-colors duration-300",
-                      isDark 
-                        ? "text-white/80 hover:bg-white/10 hover:text-white" 
-                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                    )}
-                  >
-                    {link.text}
-                  </RouterLink>
-                ))}
-              </nav>
-
-              {!user ? (
-                <div className="grid grid-cols-2 gap-3 py-2">
-                  <RouterLink to="/signin" onClick={() => setMenuOpen(false)}>
-                    <AnimatedButton variant={isDark ? "outline" : "light"} size="default" className="w-full">
-                      Sign In
-                    </AnimatedButton>
-                  </RouterLink>
-                  <RouterLink to="/signup" onClick={() => setMenuOpen(false)}>
-                    <AnimatedButton variant={isDark ? "cyan" : "light"} size="default" className="w-full">
-                      Sign Up
-                    </AnimatedButton>
-                  </RouterLink>
-                </div>
-              ) : (
-                <div className="space-y-3 py-2">
-                  <div className={cn(
-                    "px-4 py-2 text-sm font-medium",
-                    isDark ? "text-white/80" : "text-gray-700"
-                  )}>
-                    {user.fullName || user.email}
-                  </div>
-                  <AnimatedButton variant={isDark ? "magenta" : "light"} size="default" onClick={() => {
-                    handleLogout();
-                    setMenuOpen(false);
-                  }} className="w-full">
-                    Logout
-                  </AnimatedButton>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+      )}
+    </nav>
   );
 };
 
