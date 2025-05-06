@@ -2,7 +2,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
-import ProgressBar from "./ProgressBar";
 
 interface StatCardProps {
   title: string;
@@ -11,8 +10,6 @@ interface StatCardProps {
   description?: string;
   variant?: "cyan" | "magenta" | "mixed";
   className?: string;
-  progressPercentage?: number;
-  isLoading?: boolean;
 }
 
 const StatCard: React.FC<StatCardProps> = ({
@@ -22,8 +19,6 @@ const StatCard: React.FC<StatCardProps> = ({
   description,
   variant = "cyan",
   className,
-  progressPercentage,
-  isLoading = false,
 }) => {
   return (
     <div
@@ -44,7 +39,7 @@ const StatCard: React.FC<StatCardProps> = ({
             variant === "magenta" && "text-neon-magenta",
             variant === "mixed" && "bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan to-neon-magenta"
           )}>
-            {isLoading ? "..." : value}
+            {value}
           </p>
           {description && (
             <p className="text-white/60 text-sm">{description}</p>
@@ -59,17 +54,6 @@ const StatCard: React.FC<StatCardProps> = ({
           <Icon size={24} strokeWidth={1.5} />
         </div>
       </div>
-      
-      {progressPercentage !== undefined && (
-        <div className="mt-3">
-          <ProgressBar 
-            value={progressPercentage} 
-            variant={variant}
-            isLoading={isLoading}
-          />
-        </div>
-      )}
-      
       <div className={cn(
         "absolute bottom-0 left-0 right-0 h-1",
         variant === "cyan" && "bg-gradient-to-r from-neon-cyan/70 to-neon-cyan/30",
