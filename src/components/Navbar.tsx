@@ -1,11 +1,11 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import AnimatedButton from "./AnimatedButton";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useFollowUpNotifications } from "@/hooks/useFollowUpNotifications";
 
 interface NavLink {
   title: string;
@@ -21,6 +21,9 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  
+  // Use follow-up notifications hook
+  const { followUpCount } = useFollowUpNotifications(currentUser?.id);
   
   useEffect(() => {
     // Check if user is logged in
@@ -212,6 +215,10 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
     }
   };
   
+  const handleNotificationClick = () => {
+    navigate('/patients?filter=today');
+  };
+  
   return (
     <nav
       className={cn(
@@ -234,8 +241,6 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
           </span>
           <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300" />
         </div>
-        
-        
         
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
@@ -264,6 +269,20 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
             )
           )}
           
+          {/* Notification Bell for doctors with follow-ups */}
+          {currentUser && currentUser.role === 'doctor' && followUpCount > 0 && (
+            <button
+              onClick={handleNotificationClick}
+              className="relative p-2 text-white/80 hover:text-neon-cyan transition-colors duration-300 group"
+            >
+              <Bell size={20} />
+              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                {followUpCount}
+              </span>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300" />
+            </button>
+          )}
+          
           {/* Logout button for authenticated users */}
           {currentUser && (
             <button
@@ -290,8 +309,6 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-blur border-t border-white/10 animate-fade-in">
           <div className="container mx-auto py-4 px-4 flex flex-col space-y-4">
-           
-            
             {links.map((link) => 
               link.isButton ? (
                 <AnimatedButton key={link.title} variant="cyan" size="sm" className="w-full">
@@ -315,6 +332,25 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
                   {link.title}
                 </Link>
               )
+            )}
+            
+            {/* Mobile notification for follow-ups */}
+            {currentUser && currentUser.role === 'doctor' && followUpCount > 0 && (
+              <button
+                onClick={() => {
+                  handleNotificationClick();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="py-2 px-4 rounded-md hover:bg-white/5 text-white/80 hover:text-neon-cyan transition-colors duration-300 flex items-center justify-between"
+              >
+                <span className="flex items-center">
+                  <Bell size={16} className="mr-2" />
+                  Today's Follow-ups
+                </span>
+                <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {followUpCount}
+                </span>
+              </button>
             )}
             
             {/* Logout button for mobile */}

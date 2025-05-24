@@ -1,14 +1,15 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HexagonBackground from "@/components/HexagonBackground";
 import AnimatedButton from "@/components/AnimatedButton";
+import FollowUpNotification from "@/components/FollowUpNotification";
 import { FileText, UserPlus, Activity, Calendar, User, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Patient } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { useFollowUpNotifications } from "@/hooks/useFollowUpNotifications";
 
 const DoctorHome = () => {
   const navigate = useNavigate();
@@ -26,6 +27,9 @@ const DoctorHome = () => {
   const currentUser = storedUser ? JSON.parse(storedUser) : null;
   const userName = currentUser?.fullName || 'Doctor';
   const userId = currentUser?.id;
+
+  // Use follow-up notifications hook
+  const { showNotification, dismissNotification, followUpCount } = useFollowUpNotifications(userId);
 
   useEffect(() => {
     // Fetch statistics data
@@ -137,6 +141,13 @@ const DoctorHome = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#040D12] to-[#071620]">
       <HexagonBackground />
       <Navbar isAuth={true} />
+      
+      {/* Follow-up notification popup */}
+      <FollowUpNotification 
+        show={showNotification}
+        count={followUpCount}
+        onDismiss={dismissNotification}
+      />
       
       <main className="container mx-auto px-4 pt-24 pb-16 relative z-10 flex-grow">
         <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center">
