@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Patient } from '@/lib/types';
+import { isToday, parseISO } from 'date-fns';
 
 export const useFollowUpNotifications = (userId: string | null) => {
   const [todayFollowUps, setTodayFollowUps] = useState<Patient[]>([]);
@@ -13,8 +14,6 @@ export const useFollowUpNotifications = (userId: string | null) => {
 
     const fetchTodayFollowUps = async () => {
       try {
-        console.log('Fetching follow-up patients for user:', userId);
-        
         const { data, error } = await supabase
           .from('patients')
           .select('*')
@@ -23,16 +22,6 @@ export const useFollowUpNotifications = (userId: string | null) => {
           .not('follow_up_date', 'is', null);
 
         if (error) throw error;
-
-        console.log('All follow-up patients from DB:', data);
-
-        // Get today's date in YYYY-MM-DD format
-        const today = new Date();
-        const todayString = today.getFullYear() + '-' + 
-          String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-          String(today.getDate()).padStart(2, '0');
-        
-        console.log('Today\'s date string:', todayString);
 
         const todayPatients = (data || [])
           .map(item => ({
@@ -54,45 +43,24 @@ export const useFollowUpNotifications = (userId: string | null) => {
           }))
           .filter(patient => {
             if (!patient.followUpDate) return false;
-            console.log(`Checking patient ${patient.name}: follow-up date = ${patient.followUpDate}, today = ${todayString}`);
-            return patient.followUpDate === todayString;
+            try {
+              return isToday(parseISO(patient.followUpDate));
+            } catch {
+              return false;
+            }
           });
 
-        console.log('Filtered today\'s follow-up patients:', todayPatients);
         setTodayFollowUps(todayPatients);
 
         // Show notification if there are follow-ups and we haven't shown it yet
         if (todayPatients.length > 0 && !hasShownNotification) {
-          console.log('Showing notification for', todayPatients.length, 'patients');
           setShowNotification(true);
           setHasShownNotification(true);
           
           // Play notification sound
-          try {
-            const audio = new Audio('/lovable-uploads/notification-sound.mp3');
-            audio.volume = 0.5;
-            audio.play().catch(e => {
-              console.log('Audio play failed, trying alternative sound:', e);
-              // Fallback to a simple beep sound
-              const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-              const oscillator = audioContext.createOscillator();
-              const gainNode = audioContext.createGain();
-              
-              oscillator.connect(gainNode);
-              gainNode.connect(audioContext.destination);
-              
-              oscillator.frequency.value = 800;
-              oscillator.type = 'sine';
-              
-              gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-              
-              oscillator.start(audioContext.currentTime);
-              oscillator.stop(audioContext.currentTime + 0.5);
-            });
-          } catch (error) {
-            console.log('Audio creation failed:', error);
-          }
+          const audio = new Audio('data:audio/wav;base64,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'); 
+          audio.volume = 0.3;
+          audio.play().catch(e => console.log('Audio play failed:', e));
           
           // Auto-hide notification after 3 seconds
           setTimeout(() => {
@@ -108,7 +76,6 @@ export const useFollowUpNotifications = (userId: string | null) => {
   }, [userId, hasShownNotification]);
 
   const dismissNotification = () => {
-    console.log('Dismissing notification');
     setShowNotification(false);
   };
 
