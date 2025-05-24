@@ -18,13 +18,16 @@ const FollowUpNotification: React.FC<FollowUpNotificationProps> = ({
   const navigate = useNavigate();
 
   const handleViewFollowUps = () => {
+    console.log('Navigating to today\'s patients');
     navigate('/patients?filter=today');
     onDismiss();
   };
 
+  console.log('FollowUpNotification render:', { show, count });
+
   return (
     <AnimatePresence>
-      {show && (
+      {show && count > 0 && (
         <motion.div
           initial={{ opacity: 0, y: -100, scale: 0.8 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
