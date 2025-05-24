@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -904,8 +905,8 @@ const PatientHistory = () => {
                                   mode="single"
                                   selected={editablePatient.followUpDate ? new Date(editablePatient.followUpDate) : undefined}
                                   onSelect={handleFollowUpDateChange}
-                                  disabled={(date) => date < new Date()}
-                                  className="bg-white/5 border border-white/10 rounded-md p-2 text-white"
+                                  disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() - 1))}
+                                  className="bg-white/5 border border-white/10 rounded-md p-2 text-white pointer-events-auto"
                                 />
                               </div>
                             ) : selectedPatient.followUpDate ? (
@@ -1002,7 +1003,7 @@ const PatientHistory = () => {
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
-                disabled={(date) => date < new Date()}
+                disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() - 1))}
                 className="bg-[#0C1824] border border-white/10 rounded-md p-2 pointer-events-auto"
               />
             </div>

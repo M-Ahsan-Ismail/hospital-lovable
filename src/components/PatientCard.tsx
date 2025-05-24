@@ -264,7 +264,7 @@ const PatientCard: React.FC<PatientCardProps> = ({
               mode="single"
               selected={selectedDate}
               onSelect={(date) => setSelectedDate(date)}
-              disabled={(date) => date < new Date()}
+              disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() - 1))}
               className="bg-[#0C1824] border border-white/10 rounded-md p-2 pointer-events-auto"
             />
           </div>
