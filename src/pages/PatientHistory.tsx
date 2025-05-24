@@ -16,7 +16,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Patient } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
-import { ReloadIcon } from "@radix-ui/react-icons";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -258,7 +258,7 @@ const PatientHistory = () => {
         
         {loading ? (
           <div className="flex justify-center items-center h-48 text-white/50">
-            <ReloadIcon className="mr-2 h-6 w-6 animate-spin" /> Loading patients...
+            <Loader2 className="mr-2 h-6 w-6 animate-spin" /> Loading patients...
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -312,7 +312,7 @@ const PatientHistory = () => {
             {isSaving ? (
               <>
                 Saving...
-                <ReloadIcon className="ml-2 h-4 w-4 animate-spin" />
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
               </>
             ) : (
               "Save Notes"
