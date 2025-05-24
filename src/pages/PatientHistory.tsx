@@ -370,6 +370,15 @@ const PatientHistory = () => {
     }
   };
 
+  const handleFollowUpDateChange = (date: Date | undefined) => {
+    if (editablePatient && date) {
+      setEditablePatient({
+        ...editablePatient,
+        followUpDate: format(date, "yyyy-MM-dd")
+      });
+    }
+  };
+
   const savePatientChanges = async () => {
     if (!editablePatient) return;
     
@@ -385,7 +394,8 @@ const PatientHistory = () => {
           address: editablePatient.address || null,
           disease: editablePatient.disease,
           disease_description: editablePatient.diseaseDescription || null,
-          doctor_notes: editablePatient.doctorNotes || null
+          doctor_notes: editablePatient.doctorNotes || null,
+          follow_up_date: editablePatient.followUpDate || null
         })
         .eq('id', editablePatient.id);
       
@@ -421,7 +431,7 @@ const PatientHistory = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <HexagonBackground />
-      <Navbar isAuth />
+      <Navbar />
       
       <main className="flex-grow pt-24 pb-16 px-4 container mx-auto relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
@@ -885,10 +895,24 @@ const PatientHistory = () => {
                           </div>
                         </div>
                         
-                        {selectedPatient.status === "Follow-Up" && selectedPatient.followUpDate && (
-                          <div className="bg-yellow-500/10 p-3 rounded-md">
+                        {(selectedPatient.status === "Follow-Up" || isEditing) && (
+                          <div className={`${selectedPatient.status === "Follow-Up" && !isEditing ? "bg-yellow-500/10 p-3 rounded-md" : ""}`}>
                             <p className="text-white/50 text-sm">Follow-Up Date</p>
-                            <p className="text-yellow-300">{formatDate(selectedPatient.followUpDate)}</p>
+                            {isEditing ? (
+                              <div className="mt-1">
+                                <Calendar
+                                  mode="single"
+                                  selected={editablePatient.followUpDate ? new Date(editablePatient.followUpDate) : undefined}
+                                  onSelect={handleFollowUpDateChange}
+                                  disabled={(date) => date < new Date()}
+                                  className="bg-white/5 border border-white/10 rounded-md p-2 text-white"
+                                />
+                              </div>
+                            ) : selectedPatient.followUpDate ? (
+                              <p className="text-yellow-300">{formatDate(selectedPatient.followUpDate)}</p>
+                            ) : (
+                              <p className="text-white/50">Not set</p>
+                            )}
                           </div>
                         )}
                         
