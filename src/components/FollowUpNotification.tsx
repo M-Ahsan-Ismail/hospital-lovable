@@ -28,7 +28,7 @@ const FollowUpNotification: React.FC<FollowUpNotificationProps> = ({
 
   const handleNotificationClick = () => {
     setIsModalOpen(true);
-    // Dismiss the notification when clicked
+    // Dismiss the notification after opening the modal
     if (onDismiss) {
       onDismiss();
     }
