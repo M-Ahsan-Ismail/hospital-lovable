@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -7,6 +6,7 @@ import HexagonBackground from "@/components/HexagonBackground";
 import StatCard from "@/components/StatCard";
 import PatientCard from "@/components/PatientCard";
 import AnimatedButton from "@/components/AnimatedButton";
+import FollowUpNotification from "@/components/FollowUpNotification";
 import { 
   UserRound, 
   UserPlus, 
@@ -30,6 +30,7 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import { format, startOfWeek, isToday, parseISO } from "date-fns";
+import { useFollowUpNotifications } from "@/hooks/useFollowUpNotifications";
 
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -213,10 +214,21 @@ const Dashboard = () => {
     setActiveFilter(value);
   };
   
+  // Add follow-up notifications hook
+  const { followUpCount, followUpPatients } = useFollowUpNotifications(currentUser?.id);
+  
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#040D12] to-[#071620]">
       <HexagonBackground />
       <Navbar isAuth />
+      
+      {/* Follow-up notification for admin */}
+      {currentUser?.role === 'admin' && (
+        <FollowUpNotification 
+          count={followUpCount} 
+          patients={followUpPatients} 
+        />
+      )}
       
       <main className="flex-grow pt-24 pb-16 px-4">
         <div className="container mx-auto">
