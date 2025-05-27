@@ -14,20 +14,30 @@ import { Patient } from '@/lib/types';
 interface FollowUpNotificationProps {
   count: number;
   patients: Patient[];
+  onDismiss?: () => void;
 }
 
 const FollowUpNotification: React.FC<FollowUpNotificationProps> = ({ 
   count, 
-  patients 
+  patients,
+  onDismiss 
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (count === 0) return null;
 
+  const handleNotificationClick = () => {
+    setIsModalOpen(true);
+    // Dismiss the notification when clicked
+    if (onDismiss) {
+      onDismiss();
+    }
+  };
+
   return (
     <>
       <div 
-        onClick={() => setIsModalOpen(true)}
+        onClick={handleNotificationClick}
         className="fixed top-24 right-4 bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 animate-pulse z-50"
       >
         <div className="flex items-center space-x-2">

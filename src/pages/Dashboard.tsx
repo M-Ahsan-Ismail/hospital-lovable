@@ -215,7 +215,7 @@ const Dashboard = () => {
   };
   
   // Add follow-up notifications hook
-  const { followUpCount, followUpPatients } = useFollowUpNotifications(currentUser?.id);
+  const { followUpCount, followUpPatients, showNotification, dismissNotification } = useFollowUpNotifications(currentUser?.id);
   
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#040D12] to-[#071620]">
@@ -223,10 +223,11 @@ const Dashboard = () => {
       <Navbar isAuth />
       
       {/* Follow-up notification for admin */}
-      {currentUser?.role === 'admin' && (
+      {currentUser?.role === 'admin' && showNotification && (
         <FollowUpNotification 
           count={followUpCount} 
-          patients={followUpPatients} 
+          patients={followUpPatients}
+          onDismiss={dismissNotification}
         />
       )}
       
