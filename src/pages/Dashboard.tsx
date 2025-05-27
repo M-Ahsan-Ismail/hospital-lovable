@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -152,6 +153,9 @@ const Dashboard = () => {
       filtered = filtered.filter(patient => patient.status === 'Follow-Up');
     } else if (activeFilter === "discharged") {
       filtered = filtered.filter(patient => patient.status === 'Discharged');
+    } else if (activeFilter === "today-followups") {
+      const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+      filtered = filtered.filter(patient => patient.followUpDate === today);
     }
     
     // Apply search filter if there's a search term
@@ -309,7 +313,7 @@ const Dashboard = () => {
                 </div>
                 
                 <Tabs defaultValue="all" className="mb-6" onValueChange={handleTabChange} value={activeFilter}>
-                  <TabsList className="grid grid-cols-4 bg-white/5 border border-white/10">
+                  <TabsList className="grid grid-cols-5 bg-white/5 border border-white/10">
                     <TabsTrigger 
                       value="all" 
                       className="cursor-pointer data-[state=active]:bg-gradient-to-r data-[state=active]:from-neon-cyan/20 data-[state=active]:to-neon-magenta/20 data-[state=active]:text-white"
@@ -327,6 +331,12 @@ const Dashboard = () => {
                       className="cursor-pointer data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-400"
                     >
                       Follow-Up
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="today-followups" 
+                      className="cursor-pointer data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-400"
+                    >
+                      Today Follow-Ups
                     </TabsTrigger>
                     <TabsTrigger 
                       value="discharged" 
@@ -358,7 +368,7 @@ const Dashboard = () => {
                     
                     <div className="text-center pt-6">
                       <Link 
-                        to={`/patients${activeFilter !== 'all' ? `?status=${activeFilter}` : ''}`}
+                        to={`/patients${activeFilter === 'today-followups' ? '?filter=todayFollowUps' : activeFilter !== 'all' ? `?status=${activeFilter}` : ''}`}
                         className="relative inline-flex items-center px-6 py-3 overflow-hidden rounded-full group bg-gradient-to-r from-white/5 to-white/10 hover:from-neon-cyan/20 hover:to-neon-magenta/20 transition-all duration-300 shadow-glow-subtle button-glow"
                       >
                         <span className="relative text-neon-cyan group-hover:text-white transition-colors flex items-center">
