@@ -147,7 +147,6 @@ const DoctorHome = () => {
         <FollowUpNotification 
           count={followUpCount}
           patients={followUpPatients}
-          onDismiss={dismissNotification}
         />
       )}
       

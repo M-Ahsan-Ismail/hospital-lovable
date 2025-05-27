@@ -49,13 +49,7 @@ export const useFollowUpNotifications = (userId?: string) => {
 
         setFollowUpPatients(formattedPatients);
         setFollowUpCount(formattedPatients.length);
-        
-        // Check if notification was already dismissed in this session
-        const sessionKey = `followUpDismissed_${today}_${userId}`;
-        const isDismissed = sessionStorage.getItem(sessionKey);
-        
-        // Only show if there are patients and it hasn't been dismissed this session
-        setShowNotification(formattedPatients.length > 0 && !isDismissed);
+        setShowNotification(formattedPatients.length > 0);
       } catch (error) {
         console.error('Error checking follow-ups:', error);
       } finally {
@@ -68,11 +62,6 @@ export const useFollowUpNotifications = (userId?: string) => {
 
   const dismissNotification = () => {
     setShowNotification(false);
-    
-    // Store dismissal in session storage so it doesn't show again this session
-    const today = new Date().toISOString().split('T')[0];
-    const sessionKey = `followUpDismissed_${today}_${userId}`;
-    sessionStorage.setItem(sessionKey, 'true');
   };
 
   return { 
