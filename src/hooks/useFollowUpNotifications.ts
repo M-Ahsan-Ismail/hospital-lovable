@@ -7,6 +7,7 @@ export const useFollowUpNotifications = (userId?: string) => {
   const [followUpCount, setFollowUpCount] = useState(0);
   const [followUpPatients, setFollowUpPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -48,6 +49,7 @@ export const useFollowUpNotifications = (userId?: string) => {
 
         setFollowUpPatients(formattedPatients);
         setFollowUpCount(formattedPatients.length);
+        setShowNotification(formattedPatients.length > 0);
       } catch (error) {
         console.error('Error checking follow-ups:', error);
       } finally {
@@ -58,5 +60,15 @@ export const useFollowUpNotifications = (userId?: string) => {
     checkTodayFollowUps();
   }, [userId]);
 
-  return { followUpCount, followUpPatients, loading };
+  const dismissNotification = () => {
+    setShowNotification(false);
+  };
+
+  return { 
+    followUpCount, 
+    followUpPatients, 
+    loading, 
+    showNotification, 
+    dismissNotification 
+  };
 };
