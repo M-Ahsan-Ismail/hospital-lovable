@@ -67,6 +67,8 @@ const PatientHistory = () => {
     
     if (filterParam === 'today') {
       setStatusFilter('Today');
+    } else if (filterParam === 'todayFollowUps') {
+      setStatusFilter('TodayFollowUps');
     }
     
     fetchPatients();
@@ -94,6 +96,11 @@ const PatientHistory = () => {
           } catch (e) {
             return false;
           }
+        });
+      } else if (statusFilter === 'TodayFollowUps') {
+        const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+        results = results.filter(patient => {
+          return patient.followUpDate === today;
         });
       } else if (statusFilter !== "All") {
         results = results.filter(patient => patient.status === statusFilter);
@@ -173,6 +180,12 @@ const PatientHistory = () => {
           }
         });
         setFilteredPatients(todayPatients);
+      } else if (filterParam === 'todayFollowUps') {
+        const today = new Date().toISOString().split('T')[0];
+        const todayFollowUps = mappedData.filter(patient => {
+          return patient.followUpDate === today;
+        });
+        setFilteredPatients(todayFollowUps);
       } else {
         setFilteredPatients(mappedData);
       }
@@ -456,6 +469,7 @@ const PatientHistory = () => {
                 <SelectContent className="bg-dark-secondary border-white/10">
                   <SelectItem value="All">All Patients</SelectItem>
                   <SelectItem value="Today">Today's Patients</SelectItem>
+                  <SelectItem value="TodayFollowUps">Today Follow-Ups</SelectItem>
                   <SelectItem value="Active">Active</SelectItem>
                   <SelectItem value="Follow-Up">Follow-Up</SelectItem>
                   <SelectItem value="Discharged">Discharged</SelectItem>
@@ -474,7 +488,7 @@ const PatientHistory = () => {
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/40" />
               
               {showSearchResults && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-dark-secondary border border-white/10 rounded-md shadow-lg z-50 max-h-60 overflow-auto">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-dark-secondary border border-white/10 rounded shadow-lg z-50 max-h-60 overflow-auto">
                   <div className="p-1">
                     {searchResults.map((patient) => (
                       <div 
