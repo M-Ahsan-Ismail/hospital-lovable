@@ -224,22 +224,22 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-orbit",
         isScrolled || isMobileMenuOpen 
-          ? "bg-blur border-b border-white/10 py-3" 
+          ? "bg-white/90 backdrop-blur-md border-b border-gray-200 py-3 shadow-sm" 
           : "py-5"
       )}
     >
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div 
           onClick={navigateToHome} 
-          className="flex items-center relative group cursor-pointer"
+          className="flex items-center relative group cursor-pointer text-gray-900"
         >
           <span className={cn(
-            "text-2xl font-bold text-white group-hover:text-neon-cyan transition-colors duration-300",
+            "text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300",
             isScrolled && "text-xl"
           )}>
-            MediSphere<span className="text-neon-cyan">.</span>
+            MediSphere<span className="text-blue-600">.</span>
           </span>
-          <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300" />
+          <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300" />
         </div>
         
         {/* Desktop Navigation */}
@@ -254,14 +254,14 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
                 key={link.title}
                 to={link.href}
                 className={cn(
-                  "relative py-2 text-white/80 hover:text-neon-cyan transition-colors duration-300 group",
-                  location.pathname === link.href && "text-neon-cyan"
+                  "relative py-2 text-gray-600 hover:text-blue-600 transition-colors duration-300 group",
+                  location.pathname === link.href && "text-blue-600"
                 )}
               >
                 {link.title}
                 <span
                   className={cn(
-                    "absolute bottom-0 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300",
+                    "absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300",
                     location.pathname === link.href && "w-full"
                   )}
                 />
@@ -273,13 +273,13 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
           {currentUser && currentUser.role === 'doctor' && followUpCount > 0 && (
             <button
               onClick={handleNotificationClick}
-              className="relative p-2 text-white/80 hover:text-neon-cyan transition-colors duration-300 group"
+              className="relative p-2 text-gray-600 hover:text-blue-600 transition-colors duration-300 group"
             >
               <Bell size={20} />
               <span className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
                 {followUpCount}
               </span>
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300" />
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300" />
             </button>
           )}
           
@@ -287,18 +287,18 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
           {currentUser && (
             <button
               onClick={handleLogout}
-              className="relative py-2 text-white/80 hover:text-neon-cyan transition-colors duration-300 group flex items-center"
+              className="relative py-2 text-gray-600 hover:text-blue-600 transition-colors duration-300 group flex items-center"
             >
               <LogOut size={16} className="mr-2" />
               Logout
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-neon-cyan group-hover:w-full transition-all duration-300" />
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300" />
             </button>
           )}
         </div>
         
         {/* Mobile Menu Button */}
         <button 
-          className="md:hidden text-white hover:text-neon-cyan transition-colors"
+          className="md:hidden text-gray-700 hover:text-blue-600 transition-colors"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -307,7 +307,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
       
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-blur border-t border-white/10 animate-fade-in">
+        <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200 animate-fade-in shadow-lg">
           <div className="container mx-auto py-4 px-4 flex flex-col space-y-4">
             {links.map((link) => 
               link.isButton ? (
@@ -324,8 +324,8 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
                   key={link.title}
                   to={link.href}
                   className={cn(
-                    "py-2 px-4 rounded-md hover:bg-white/5 text-white/80 hover:text-neon-cyan transition-colors duration-300",
-                    location.pathname === link.href && "bg-white/5 text-neon-cyan"
+                    "py-2 px-4 rounded-md hover:bg-gray-100 text-gray-600 hover:text-blue-600 transition-colors duration-300",
+                    location.pathname === link.href && "bg-gray-100 text-blue-600"
                   )}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -341,7 +341,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
                   handleNotificationClick();
                   setIsMobileMenuOpen(false);
                 }}
-                className="py-2 px-4 rounded-md hover:bg-white/5 text-white/80 hover:text-neon-cyan transition-colors duration-300 flex items-center justify-between"
+                className="py-2 px-4 rounded-md hover:bg-gray-100 text-gray-600 hover:text-blue-600 transition-colors duration-300 flex items-center justify-between"
               >
                 <span className="flex items-center">
                   <Bell size={16} className="mr-2" />
@@ -360,7 +360,7 @@ const Navbar: React.FC<{ isAuth?: boolean }> = ({ isAuth = false }) => {
                   handleLogout();
                   setIsMobileMenuOpen(false);
                 }}
-                className="py-2 px-4 rounded-md hover:bg-white/5 text-white/80 hover:text-neon-cyan transition-colors duration-300 flex items-center"
+                className="py-2 px-4 rounded-md hover:bg-gray-100 text-gray-600 hover:text-blue-600 transition-colors duration-300 flex items-center"
               >
                 <LogOut size={16} className="mr-2" />
                 Logout

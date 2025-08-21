@@ -1,14 +1,13 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --neon-blue: #08D9D6;
-    --neon-cyan: #00EEFF;
-    --neon-magenta: #FF2A6D;
-    --neon-purple: #D866FF;
+    --neon-blue: #3B82F6;
+    --neon-cyan: #06B6D4;
+    --neon-magenta: #EC4899;
+    --neon-purple: #8B5CF6;
     --radius: 0.5rem;
   }
 
@@ -17,7 +16,7 @@
   }
 
   body {
-    @apply bg-[#040D12] text-white font-orbit;
+    @apply bg-gray-50 text-gray-900 font-sans;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -25,36 +24,36 @@
 
 @layer components {
   .glass-card {
-    @apply bg-opacity-10 bg-white backdrop-filter backdrop-blur-md border border-white/10;
+    @apply bg-white/80 backdrop-filter backdrop-blur-md border border-gray-200/50 shadow-lg;
   }
 
   .drop-shadow-glow {
-    filter: drop-shadow(0 0 8px rgba(0, 238, 255, 0.3));
+    filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.15));
   }
 
   .shadow-glow-cyan {
-    box-shadow: 0 0 15px rgba(0, 238, 255, 0.3);
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.15);
   }
 
   .shadow-glow-magenta {
-    box-shadow: 0 0 15px rgba(255, 42, 109, 0.3);
+    box-shadow: 0 4px 20px rgba(236, 72, 153, 0.15);
   }
 
   .shadow-glow-mixed {
-    box-shadow: 0 0 15px rgba(0, 238, 255, 0.2), 0 0 15px rgba(255, 42, 109, 0.2);
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.1), 0 4px 20px rgba(236, 72, 153, 0.1);
   }
 
   .shadow-glow-subtle {
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.07);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   }
 
   .bg-blur {
-    @apply bg-black/70 backdrop-blur-md;
+    @apply bg-white/90 backdrop-blur-md;
   }
   
-  /* Optimized cyberpunk-inspired UI elements with hardware acceleration */
+  /* Modern light-themed UI elements */
   .cyber-border {
-    @apply border border-white/10 relative;
+    @apply border border-gray-200 relative;
     will-change: transform, opacity;
     transform: translateZ(0);
   }
@@ -66,7 +65,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+    background: linear-gradient(90deg, transparent, rgb(59, 130, 246), transparent);
     background-size: 200% 100%;
     opacity: 0;
     transition: opacity 0.4s ease;
@@ -75,15 +74,15 @@
   }
   
   .cyber-border:hover::after {
-    opacity: 0.4;
+    opacity: 0.1;
   }
   
   .hexagon {
     position: relative;
-    background-color: rgba(255, 255, 255, 0.03);
+    background-color: rgba(59, 130, 246, 0.05);
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
     transition: transform 0.4s ease;
-    box-shadow: 0 0 10px rgba(0, 238, 255, 0.05);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
     will-change: transform;
     transform: translateZ(0);
   }
@@ -91,16 +90,16 @@
   .cyber-grid {
     background-size: 60px 60px;
     background-image: 
-      linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
   }
 
   .cyber-circuit {
     background-image: 
-      linear-gradient(var(--neon-cyan), transparent 2px),
-      linear-gradient(90deg, var(--neon-magenta), transparent 2px);
+      linear-gradient(rgb(59, 130, 246), transparent 2px),
+      linear-gradient(90deg, rgb(236, 72, 153), transparent 2px);
     background-size: 80px 80px;
-    opacity: 0.01;
+    opacity: 0.02;
     pointer-events: none;
   }
   
@@ -114,7 +113,7 @@
     background: repeating-linear-gradient(
       to bottom,
       transparent 0%,
-      rgba(255, 255, 255, 0.01) 50%,
+      rgba(0, 0, 0, 0.01) 50%,
       transparent 100%
     );
     background-size: 100% 6px;
@@ -124,10 +123,10 @@
 }
 
 .font-orbit {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* Optimized animations with hardware acceleration */
+/* Modern light animations */
 @keyframes float {
   0%, 100% {
     transform: translateY(0) translateZ(0);
@@ -139,10 +138,10 @@
 
 @keyframes pulse {
   0%, 100% {
-    opacity: 0.5;
+    opacity: 0.8;
   }
   50% {
-    opacity: 0.3;
+    opacity: 0.6;
   }
 }
 
@@ -191,17 +190,17 @@
 
 .text-3d {
   text-shadow: 
-    0 1px 0 rgba(255, 255, 255, 0.3),
-    0 2px 0 rgba(255, 255, 255, 0.2),
-    0 3px 5px rgba(0, 0, 0, 0.3);
+    0 1px 0 rgba(0, 0, 0, 0.1),
+    0 2px 0 rgba(0, 0, 0, 0.05),
+    0 3px 5px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes button-glow {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(0, 238, 255, 0.4);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
   }
   50% {
-    box-shadow: 0 0 8px rgba(0, 238, 255, 0.6);
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
   }
 }
 
@@ -220,7 +219,7 @@
   background: repeating-linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(255, 255, 255, 0.01) 50%,
+    rgba(0, 0, 0, 0.01) 50%,
     transparent 100%
   );
   background-size: 100% 6px;
@@ -237,7 +236,7 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.1;
   will-change: transform, opacity;
 }
 
@@ -255,7 +254,7 @@
 
 @keyframes pulse-border {
   50% {
-    border-color: rgba(0, 238, 255, 0.4);
+    border-color: rgba(59, 130, 246, 0.4);
   }
 }
 
@@ -271,7 +270,7 @@
 }
 
 .shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   background-size: 200% 100%;
   animation: shimmer 3s infinite linear;
   will-change: background-position;
