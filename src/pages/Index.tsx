@@ -23,17 +23,17 @@ import {
   Phone
 } from "lucide-react";
 
-// Custom light theme styles for landing page only
+// Modern light theme styles for landing page only
 const lightStyles = {
-  background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-  primaryGradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-  secondaryGradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-  accentGradient: 'linear-gradient(135deg, #06b6d4, #0891b2)',
-  cardBackground: 'rgba(255, 255, 255, 0.8)',
-  cardBorder: 'rgba(148, 163, 184, 0.2)',
-  textPrimary: '#1e293b',
-  textSecondary: '#64748b',
-  textMuted: '#94a3b8'
+  background: 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 50%, #e2e8f0 100%)',
+  primaryGradient: 'linear-gradient(135deg, #059669, #10b981)',
+  secondaryGradient: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+  accentGradient: 'linear-gradient(135deg, #0ea5e9, #06b6d4)',
+  cardBackground: 'rgba(255, 255, 255, 0.95)',
+  cardBorder: 'rgba(203, 213, 225, 0.3)',
+  textPrimary: '#0f172a',
+  textSecondary: '#475569',
+  textMuted: '#64748b'
 };
 
 const fadeIn = {
@@ -100,11 +100,11 @@ const Index = () => {
   };
   
   const trustLogos = [
-    { name: "Clinic", color: "bg-blue-100 text-blue-700" },
-    { name: "AnwarMemorial", color: "bg-purple-100 text-purple-700" },
-    { name: "MedCenter", color: "bg-cyan-100 text-cyan-700" },
-    { name: "HealthGroup", color: "bg-green-100 text-green-700" },
-    { name: "CarePoint", color: "bg-indigo-100 text-indigo-700" }
+    { name: "Clinic", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+    { name: "AnwarMemorial", color: "bg-purple-50 text-purple-700 border-purple-200" },
+    { name: "MedCenter", color: "bg-sky-50 text-sky-700 border-sky-200" },
+    { name: "HealthGroup", color: "bg-green-50 text-green-700 border-green-200" },
+    { name: "CarePoint", color: "bg-indigo-50 text-indigo-700 border-indigo-200" }
   ];
   
   return (
@@ -223,14 +223,14 @@ const Index = () => {
                 custom={2}
               >
                 <motion.button
-                  className="px-8 py-4 rounded-xl font-semibold text-white shadow-xl transition-all duration-300"
+                  className="px-8 py-4 rounded-xl font-bold text-white shadow-xl transition-all duration-300 hover:shadow-2xl"
                   style={{ 
                     backgroundImage: lightStyles.primaryGradient,
-                    boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
+                    boxShadow: '0 10px 25px rgba(5, 150, 105, 0.25)'
                   }}
                   whileHover={{ 
                     scale: 1.05,
-                    boxShadow: '0 15px 35px rgba(59, 130, 246, 0.4)'
+                    boxShadow: '0 15px 30px rgba(5, 150, 105, 0.35)'
                   }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => scrollToSection(ctaRef)}
@@ -253,16 +253,16 @@ const Index = () => {
                   className="flex items-center cursor-pointer group"
                 >
                   <div 
-                    className="mr-3 rounded-full p-3 group-hover:shadow-lg transition-all backdrop-blur-md"
+                    className="mr-3 rounded-full p-3 group-hover:shadow-lg transition-all backdrop-blur-sm border"
                     style={{ 
-                      background: 'rgba(59, 130, 246, 0.1)',
-                      border: '1px solid rgba(59, 130, 246, 0.2)'
+                      background: 'rgba(5, 150, 105, 0.1)',
+                      borderColor: 'rgba(5, 150, 105, 0.2)'
                     }}
                   >
-                    <Play size={16} className="text-blue-600 fill-blue-600 ml-0.5" />
+                    <Play size={16} className="text-emerald-600 fill-emerald-600 ml-0.5" />
                   </div>
                   <span 
-                    className="group-hover:text-blue-600 transition-colors font-medium"
+                    className="group-hover:text-emerald-600 transition-colors font-semibold"
                     style={{ color: lightStyles.textPrimary }}
                   >
                     Watch Demo
@@ -292,13 +292,13 @@ const Index = () => {
                   {trustLogos.map((logo, index) => (
                     <motion.div
                       key={index}
-                      className={`rounded-lg px-4 py-2.5 cursor-pointer transition-all duration-300 ${logo.color} backdrop-blur-md shadow-sm hover:shadow-md`}
-                      initial={{ opacity: 0.7 }}
+                      className={`rounded-xl px-4 py-2.5 cursor-pointer transition-all duration-300 ${logo.color} border backdrop-blur-sm shadow-sm hover:shadow-md`}
+                      initial={{ opacity: 0.8 }}
                       whileHover={{ scale: 1.05, opacity: 1 }}
                       onHoverStart={() => setActiveTrustLogo(index)}
                       onHoverEnd={() => setActiveTrustLogo(null)}
                     >
-                      <span className="text-sm font-medium">
+                      <span className="text-sm font-semibold">
                         {logo.name}
                       </span>
                     </motion.div>
