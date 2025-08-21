@@ -1,3 +1,4 @@
+
 import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 
@@ -38,21 +39,21 @@ const HexagonBackground: React.FC = () => {
 
   // Pre-compute hexagons and sparkles only once
   const hexagons = useMemo(() => {
-    return Array.from({ length: 12 }).map((_, i) => ({
+    return Array.from({ length: 15 }).map((_, i) => ({
       id: i,
-      size: Math.random() * 40 + 15,
+      size: Math.random() * 50 + 20,
       left: Math.random() * 100,
       top: Math.random() * 100,
       animationDuration: Math.random() * 20 + 15,
       delay: Math.random() * 5,
-      opacity: Math.random() * 0.1 + 0.02
+      opacity: Math.random() * 0.2 + 0.05
     }));
   }, []);
 
   const sparkles = useMemo(() => {
-    return Array.from({ length: 6 }).map((_, i) => ({
+    return Array.from({ length: 8 }).map((_, i) => ({
       id: i,
-      size: Math.random() * 1.5 + 0.5,
+      size: Math.random() * 2 + 1,
       left: Math.random() * 100,
       top: Math.random() * 100,
       animationDuration: Math.random() * 4 + 2,
@@ -63,10 +64,10 @@ const HexagonBackground: React.FC = () => {
   // Use transform: translateZ(0) for hardware acceleration
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden will-change-transform">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-gray-50 to-purple-50/30"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-dark-secondary/30 via-dark to-dark/95"></div>
       
       <motion.div 
-        className="absolute rounded-full blur-[80px] opacity-5 pointer-events-none"
+        className="absolute rounded-full blur-[80px] opacity-10 pointer-events-none"
         animate={{
           x: mousePosition.x - 150,
           y: mousePosition.y - 150,
@@ -80,14 +81,14 @@ const HexagonBackground: React.FC = () => {
         style={{ 
           width: '300px',
           height: '300px', 
-          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, rgba(236, 72, 153, 0.05) 50%, transparent 80%)',
+          background: 'radial-gradient(circle, rgba(8, 217, 214, 0.2) 0%, rgba(255, 42, 109, 0.1) 50%, transparent 80%)',
           zIndex: 1,
           willChange: 'transform',
           transform: 'translateZ(0)'
         }}
       />
       
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,.01)_1px,transparent_1px),linear-gradient(to_right,rgba(0,0,0,.01)_1px,transparent_1px)] bg-[size:80px_80px] opacity-30"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:80px_80px] opacity-20"></div>
       
       {hexagons.map((hex) => (
         <div
@@ -110,7 +111,7 @@ const HexagonBackground: React.FC = () => {
       {sparkles.map((sparkle) => (
         <motion.div
           key={sparkle.id}
-          className="absolute rounded-full bg-blue-400 pointer-events-none"
+          className="absolute rounded-full bg-white pointer-events-none"
           style={{
             width: `${sparkle.size}px`,
             height: `${sparkle.size}px`,
@@ -120,7 +121,7 @@ const HexagonBackground: React.FC = () => {
             transform: 'translateZ(0)'
           }}
           animate={{
-            opacity: [0, 0.4, 0],
+            opacity: [0, 0.6, 0],
             scale: [0.8, 1, 0.8],
           }}
           transition={{
@@ -133,7 +134,7 @@ const HexagonBackground: React.FC = () => {
       ))}
       
       <motion.div 
-        className="absolute top-1/4 left-1/4 rounded-full bg-blue-400/5 blur-[100px]"
+        className="absolute top-1/4 left-1/4 rounded-full bg-neon-cyan/5 blur-[100px]"
         style={{ 
           width: '20rem', 
           height: '20rem',
@@ -141,7 +142,7 @@ const HexagonBackground: React.FC = () => {
           transform: 'translateZ(0)'
         }}
         animate={{
-          opacity: [0.02, 0.05, 0.02],
+          opacity: [0.05, 0.08, 0.05],
         }}
         transition={{
           duration: 15,
@@ -150,7 +151,7 @@ const HexagonBackground: React.FC = () => {
         }}
       />
       
-      <div className="absolute inset-0 scan-lines pointer-events-none opacity-[0.01]"></div>
+      <div className="absolute inset-0 scan-lines pointer-events-none opacity-[0.02]"></div>
     </div>
   );
 };
