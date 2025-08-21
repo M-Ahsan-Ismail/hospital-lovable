@@ -22,13 +22,13 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
   const getVariantClasses = () => {
     switch (variant) {
       case "cyan":
-        return "bg-modern-blue text-white hover:bg-modern-blue/90 focus:ring-modern-blue/30 shadow-lg shadow-modern-blue/25";
+        return "bg-neon-cyan text-dark hover:bg-neon-cyan/90 focus:ring-neon-cyan/20";
       case "magenta":
-        return "bg-modern-purple text-white hover:bg-modern-purple/90 focus:ring-modern-purple/30 shadow-lg shadow-modern-purple/25";
+        return "bg-neon-magenta text-white hover:bg-neon-magenta/90 focus:ring-neon-magenta/20";
       case "outline":
-        return "bg-transparent border-2 border-modern-blue text-modern-blue hover:bg-modern-blue/5";
+        return "bg-transparent border border-neon-cyan text-neon-cyan hover:bg-neon-cyan/10";
       default:
-        return "bg-modern-blue text-white hover:bg-modern-blue/90 focus:ring-modern-blue/30 shadow-lg shadow-modern-blue/25";
+        return "bg-neon-cyan text-dark hover:bg-neon-cyan/90 focus:ring-neon-cyan/20";
     }
   };
 
@@ -51,8 +51,8 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
         getVariantClasses(),
         getSizeClasses(),
         animated && "hover:scale-105 active:scale-95",
-        animated && variant === "cyan" && "hover:shadow-[0_0_25px_rgba(59,130,246,0.4)]",
-        animated && variant === "magenta" && "hover:shadow-[0_0_25px_rgba(168,85,247,0.4)]",
+        animated && variant === "cyan" && "hover:shadow-[0_0_20px_rgba(0,209,255,0.7)]",
+        animated && variant === "magenta" && "hover:shadow-[0_0_20px_rgba(255,0,122,0.7)]",
         className
       )}
       {...props}

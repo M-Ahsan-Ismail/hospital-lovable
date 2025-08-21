@@ -62,15 +62,13 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				light: {
-					DEFAULT: 'rgb(248 250 252)',
-					secondary: 'rgb(241 245 249)'
+				dark: {
+					DEFAULT: '#1C2526',
+					secondary: '#2D3A3E'
 				},
-				modern: {
-					blue: 'rgb(59 130 246)',
-					emerald: 'rgb(16 185 129)',
-					indigo: 'rgb(99 102 241)',
-					purple: 'rgb(168 85 247)',
+				neon: {
+					cyan: '#00D1FF',
+					magenta: '#FF007A',
 				}
 			},
 			borderRadius: {
