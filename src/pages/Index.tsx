@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import HexagonBackground from "@/components/HexagonBackground";
-import AnimatedButton from "@/components/AnimatedButton";
+import LightNavbar from "@/components/LightNavbar";
+import LightFooter from "@/components/LightFooter";
+import LightHexagonBackground from "@/components/LightHexagonBackground";
+import LightAnimatedButton from "@/components/LightAnimatedButton";
 import {
   Database,
   Stethoscope,
@@ -22,19 +22,6 @@ import {
   Lightbulb,
   Phone
 } from "lucide-react";
-
-// Modern light theme styles for landing page only
-const lightStyles = {
-  background: 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 50%, #e2e8f0 100%)',
-  primaryGradient: 'linear-gradient(135deg, #059669, #10b981)',
-  secondaryGradient: 'linear-gradient(135deg, #7c3aed, #a855f7)',
-  accentGradient: 'linear-gradient(135deg, #0ea5e9, #06b6d4)',
-  cardBackground: 'rgba(255, 255, 255, 0.95)',
-  cardBorder: 'rgba(203, 213, 225, 0.3)',
-  textPrimary: '#0f172a',
-  textSecondary: '#475569',
-  textMuted: '#64748b'
-};
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -108,22 +95,15 @@ const Index = () => {
   ];
   
   return (
-    <div 
-      className="min-h-screen flex flex-col overflow-hidden"
-      style={{ 
-        background: lightStyles.background,
-        minHeight: '100vh'
-      }}
-    >
-      <HexagonBackground />
-      <Navbar />
+    <div className="min-h-screen flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      <LightHexagonBackground />
+      <LightNavbar />
       
       {/* Hero Section */}
       <section ref={heroRef} className="pt-24 md:pt-32 relative min-h-[85vh] flex items-center">
         <div className="absolute inset-0 z-0">
           <motion.div 
-            className="absolute top-20 right-[10%] w-96 h-96 rounded-full opacity-10"
-            style={{ background: lightStyles.primaryGradient }}
+            className="absolute top-20 right-[10%] w-96 h-96 rounded-full opacity-10 bg-gradient-to-r from-emerald-400 to-emerald-600"
             animate={{
               scale: [1, 1.1, 1],
               opacity: [0.1, 0.15, 0.1],
@@ -136,8 +116,7 @@ const Index = () => {
           />
           
           <motion.div 
-            className="absolute bottom-[20%] left-[5%] w-80 h-80 rounded-full opacity-10"
-            style={{ background: lightStyles.secondaryGradient }}
+            className="absolute bottom-[20%] left-[5%] w-80 h-80 rounded-full opacity-10 bg-gradient-to-r from-purple-400 to-purple-600"
             animate={{
               scale: [1, 1.1, 1],
               opacity: [0.08, 0.12, 0.08],
@@ -170,36 +149,23 @@ const Index = () => {
                 transition={{ duration: 0.5 }}
                 className="mb-6"
               >
-                <span 
-                  className="px-6 py-2.5 rounded-full text-sm font-semibold tracking-wide inline-block border shadow-lg"
-                  style={{
-                    background: lightStyles.cardBackground,
-                    border: `1px solid ${lightStyles.cardBorder}`,
-                    color: lightStyles.textPrimary,
-                    backdropFilter: 'blur(10px)'
-                  }}
-                >
+                <span className="px-6 py-2.5 rounded-full text-sm font-semibold tracking-wide inline-block border shadow-lg bg-white/90 backdrop-blur-sm border-slate-200 text-slate-700">
                   Next-Gen Healthcare Platform
                 </span>
               </motion.div>
               
               <motion.h1 
-                className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight tracking-tight"
+                className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight tracking-tight text-slate-800"
                 variants={fadeIn}
                 custom={0}
-                style={{ color: lightStyles.textPrimary }}
               >
                 <span>Redefine </span>
                 <span className="relative inline-block">
-                  <span 
-                    className="bg-clip-text text-transparent"
-                    style={{ backgroundImage: lightStyles.primaryGradient }}
-                  >
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-emerald-600">
                     Patient Care
                   </span>
                   <motion.span 
-                    className="absolute -bottom-1 left-0 w-full h-1 rounded-full"
-                    style={{ backgroundImage: lightStyles.primaryGradient }}
+                    className="absolute -bottom-1 left-0 w-full h-1 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600"
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
                     transition={{ delay: 0.8, duration: 1 }}
@@ -208,10 +174,9 @@ const Index = () => {
               </motion.h1>
               
               <motion.p 
-                className="text-lg md:text-xl mb-10 max-w-xl leading-relaxed"
+                className="text-lg md:text-xl mb-10 max-w-xl leading-relaxed text-slate-600"
                 variants={fadeIn}
                 custom={1}
-                style={{ color: lightStyles.textSecondary }}
               >
                 Transform your healthcare facility with our intelligent patient management system. 
                 Secure, efficient, and designed for the future of medicine.
@@ -223,14 +188,13 @@ const Index = () => {
                 custom={2}
               >
                 <motion.button
-                  className="px-8 py-4 rounded-xl font-bold text-white shadow-xl transition-all duration-300 hover:shadow-2xl"
+                  className="px-8 py-4 rounded-xl font-bold text-white shadow-xl transition-all duration-300 hover:shadow-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700"
                   style={{ 
-                    backgroundImage: lightStyles.primaryGradient,
-                    boxShadow: '0 10px 25px rgba(5, 150, 105, 0.25)'
+                    boxShadow: '0 10px 25px rgba(16, 185, 129, 0.25)'
                   }}
                   whileHover={{ 
                     scale: 1.05,
-                    boxShadow: '0 15px 30px rgba(5, 150, 105, 0.35)'
+                    boxShadow: '0 15px 30px rgba(16, 185, 129, 0.35)'
                   }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => scrollToSection(ctaRef)}
@@ -252,19 +216,10 @@ const Index = () => {
                   whileTap={{ scale: 0.98 }}
                   className="flex items-center cursor-pointer group"
                 >
-                  <div 
-                    className="mr-3 rounded-full p-3 group-hover:shadow-lg transition-all backdrop-blur-sm border"
-                    style={{ 
-                      background: 'rgba(5, 150, 105, 0.1)',
-                      borderColor: 'rgba(5, 150, 105, 0.2)'
-                    }}
-                  >
+                  <div className="mr-3 rounded-full p-3 group-hover:shadow-lg transition-all backdrop-blur-sm border bg-emerald-50/80 border-emerald-200">
                     <Play size={16} className="text-emerald-600 fill-emerald-600 ml-0.5" />
                   </div>
-                  <span 
-                    className="group-hover:text-emerald-600 transition-colors font-semibold"
-                    style={{ color: lightStyles.textPrimary }}
-                  >
+                  <span className="group-hover:text-emerald-600 transition-colors font-semibold text-slate-700">
                     Watch Demo
                   </span>
                 </motion.div>
@@ -276,16 +231,10 @@ const Index = () => {
                 custom={3}
               >
                 <div className="flex space-x-2 mb-3 items-center">
-                  <span 
-                    className="text-sm font-medium"
-                    style={{ color: lightStyles.textMuted }}
-                  >
+                  <span className="text-sm font-medium text-slate-500">
                     Trusted by industry leaders
                   </span>
-                  <div 
-                    className="h-[1px] flex-1"
-                    style={{ background: `linear-gradient(to right, ${lightStyles.cardBorder}, transparent)` }}
-                  ></div>
+                  <div className="h-[1px] flex-1 bg-gradient-to-r from-slate-300 to-transparent"></div>
                 </div>
                 
                 <div className="flex flex-wrap gap-4">
@@ -315,12 +264,7 @@ const Index = () => {
             >
               <div className="relative">
                 <motion.div 
-                  className="w-80 h-80 md:w-[480px] md:h-[480px] rounded-2xl overflow-hidden relative shadow-2xl"
-                  style={{
-                    background: lightStyles.cardBackground,
-                    border: `1px solid ${lightStyles.cardBorder}`,
-                    backdropFilter: 'blur(20px)'
-                  }}
+                  className="w-80 h-80 md:w-[480px] md:h-[480px] rounded-2xl overflow-hidden relative shadow-2xl bg-white/95 backdrop-blur-md border border-slate-200"
                   initial={{ y: 20 }}
                   animate={{ 
                     y: [0, -10, 0],
@@ -332,13 +276,7 @@ const Index = () => {
                     ease: "easeInOut"
                   }}
                 >
-                  <div 
-                    className="absolute top-0 inset-x-0 h-14 border-b flex items-center px-6 z-20"
-                    style={{
-                      background: lightStyles.accentGradient,
-                      borderColor: lightStyles.cardBorder
-                    }}
-                  >
+                  <div className="absolute top-0 inset-x-0 h-14 border-b border-slate-200 flex items-center px-6 z-20 bg-gradient-to-r from-emerald-500 to-emerald-600">
                     <div className="flex space-x-2">
                       <div className="w-3 h-3 rounded-full bg-red-400"></div>
                       <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
@@ -349,27 +287,17 @@ const Index = () => {
                   
                   <div className="absolute top-14 inset-x-0 bottom-0 z-20 p-6 flex flex-col">
                     <motion.div 
-                      className="rounded-lg p-4 mb-6 shadow-sm"
-                      style={{
-                        background: lightStyles.cardBackground,
-                        border: `1px solid ${lightStyles.cardBorder}`
-                      }}
+                      className="rounded-lg p-4 mb-6 shadow-sm bg-white/90 border border-slate-200"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.8 }}
                     >
                       <div className="flex items-center justify-between mb-4">
                         <div>
-                          <div 
-                            className="font-semibold"
-                            style={{ color: lightStyles.textPrimary }}
-                          >
+                          <div className="font-semibold text-slate-800">
                             Patient Overview
                           </div>
-                          <div 
-                            className="text-sm"
-                            style={{ color: lightStyles.textMuted }}
-                          >
+                          <div className="text-sm text-slate-500">
                             Last 30 days
                           </div>
                         </div>
@@ -382,10 +310,9 @@ const Index = () => {
                         {[40, 65, 35, 85, 45, 55, 75, 50, 65, 70, 60, 80].map((height, i) => (
                           <motion.div 
                             key={i}
-                            className="rounded-sm"
+                            className="rounded-sm bg-gradient-to-t from-emerald-500 to-emerald-400"
                             style={{ 
-                              height: `${height}%`,
-                              backgroundImage: lightStyles.primaryGradient
+                              height: `${height}%`
                             }}
                             initial={{ height: 0 }}
                             animate={{ height: `${height}%` }}
@@ -396,32 +323,14 @@ const Index = () => {
                     </motion.div>
                     
                     <div className="grid grid-cols-2 gap-3">
-                      <div 
-                        className="rounded-lg p-3 shadow-sm"
-                        style={{
-                          background: 'rgba(59, 130, 246, 0.1)',
-                          border: '1px solid rgba(59, 130, 246, 0.2)'
-                        }}
-                      >
-                        <div 
-                          className="text-xs mb-1"
-                          style={{ color: lightStyles.textMuted }}
-                        >
+                      <div className="rounded-lg p-3 shadow-sm bg-blue-50/80 border border-blue-200">
+                        <div className="text-xs mb-1 text-slate-500">
                           Recovery Rate
                         </div>
                         <div className="text-blue-600 text-lg font-bold">94.2%</div>
                       </div>
-                      <div 
-                        className="rounded-lg p-3 shadow-sm"
-                        style={{
-                          background: 'rgba(139, 92, 246, 0.1)',
-                          border: '1px solid rgba(139, 92, 246, 0.2)'
-                        }}
-                      >
-                        <div 
-                          className="text-xs mb-1"
-                          style={{ color: lightStyles.textMuted }}
-                        >
+                      <div className="rounded-lg p-3 shadow-sm bg-purple-50/80 border border-purple-200">
+                        <div className="text-xs mb-1 text-slate-500">
                           Patient Satisfaction
                         </div>
                         <div className="text-purple-600 text-lg font-bold">96.8%</div>
@@ -436,7 +345,7 @@ const Index = () => {
       </section>
       
       {/* Features Section */}
-      <section ref={featuresRef} className="py-20 relative overflow-hidden">
+      <section ref={featuresRef} className="py-20 relative overflow-hidden bg-gradient-to-b from-white to-slate-50">
         <div className="container mx-auto px-4 relative z-10">
           <motion.div 
             className="text-center mb-16"
@@ -445,34 +354,17 @@ const Index = () => {
             transition={{ duration: 0.6 }}
           >
             <div className="inline-block mb-4">
-              <span 
-                className="px-6 py-2 rounded-full text-sm font-semibold tracking-wide inline-block shadow-lg"
-                style={{
-                  background: lightStyles.cardBackground,
-                  border: `1px solid ${lightStyles.cardBorder}`,
-                  color: lightStyles.textPrimary,
-                  backdropFilter: 'blur(10px)'
-                }}
-              >
+              <span className="px-6 py-2 rounded-full text-sm font-semibold tracking-wide inline-block shadow-lg bg-white/90 backdrop-blur-sm border border-slate-200 text-slate-700">
                 Powerful Tools
               </span>
             </div>
-            <h2 
-              className="text-4xl md:text-5xl font-bold mb-4 tracking-tight"
-              style={{ color: lightStyles.textPrimary }}
-            >
-              <span 
-                className="bg-clip-text text-transparent"
-                style={{ backgroundImage: lightStyles.primaryGradient }}
-              >
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight text-slate-800">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-emerald-600">
                 Comprehensive
               </span>{" "}
               Features
             </h2>
-            <p 
-              className="max-w-xl mx-auto text-lg"
-              style={{ color: lightStyles.textSecondary }}
-            >
+            <p className="max-w-xl mx-auto text-lg text-slate-600">
               Everything you need to streamline your workflow and elevate patient care.
             </p>
           </motion.div>
@@ -488,35 +380,38 @@ const Index = () => {
                 icon: Database,
                 title: "Patient Records",
                 description: "Securely store and access complete patient histories.",
-                gradient: "from-blue-500 to-blue-600"
+                gradient: "from-blue-500 to-blue-600",
+                bgColor: "bg-blue-50/80",
+                borderColor: "border-blue-200"
               },
               {
                 icon: Stethoscope,
                 title: "Disease Tracking",
                 description: "Monitor patient diagnoses and treatment progress.",
-                gradient: "from-purple-500 to-purple-600"
+                gradient: "from-purple-500 to-purple-600",
+                bgColor: "bg-purple-50/80",
+                borderColor: "border-purple-200"
               },
               {
                 icon: Clock,
                 title: "Visit History",
                 description: "Detailed logs of patient visits and appointments.",
-                gradient: "from-cyan-500 to-cyan-600"
+                gradient: "from-cyan-500 to-cyan-600",
+                bgColor: "bg-cyan-50/80",
+                borderColor: "border-cyan-200"
               },
               {
                 icon: Users,
                 title: "Multi-User Access",
                 description: "Role-based access for medical staff.",
-                gradient: "from-green-500 to-green-600"
+                gradient: "from-green-500 to-green-600",
+                bgColor: "bg-green-50/80",
+                borderColor: "border-green-200"
               }
             ].map((feature, index) => (
               <motion.div 
                 key={index} 
-                className="rounded-2xl transition-all duration-300 group overflow-hidden relative shadow-lg hover:shadow-xl"
-                style={{
-                  background: lightStyles.cardBackground,
-                  border: `1px solid ${lightStyles.cardBorder}`,
-                  backdropFilter: 'blur(20px)'
-                }}
+                className={`rounded-2xl transition-all duration-300 group overflow-hidden relative shadow-lg hover:shadow-xl bg-white/90 backdrop-blur-md border ${feature.borderColor}`}
                 variants={fadeIn}
                 custom={index}
                 whileHover={{
@@ -525,21 +420,13 @@ const Index = () => {
                 }}
               >
                 <div className="p-6 relative z-10">
-                  <div 
-                    className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.gradient} p-2.5 mb-5 flex items-center justify-center shadow-lg`}
-                  >
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.gradient} p-2.5 mb-5 flex items-center justify-center shadow-lg`}>
                     <feature.icon size={24} className="text-white" />
                   </div>
-                  <h3 
-                    className="text-xl font-semibold mb-3 group-hover:text-blue-600 transition-colors"
-                    style={{ color: lightStyles.textPrimary }}
-                  >
+                  <h3 className="text-xl font-semibold mb-3 group-hover:text-blue-600 transition-colors text-slate-800">
                     {feature.title}
                   </h3>
-                  <p 
-                    className="transition-colors"
-                    style={{ color: lightStyles.textSecondary }}
-                  >
+                  <p className="transition-colors text-slate-600">
                     {feature.description}
                   </p>
                 </div>
@@ -552,10 +439,7 @@ const Index = () => {
       {/* Testimonial Section */}
       <section 
         ref={successStoriesRef} 
-        className="py-20 relative overflow-hidden"
-        style={{
-          background: `linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.9) 100%)`
-        }}
+        className="py-20 relative overflow-hidden bg-gradient-to-b from-slate-50 to-white"
       >
         <div className="container mx-auto px-4 relative z-10">
           <motion.div 
@@ -565,14 +449,8 @@ const Index = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 
-              className="text-4xl md:text-5xl font-bold mb-4 tracking-tight"
-              style={{ color: lightStyles.textPrimary }}
-            >
-              <span 
-                className="bg-clip-text text-transparent"
-                style={{ backgroundImage: lightStyles.secondaryGradient }}
-              >
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight text-slate-800">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-purple-600">
                 Trusted by
               </span>{" "}
               Healthcare Leaders
@@ -587,12 +465,7 @@ const Index = () => {
             viewport={{ once: true }}
           >
             <motion.div 
-              className="rounded-2xl p-8 md:p-10 relative overflow-hidden shadow-xl"
-              style={{
-                background: lightStyles.cardBackground,
-                border: `1px solid ${lightStyles.cardBorder}`,
-                backdropFilter: 'blur(20px)'
-              }}
+              className="rounded-2xl p-8 md:p-10 relative overflow-hidden shadow-xl bg-white/95 backdrop-blur-md border border-slate-200"
               whileHover={{ 
                 boxShadow: "0 25px 50px rgba(139, 92, 246, 0.15)",
                 transition: { duration: 0.3 }
@@ -601,8 +474,7 @@ const Index = () => {
               <div className="flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-10">
                 <div className="flex-shrink-0">
                   <motion.div 
-                    className="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center text-white text-2xl font-bold relative overflow-hidden shadow-lg"
-                    style={{ backgroundImage: lightStyles.secondaryGradient }}
+                    className="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center text-white text-2xl font-bold relative overflow-hidden shadow-lg bg-gradient-to-r from-purple-500 to-purple-600"
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 400 }}
                   >
@@ -628,8 +500,7 @@ const Index = () => {
                   </div>
                   
                   <motion.p 
-                    className="text-lg md:text-xl mb-6 leading-relaxed italic"
-                    style={{ color: lightStyles.textPrimary }}
+                    className="text-lg md:text-xl mb-6 leading-relaxed italic text-slate-700"
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     transition={{ delay: 0.5, duration: 1 }}
@@ -638,17 +509,11 @@ const Index = () => {
                     "Since implementing MediSphere's platform, our practice has seen a remarkable transformation. Patient wait times have decreased by 35%, administrative tasks are more streamlined, and our medical team can focus more on delivering exceptional care."
                   </motion.p>
                   
-                  <div 
-                    className="border-t pt-6"
-                    style={{ borderColor: lightStyles.cardBorder }}
-                  >
-                    <h4 
-                      className="text-lg font-semibold bg-clip-text text-transparent"
-                      style={{ backgroundImage: lightStyles.secondaryGradient }}
-                    >
+                  <div className="border-t pt-6 border-slate-200">
+                    <h4 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-purple-600">
                       Dr. Usman Qamar
                     </h4>
-                    <p style={{ color: lightStyles.textMuted }}>
+                    <p className="text-slate-500">
                       Chief Medical Officer
                     </p>
                   </div>
@@ -662,20 +527,12 @@ const Index = () => {
       {/* CTA Section */}
       <section 
         ref={ctaRef} 
-        className="py-20 relative overflow-hidden"
-        style={{
-          background: `linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%)`
-        }}
+        className="py-20 relative overflow-hidden bg-gradient-to-b from-white to-slate-50"
       >
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto">
             <motion.div 
-              className="rounded-2xl p-10 relative overflow-hidden shadow-xl"
-              style={{
-                background: lightStyles.cardBackground,
-                border: `1px solid ${lightStyles.cardBorder}`,
-                backdropFilter: 'blur(20px)'
-              }}
+              className="rounded-2xl p-10 relative overflow-hidden shadow-xl bg-white/95 backdrop-blur-md border border-slate-200"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
@@ -683,25 +540,20 @@ const Index = () => {
             >
               <div className="text-center mb-10 relative z-10">
                 <motion.h2 
-                  className="text-3xl md:text-5xl font-bold mb-6 tracking-tight"
-                  style={{ color: lightStyles.textPrimary }}
+                  className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-slate-800"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
                   viewport={{ once: true }}
                 >
                   Ready to Transform Your 
-                  <span 
-                    className="bg-clip-text text-transparent block"
-                    style={{ backgroundImage: lightStyles.primaryGradient }}
-                  >
+                  <span className="bg-clip-text text-transparent block bg-gradient-to-r from-emerald-500 to-emerald-600">
                     Healthcare Practice?
                   </span>
                 </motion.h2>
                 
                 <motion.p 
-                  className="text-xl mb-10 max-w-2xl mx-auto"
-                  style={{ color: lightStyles.textSecondary }}
+                  className="text-xl mb-10 max-w-2xl mx-auto text-slate-600"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.1 }}
@@ -720,14 +572,13 @@ const Index = () => {
               >
                 <Link to="/signup">
                   <motion.button 
-                    className="px-8 py-4 rounded-xl font-semibold text-white shadow-xl transition-all duration-300"
+                    className="px-8 py-4 rounded-xl font-semibold text-white shadow-xl transition-all duration-300 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700"
                     style={{ 
-                      backgroundImage: lightStyles.primaryGradient,
-                      boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
+                      boxShadow: '0 10px 30px rgba(16, 185, 129, 0.3)'
                     }}
                     whileHover={{ 
                       scale: 1.05,
-                      boxShadow: '0 15px 35px rgba(59, 130, 246, 0.4)'
+                      boxShadow: '0 15px 35px rgba(16, 185, 129, 0.4)'
                     }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -740,25 +591,15 @@ const Index = () => {
                 
                 <a href="https://wa.me/923041998458" target="_blank" rel="noopener noreferrer">
                   <motion.button 
-                    className="px-8 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
-                    style={{
-                      background: lightStyles.cardBackground,
-                      border: `2px solid rgba(139, 92, 246, 0.3)`,
-                      color: lightStyles.textPrimary,
-                      backdropFilter: 'blur(10px)'
-                    }}
+                    className="px-8 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl bg-white/90 backdrop-blur-sm border-2 border-purple-300 text-slate-700 hover:border-purple-400"
                     whileHover={{ 
-                      scale: 1.05,
-                      borderColor: 'rgba(139, 92, 246, 0.5)'
+                      scale: 1.05
                     }}
                     whileTap={{ scale: 0.98 }}
                   >
                     <div className="flex items-center">
                       <Phone size={18} className="mr-2 text-purple-600" />
-                      <span 
-                        className="bg-clip-text text-transparent"
-                        style={{ backgroundImage: lightStyles.secondaryGradient }}
-                      >
+                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-purple-600">
                         Schedule Appointment
                       </span>
                     </div>
@@ -770,7 +611,7 @@ const Index = () => {
         </div>
       </section>
       
-      <Footer />
+      <LightFooter />
     </div>
   );
 };
